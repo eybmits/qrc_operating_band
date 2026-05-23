@@ -10,8 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.colors import Normalize
-from scipy.interpolate import griddata
+from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +40,7 @@ PHASE_VIOLET = PHASE_CMAP(0.82)
 PHASE_DARK = PHASE_CMAP(0.94)
 INK = "#1f2933"
 GRID = "#d9dee7"
+SOFT_GRID = "#eef1f5"
 
 KEYS = ["beta_pi", "lambda_pi", "gamma"]
 TASK_LABELS = {
@@ -123,6 +123,11 @@ def variant_label(v: str) -> str:
         "mixer_rx_only": "Rx only",
         "mixer_zz_only": "ZZ only",
     }.get(v, v)
+
+
+def phase_luminance(rgba) -> float:
+    r, g, b = rgba[:3]
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
 
 stats_path = DATA / "phase_map_generalization_stats.json"
@@ -215,38 +220,68 @@ ax = fig.add_subplot(gs[1, 0])
 transfer = pd.read_csv(DATA / "phase_map_task_seed_transfer_matrix.csv")
 task_order = ["mackey_glass", "lorenz", "narma10", "sunspots_annual"]
 mat = transfer.pivot(index="task", columns="seed", values="mean_val_rank").reindex(task_order)
-im = ax.imshow(mat.values, cmap="magma_r", vmin=0.05, vmax=0.45, aspect="auto")
+norm = plt.Normalize(vmin=0.04, vmax=0.54)
+im = ax.imshow(mat.values, cmap=PHASE_CMAP, norm=norm, aspect="auto", interpolation="nearest")
 ax.set_title("(c) primary-band task/seed transfer", fontsize=8.2, color=INK, pad=4)
 ax.set_yticks(np.arange(len(task_order)), [TASK_LABELS[t] for t in task_order])
-ax.set_xticks(np.arange(len(mat.columns)), [str(int(s)) for s in mat.columns], rotation=90)
-ax.tick_params(labelsize=6)
+ax.set_xticks(np.arange(len(mat.columns)), [str(int(s)) for s in mat.columns])
+ax.tick_params(axis="x", labelsize=5.7, length=0, pad=1.5, top=True, labeltop=True, bottom=False, labelbottom=False)
+ax.tick_params(axis="y", labelsize=6.2, length=0, pad=2.5)
+ax.set_xticks(np.arange(-0.5, mat.shape[1], 1), minor=True)
+ax.set_yticks(np.arange(-0.5, mat.shape[0], 1), minor=True)
+ax.grid(which="minor", color="white", linewidth=0.72, alpha=0.78)
+ax.tick_params(which="minor", bottom=False, left=False)
+for spine in ax.spines.values():
+    spine.set_visible(False)
 for i in range(mat.shape[0]):
     for j in range(mat.shape[1]):
         val = mat.values[i, j]
-        ax.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=4.7, color=INK if val < 0.33 else "white")
+        rgba = PHASE_CMAP(norm(val))
+        txt_color = INK if phase_luminance(rgba) > 0.48 else "white"
+        ax.text(j, i, f"{val:.2f}", ha="center", va="center", fontsize=4.45, color=txt_color, alpha=0.92)
 cbar = fig.colorbar(im, ax=ax, fraction=0.035, pad=0.015)
-cbar.ax.tick_params(labelsize=5, length=2)
-cbar.set_label("rank", fontsize=6)
+cbar.outline.set_visible(False)
+cbar.ax.tick_params(labelsize=5, length=2, width=0.55)
+cbar.set_label("rank (lower better)", fontsize=5.8)
 
 ax = fig.add_subplot(gs[1, 1])
 screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostics.csv")
-for col, color, lw in [
-    ("IPCtot", PHASE_GOLD, 1.8),
-    ("IPCmem", PHASE_CORAL, 1.4),
-    ("MC", PHASE_ROSE, 1.4),
-    ("Vfeat", PHASE_VIOLET, 1.1),
-    ("random", "#9ca3af", 1.0),
-]:
-    ax.plot(screen["budget_pct"], screen[col], label=col, color=color, lw=lw)
+curve_specs = [
+    ("IPCtot", r"IPC$_{\mathrm{tot}}$", PHASE_GOLD, 1.9, "-"),
+    ("MC", "MC", PHASE_ROSE, 1.7, "-"),
+    ("IPCmem", r"IPC$_{\mathrm{mem}}$", PHASE_CORAL, 1.7, "-"),
+    ("Vfeat", r"$V_{\mathrm{feat}}$", PHASE_VIOLET, 1.55, "-"),
+    ("random", "random", "#a8b0bd", 1.25, "--"),
+]
+x_dense = np.linspace(float(screen.budget_pct.min()), float(screen.budget_pct.max()), 260)
+for col, _, color, lw, ls in curve_specs:
+    y_dense = PchipInterpolator(screen["budget_pct"], screen[col])(x_dense)
+    ax.plot(x_dense, y_dense, color=color, lw=lw, ls=ls, solid_capstyle="round", alpha=0.98)
+    if col != "random":
+        ax.scatter(screen["budget_pct"], screen[col], s=5.5, color=color, edgecolor="white", linewidth=0.22, zorder=3)
 ax.set_title("(d) diagnostics recover the regime", fontsize=8.2, color=INK, pad=4)
 ax.set_xlabel("screening budget (%)", fontsize=7)
 ax.set_ylabel("top-decile retained (%)", fontsize=7)
-ax.set_xlim(5, 100)
+ax.set_xlim(5, 108)
 ax.set_ylim(-2, 104)
-ax.grid(color=GRID, linewidth=0.45, alpha=0.75)
+ax.set_xticks([20, 40, 60, 80, 100])
+ax.set_yticks([0, 25, 50, 75, 100])
+ax.grid(color=SOFT_GRID, linewidth=0.52, alpha=0.95)
+ax.set_axisbelow(True)
 ax.spines[["top", "right"]].set_visible(False)
+ax.spines["left"].set_color("#27313d")
+ax.spines["bottom"].set_color("#27313d")
 ax.tick_params(labelsize=6)
-ax.legend(frameon=False, fontsize=5.8, ncol=2, loc="lower right")
+inline_labels = {
+    "IPCtot": (46, 99),
+    "MC": (38, 93),
+    "IPCmem": (30, 78),
+    "Vfeat": (78, 93),
+    "random": (83, 80),
+}
+for col, label, color, _, _ in curve_specs:
+    x, y = inline_labels[col]
+    ax.text(x, y, label, color=color, fontsize=5.9, ha="left", va="center", clip_on=False)
 fig.suptitle("QRC-only evidence: phase atlas, mechanism stress tests, and diagnostics", fontsize=9.0, y=1.01, color=INK)
 savefig_dual(fig, "fig2_short_evidence", aliases=("fig2_phase_map_ablation_evidence",))
 
