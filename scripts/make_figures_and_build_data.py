@@ -39,9 +39,12 @@ def clean_axis(ax):
     ax.set_axisbelow(True)
 
 
-def savefig_dual(fig, stem):
+def savefig_dual(fig, stem, aliases=()):
     fig.savefig(GFX / f'{stem}.png', dpi=360, bbox_inches='tight')
     fig.savefig(GFX / f'{stem}.pdf', bbox_inches='tight')
+    for alias in aliases:
+        fig.savefig(GFX / f'{alias}.png', dpi=360, bbox_inches='tight')
+        fig.savefig(GFX / f'{alias}.pdf', bbox_inches='tight')
     plt.close(fig)
 
 # Load data
@@ -294,100 +297,119 @@ fig.savefig(GFX/'fig3_memory_capacity_screens.png',dpi=320,bbox_inches='tight')
 fig.savefig(GFX/'fig3_memory_capacity_screens.pdf',bbox_inches='tight')
 plt.close(fig)
 
-# Short-paper Figure 2: accuracy, robustness, controls, and diagnostic evidence.
+# Short-paper Figure 2: paired comparisons, deltas, controls, diagnostics.
 fig = plt.figure(figsize=(7.25, 4.85))
-gs = fig.add_gridspec(2, 2, hspace=0.55, wspace=0.34)
+gs = fig.add_gridspec(2, 2, hspace=0.52, wspace=0.40)
 axes = [fig.add_subplot(gs[i, j]) for i in range(2) for j in range(2)]
 
-# (a) Shared readout-dimension comparison.
+# (a) Seed-paired shared comparison as a slope plot.
 ax = axes[0]
-shared_labels = ['QRC16', 'ESN16', 'ESN100', 'QRC96']
-shared_vals = [
-    float(comp.set_index('method').loc['QRC grid shared', 'mean_test_nmse']),
-    float(comp.set_index('method').loc['ESN16 shared', 'mean_test_nmse']),
-    float(comp.set_index('method').loc['ESN100 shared', 'mean_test_nmse']),
-    float(q96sel.test_nmse.mean()),
-]
-shared_cols = ['#9ecae1', '#fdd49e', ESN_ORANGE, QRC_BLUE]
-bars = ax.bar(shared_labels, shared_vals, color=shared_cols, edgecolor='white', linewidth=0.9)
-ax.set_title('(a) Matched readout dimension', fontsize=8.2, color=INK, pad=4)
-ax.set_ylabel('holdout NMSE', fontsize=7.5)
-ax.set_ylim(0, 0.135)
-clean_axis(ax)
-ax.tick_params(axis='x', labelsize=7, rotation=20)
-ax.tick_params(axis='y', labelsize=7)
-for b, v in zip(bars, shared_vals):
-    ax.text(b.get_x() + b.get_width() / 2, v + 0.004, f'{v:.3f}', ha='center', va='bottom', fontsize=6.6)
+seed_pairs = pd.read_csv(DATA / 'qrc96_esn100_seed_pairs.csv').sort_values('seed')
+for _, row in seed_pairs.iterrows():
+    ax.plot([0, 1], [row.esn_mean_nmse, row.qrc_mean_nmse], color='#b9c2cf', lw=0.75, alpha=0.75, zorder=1)
+    ax.scatter([0, 1], [row.esn_mean_nmse, row.qrc_mean_nmse], s=9, color=['#f7b267', '#76a9cf'], edgecolor='white', linewidth=0.25, zorder=2)
+mean_esn = float(seed_pairs.esn_mean_nmse.mean())
+mean_qrc = float(seed_pairs.qrc_mean_nmse.mean())
+ax.plot([0, 1], [mean_esn, mean_qrc], color=INK, lw=2.0, zorder=4)
+ax.scatter([0, 1], [mean_esn, mean_qrc], s=38, color=[ESN_ORANGE, QRC_BLUE], edgecolor='white', linewidth=0.7, zorder=5)
+for x0, val, label in [(0, mean_esn, '0.090'), (1, mean_qrc, '0.077')]:
+    ax.text(x0, val + 0.0042, label, ha='center', va='bottom', fontsize=7.0, color=INK)
 ax.text(
     0.98,
-    0.93,
-    r'$\Delta=0.0134$' + '\n95% CI [0.008, 0.019]',
+    0.94,
+    r'10/10 seeds' + '\n' + r'$\Delta=0.0134$' + '\nCI [0.008, 0.019]',
     transform=ax.transAxes,
-    fontsize=6.1,
-    color=INK,
     ha='right',
     va='top',
-    bbox=dict(boxstyle='round,pad=0.22', facecolor='white', edgecolor='none', alpha=0.82),
+    fontsize=6.3,
+    color=INK,
+    bbox=dict(boxstyle='round,pad=0.25', facecolor='#f8fafc', edgecolor='#d7dde8', linewidth=0.4),
 )
+ax.set_xlim(-0.22, 1.22)
+ax.set_ylim(0.058, 0.108)
+ax.set_xticks([0, 1], ['ESN100', 'QRC96'])
+ax.set_ylabel('seed-mean holdout NMSE', fontsize=7.4)
+ax.set_title('(a) Shared selector, paired by seed', fontsize=8.2, color=INK, pad=4)
+ax.grid(axis='y', color=GRID, linewidth=0.45, alpha=0.78)
+ax.spines[['top', 'right']].set_visible(False)
+ax.tick_params(labelsize=7)
 
-# (b) Task-wise non-floor comparison.
+# (b) Task-wise non-floor deltas as a compact strip plot.
 ax = axes[1]
-tw = pd.read_csv(DATA / 'qrc96_esn100_taskwise_per_task.csv').set_index('task')
+tw_pairs = pd.read_csv(DATA / 'qrc96_esn100_taskwise_task_seed_pairs.csv')
 tasks_nf = ['narma10', 'sunspots_annual']
 labels_nf = ['NARMA10', 'Sunspots']
-x = np.arange(len(tasks_nf))
-width = 0.34
-esn_vals = [float(tw.loc[t, 'esn100_mean_nmse']) for t in tasks_nf]
-qrc_vals = [float(tw.loc[t, 'qrc96_mean_nmse']) for t in tasks_nf]
-ax.bar(x - width / 2, esn_vals, width, label='ESN100', color=ESN_ORANGE, edgecolor='white', linewidth=0.9)
-ax.bar(x + width / 2, qrc_vals, width, label='QRC96', color=QRC_BLUE, edgecolor='white', linewidth=0.9)
-ax.set_xticks(x, labels_nf)
-ax.set_ylim(0, 0.27)
-ax.set_title('(b) Non-floor task-wise comparison', fontsize=8.2, color=INK, pad=4)
-ax.set_ylabel('holdout NMSE', fontsize=7.5)
-ax.legend(frameon=False, fontsize=7, loc='center right')
-clean_axis(ax)
+ypos = np.array([1, 0])
+for y, task, label in zip(ypos, tasks_nf, labels_nf):
+    vals = tw_pairs[tw_pairs.task == task].delta_esn_minus_qrc.to_numpy(dtype=float)
+    jitter = np.linspace(-0.13, 0.13, len(vals))
+    colors = [QRC_BLUE if v > 0 else '#c2410c' for v in vals]
+    ax.scatter(vals, y + jitter, s=22, color=colors, edgecolor='white', linewidth=0.35, zorder=3)
+    mean = float(vals.mean())
+    ci = taskwise_stats['by_task'][task]['delta']
+    ax.plot([ci['ci95_low'], ci['ci95_high']], [y, y], color=INK, lw=1.25, zorder=2)
+    ax.scatter([mean], [y], marker='D', s=34, color='#ffb703', edgecolor=INK, linewidth=0.45, zorder=4)
+    wins = taskwise_stats['by_task'][task]['tests']['wins']
+    ax.text(mean + 0.008, y + 0.17, f'{mean:.3f}, {wins}/10', fontsize=6.6, color=INK, ha='left', va='center')
+ax.axvline(0, color=INK, lw=0.8)
+ax.axvspan(0, 0.125, color=QRC_BLUE, alpha=0.045, zorder=0)
+ax.set_yticks(ypos, labels_nf)
+ax.set_xlim(-0.03, 0.125)
+ax.set_xlabel(r'$\Delta$ holdout NMSE (ESN100 - QRC96)', fontsize=7.4)
+ax.set_title('(b) Non-floor task-wise deltas', fontsize=8.2, color=INK, pad=4)
+ax.grid(axis='x', color=GRID, linewidth=0.45, alpha=0.78)
+ax.spines[['top', 'right']].set_visible(False)
 ax.tick_params(labelsize=7)
-for i, task in enumerate(tasks_nf):
-    row = tw.loc[task]
-    ax.text(i, max(esn_vals[i], qrc_vals[i]) + 0.010, f"$\\Delta$={row.delta_esn_minus_qrc:.3f}\n{row.qrc96_wins_over_seeds}", ha='center', fontsize=6.6, color=INK)
 
-# (c) Mechanism controls.
+# (c) Mechanism controls as a log-scale lollipop plot.
 ax = axes[2]
 ctrl = data_controls.copy()
 ctrl['display'] = ['QRC96', 'Rx-ZZ-Rx', 'QRC16', 'Rx only', 'no mix', r'$\gamma=0$', 'dephase']
-ctrl_cols = [QRC_BLUE, '#7fb3d5', '#b39ddb', '#f6c177', '#ef8354', '#d1495b', '#8d99ae']
-ax.bar(np.arange(len(ctrl)), ctrl.value, color=ctrl_cols, edgecolor='white', linewidth=0.8)
-ax.set_yscale('log')
-ax.set_ylim(0.045, 1.7)
-ax.set_xticks(np.arange(len(ctrl)), ctrl.display, rotation=28, ha='right')
-ax.set_ylabel('holdout NMSE (log)', fontsize=7.5)
+ctrl = ctrl.sort_values('value', ascending=False).reset_index(drop=True)
+y = np.arange(len(ctrl))
+ctrl_cols = ['#8d99ae', '#d1495b', '#ef8354', '#f6c177', '#b39ddb', '#7fb3d5', QRC_BLUE]
+ax.hlines(y, 0.05, ctrl.value, color='#cbd5e1', linewidth=1.2, zorder=1)
+ax.scatter(ctrl.value, y, s=42, color=ctrl_cols[: len(ctrl)], edgecolor='white', linewidth=0.55, zorder=3)
+ax.axvline(float(q96sel.test_nmse.mean()), color=QRC_BLUE, lw=1.0, ls='--', alpha=0.85)
+ax.set_xscale('log')
+ax.set_xlim(0.045, 1.6)
+ax.set_yticks(y, ctrl.display)
+ax.invert_yaxis()
+ax.set_xlabel('holdout NMSE (log scale)', fontsize=7.4)
 ax.set_title('(c) Mechanism controls', fontsize=8.2, color=INK, pad=4)
-clean_axis(ax)
+for yi, val in zip(y, ctrl.value):
+    if val < 0.22 or val > 0.85:
+        ax.text(val * 1.08, yi, f'{val:.3f}', va='center', fontsize=6.3, color=INK)
+ax.grid(axis='x', color=GRID, linewidth=0.45, alpha=0.75)
+ax.spines[['top', 'right']].set_visible(False)
 ax.tick_params(labelsize=7)
-for i, v in enumerate(ctrl.value):
-    if i < 3:
-        ax.text(i, v * 1.14, f'{v:.3f}', ha='center', va='bottom', fontsize=6.4)
 
-# (d) Memory diagnostics.
+# (d) Memory diagnostics as a diverging coefficient plot.
 ax = axes[3]
 diag = pd.read_csv(DATA / 'qrc_real_current_diagnostic_spearman_named.csv')
 diag = diag.set_index('metric').reindex(['MC', 'IPCmem', 'IPCtot', 'IPCnonlin', 'Vfeat', 'reff']).reset_index()
+diag['display'] = ['MC', r'IPC$_m$', r'IPC$_t$', r'IPC$_n$', r'$V_f$', r'$r_e$']
 diag_values = diag['spearman_vs_val_rank'].to_numpy(dtype=float)
+y = np.arange(len(diag))
 colors = [QRC_BLUE if v < 0 else '#d62728' for v in diag_values]
-ax.bar(np.arange(len(diag)), diag_values, color=colors, edgecolor='white', linewidth=0.8)
-ax.axhline(0, color=INK, linewidth=0.7)
-ax.set_ylim(-1.0, 0.25)
-ax.set_xticks(np.arange(len(diag)), [r'MC', r'IPC$_m$', r'IPC$_t$', r'IPC$_n$', r'$V_f$', r'$r_e$'], rotation=22, ha='right')
-ax.set_ylabel(r'Spearman $\rho_s$', fontsize=7.5)
-ax.set_title('(d) Memory predicts low validation rank', fontsize=8.2, color=INK, pad=4)
-clean_axis(ax)
+ax.barh(y, diag_values, color=colors, edgecolor='white', linewidth=0.7, height=0.66)
+ax.axvline(0, color=INK, linewidth=0.75)
+ax.set_xlim(-1.0, 0.25)
+ax.set_yticks(y, diag.display)
+ax.invert_yaxis()
+ax.set_xlabel(r'Spearman $\rho_s$ vs. validation rank', fontsize=7.4)
+ax.set_title('(d) Memory diagnostics transfer', fontsize=8.2, color=INK, pad=4)
+for yi, val in zip(y, diag_values):
+    if val < 0:
+        ax.text(-0.035, yi, f'{val:.2f}', ha='right', va='center', fontsize=6.4, color='white')
+    else:
+        ax.text(val + 0.025, yi, f'{val:.2f}', ha='left', va='center', fontsize=6.4, color=INK)
+ax.grid(axis='x', color=GRID, linewidth=0.45, alpha=0.75)
+ax.spines[['top', 'right']].set_visible(False)
 ax.tick_params(labelsize=7)
-for i, v in enumerate(diag_values):
-    ax.text(i, v + 0.035 if v < 0 else v + 0.035, f'{v:.2f}', ha='center', va='bottom', fontsize=6.2)
 
-fig.suptitle('Supporting evidence: accuracy, controls, and memory diagnostics', fontsize=9.0, y=1.005, color=INK)
-savefig_dual(fig, 'fig2_short_evidence')
+fig.suptitle('Supporting evidence: paired gains, task-wise deltas, and mechanisms', fontsize=9.0, y=1.005, color=INK)
+savefig_dual(fig, 'fig2_short_evidence', aliases=('fig2_regime_beats_esn_controls',))
 
 # store figure numbers and summary
 summary={
