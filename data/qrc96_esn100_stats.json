@@ -5,12 +5,12 @@
   "qrc96_selected": {
     "model": "QRC96",
     "selection": "mean validation NMSE across all tasks and seeds",
-    "beta_pi": 0.02,
+    "beta_pi": 0.015,
     "lambda_pi": 0.1,
     "gamma": 0.08,
     "features": 96,
-    "mean_val_nmse": 0.06670796497757622,
-    "mean_holdout_nmse": 0.07768925554710517,
+    "mean_val_nmse": 0.06667171566093594,
+    "mean_holdout_nmse": 0.07694429835846507,
     "rows": 40
   },
   "esn100_selected": {
@@ -29,19 +29,25 @@
     "beta_pi": [
       0.005,
       0.01,
-      0.02
+      0.015,
+      0.02,
+      0.03
     ],
     "lambda_pi": [
+      0.035,
       0.05,
       0.075,
-      0.1
+      0.1,
+      0.125
     ],
     "gamma": [
       0.05,
       0.08,
-      0.12
+      0.1,
+      0.12,
+      0.16
     ],
-    "rows": 1080
+    "rows": 5000
   },
   "esn100_grid": {
     "units": [
@@ -79,12 +85,12 @@
     1000.0
   ],
   "seed_level": {
-    "qrc96_mean_holdout_nmse": 0.07768925554710515,
+    "qrc96_mean_holdout_nmse": 0.07694429835846507,
     "esn100_mean_holdout_nmse": 0.09033359418003997,
     "delta": {
-      "mean": 0.01264433863293481,
-      "ci95_low": 0.007527776569199887,
-      "ci95_high": 0.017961484896988997,
+      "mean": 0.013389295821574897,
+      "ci95_low": 0.008202319188585463,
+      "ci95_high": 0.018672818414763283,
       "draws": 50000,
       "seed": 20260523
     },
@@ -100,12 +106,12 @@
     }
   },
   "task_seed_level": {
-    "qrc96_mean_holdout_nmse": 0.07768925554710517,
+    "qrc96_mean_holdout_nmse": 0.07694429835846509,
     "esn100_mean_holdout_nmse": 0.09033359418003997,
     "delta": {
-      "mean": 0.01264433863293481,
-      "ci95_low": -0.0035330468746464583,
-      "ci95_high": 0.030097527822814482,
+      "mean": 0.0133892958215749,
+      "ci95_low": -0.0020963568344606024,
+      "ci95_high": 0.030227490033283143,
       "draws": 50000,
       "seed": 20260523
     },
@@ -114,8 +120,8 @@
       "wins": 10,
       "losses": 30,
       "ties": 0,
-      "wilcoxon_greater_p": 0.7975311301752299,
-      "wilcoxon_two_sided_p": 0.4125340336249792,
+      "wilcoxon_greater_p": 0.7860140523589507,
+      "wilcoxon_two_sided_p": 0.4358124383925315,
       "sign_greater_p": 0.9996602258725034,
       "sign_two_sided_p": 0.0022214337732293643
     }
@@ -124,8 +130,8 @@
     {
       "task": "lorenz",
       "esn100_mean_nmse": 1.0633628599231741e-08,
-      "qrc96_mean_nmse": 8.320236499268152e-06,
-      "delta_esn_minus_qrc": -8.309602870668922e-06,
+      "qrc96_mean_nmse": 1.291244485645884e-05,
+      "delta_esn_minus_qrc": -1.2901811227859607e-05,
       "qrc96_wins": 0,
       "seeds": 10,
       "qrc96_wins_over_seeds": "0/10"
@@ -133,8 +139,8 @@
     {
       "task": "mackey_glass",
       "esn100_mean_nmse": 7.713065670368375e-07,
-      "qrc96_mean_nmse": 1.642224087748756e-05,
-      "delta_esn_minus_qrc": -1.5650934310450724e-05,
+      "qrc96_mean_nmse": 2.1949024403400154e-05,
+      "delta_esn_minus_qrc": -2.117771783636332e-05,
       "qrc96_wins": 0,
       "seeds": 10,
       "qrc96_wins_over_seeds": "0/10"
@@ -142,8 +148,8 @@
     {
       "task": "narma10",
       "esn100_mean_nmse": 0.21611944798508653,
-      "qrc96_mean_nmse": 0.11978191869052209,
-      "delta_esn_minus_qrc": 0.09633752929456445,
+      "qrc96_mean_nmse": 0.122001733683298,
+      "delta_esn_minus_qrc": 0.09411771430178852,
       "qrc96_wins": 10,
       "seeds": 10,
       "qrc96_wins_over_seeds": "10/10"
@@ -151,8 +157,8 @@
     {
       "task": "sunspots_annual",
       "esn100_mean_nmse": 0.1452141467948777,
-      "qrc96_mean_nmse": 0.19095036102052182,
-      "delta_esn_minus_qrc": -0.0457362142256441,
+      "qrc96_mean_nmse": 0.1857405982813024,
+      "delta_esn_minus_qrc": -0.04052645148642469,
       "qrc96_wins": 0,
       "seeds": 10,
       "qrc96_wins_over_seeds": "0/10"

@@ -23,6 +23,7 @@ This runs:
 ```bash
 python -m compileall -q scripts
 python scripts/analyze_qrc96_esn100.py
+python scripts/analyze_qrc96_esn100_taskwise.py
 python scripts/make_figures_and_build_data.py
 python scripts/make_qrc_v6_with_real_diagnostics.py
 ./paper/build.sh
@@ -31,9 +32,12 @@ python scripts/make_qrc_v6_with_real_diagnostics.py
 Expected outputs include:
 
 - `data/qrc96_esn100_stats.json`
+- `data/qrc96_esn100_taskwise_stats.json`
 - `data/qrc96_esn100_per_task.csv`
+- `data/qrc96_esn100_taskwise_per_task.csv`
 - `data/qrc96_esn100_seed_pairs.csv`
 - `paper/generated/qrc96_esn100_numbers.tex`
+- `paper/generated/qrc96_taskwise_numbers.tex`
 - `data/final_summary_numbers.json`
 - `data/screening_retention_recomputed_intrinsic_diagnostics.csv`
 - `data/qrc_real_current_diagnostic_spearman_named.csv`
@@ -72,27 +76,34 @@ python scripts/compute_qrc_real_diagnostics_chunk.py 300 600
 
 Chunk outputs are written under `data/diag_parts/`.
 
-## QRC96 Local Refinement Recompute
+## QRC96 Same-Architecture Refinement Recompute
 
-The final QRC96/ESN100 comparison uses a frozen local QRC96 grid inside the QRC16-discovered operating regime:
+The final QRC96/ESN100 comparison uses an expanded local QRC96 grid inside the QRC16-discovered operating regime. The architecture is fixed to four qubits, two layers, ring topology, `rx_zz_rx` mixer, uniform input, amplitude damping, QRC96 Pauli-ring readout, and ridge-only training:
 
 ```bash
-python scripts/run_qrc96_local_refinement.py --overwrite
+python scripts/run_qrc96_same_arch_expanded.py --overwrite
 python scripts/analyze_qrc96_esn100.py
+python scripts/analyze_qrc96_esn100_taskwise.py
 ```
 
 This writes:
 
-- `data/qrc96_local_refinement_grid.csv`
-- `data/qrc96_local_refinement_metadata.json`
+- `data/qrc96_same_arch_expanded_grid.csv`
+- `data/qrc96_same_arch_expanded_metadata.json`
 - `data/qrc96_esn100_stats.json`
+- `data/qrc96_esn100_taskwise_stats.json`
 - `data/qrc96_esn100_per_task.csv`
+- `data/qrc96_esn100_taskwise_per_task.csv`
 - `data/qrc96_esn100_seed_pairs.csv`
+- `data/qrc96_esn100_taskwise_seed_pairs.csv`
 - `data/qrc96_esn100_task_seed_pairs.csv`
+- `data/qrc96_esn100_taskwise_task_seed_pairs.csv`
 - `data/qrc96_esn100_selected_configs.csv`
+- `data/qrc96_esn100_taskwise_selected_configs.csv`
 - `paper/generated/qrc96_esn100_numbers.tex`
+- `paper/generated/qrc96_taskwise_numbers.tex`
 
-The analysis selects QRC96 and ESN100 only by mean validation NMSE across tasks and seeds, then computes holdout NMSE and paired tests for the selected configurations.
+The shared analysis selects QRC96 and ESN100 only by mean validation NMSE across tasks and seeds. The task-wise analysis selects one QRC96 and one ESN100 setting per task by mean validation NMSE across seeds. Both analyses compute holdout NMSE and paired tests only after selection.
 
 ## Simulator Smoke Test
 

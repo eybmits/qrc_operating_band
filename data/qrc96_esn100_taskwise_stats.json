@@ -1,0 +1,337 @@
+{
+  "delta_definition": "Delta = holdout NMSE_ESN100 - holdout NMSE_QRC96; positive values favor QRC96.",
+  "selection": "task-wise mean validation NMSE across seeds; no holdout values are used for selection.",
+  "architecture_lock": {
+    "n": 4,
+    "layers": 2,
+    "topology": "ring",
+    "mixer": "rx_zz_rx",
+    "input_mode": "uniform",
+    "channel": "amplitude",
+    "readout": "local Pauli expectations plus ring-pair Pauli correlations after each layer",
+    "trained_parameters": "ridge readout only"
+  },
+  "qrc96_grid": {
+    "beta_pi": [
+      0.005,
+      0.01,
+      0.015,
+      0.02,
+      0.03
+    ],
+    "lambda_pi": [
+      0.035,
+      0.05,
+      0.075,
+      0.1,
+      0.125
+    ],
+    "gamma": [
+      0.05,
+      0.08,
+      0.1,
+      0.12,
+      0.16
+    ],
+    "rows": 5000
+  },
+  "esn100_grid": {
+    "units": [
+      100
+    ],
+    "spectral_radius": [
+      0.5,
+      0.9,
+      1.1
+    ],
+    "input_scale": [
+      0.1,
+      0.5,
+      1.0
+    ],
+    "leak": [
+      0.3,
+      0.7,
+      1.0
+    ],
+    "rows": 1080
+  },
+  "by_task": {
+    "mackey_glass": {
+      "delta": {
+        "mean": -8.811846526640568e-06,
+        "ci95_low": -1.1593538316487476e-05,
+        "ci95_high": -6.134180696614723e-06,
+        "draws": 50000,
+        "seed": 20260523
+      },
+      "tests": {
+        "n": 10,
+        "wins": 0,
+        "losses": 10,
+        "ties": 0,
+        "wilcoxon_greater_p": 1.0,
+        "wilcoxon_two_sided_p": 0.001953125,
+        "sign_greater_p": 1.0,
+        "sign_two_sided_p": 0.001953125
+      },
+      "qrc_selected": {
+        "model": "QRC96",
+        "task": "mackey_glass",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "beta_pi": 0.03,
+        "lambda_pi": 0.125,
+        "gamma": 0.08,
+        "features": 96,
+        "mean_val_nmse": 7.87007806577611e-06,
+        "mean_holdout_nmse": 9.583153093677405e-06,
+        "rows": 10
+      },
+      "esn100_selected": {
+        "model": "ESN100",
+        "task": "mackey_glass",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "units": 100,
+        "spectral_radius": 0.9,
+        "input_scale": 0.1,
+        "leak": 1.0,
+        "features": 100,
+        "mean_val_nmse": 6.379816628281546e-07,
+        "mean_holdout_nmse": 7.713065670368375e-07,
+        "rows": 10
+      }
+    },
+    "lorenz": {
+      "delta": {
+        "mean": -2.3888946243573108e-06,
+        "ci95_low": -3.1480547952291034e-06,
+        "ci95_high": -1.6686225890085435e-06,
+        "draws": 50000,
+        "seed": 20260523
+      },
+      "tests": {
+        "n": 10,
+        "wins": 0,
+        "losses": 10,
+        "ties": 0,
+        "wilcoxon_greater_p": 1.0,
+        "wilcoxon_two_sided_p": 0.001953125,
+        "sign_greater_p": 1.0,
+        "sign_two_sided_p": 0.001953125
+      },
+      "qrc_selected": {
+        "model": "QRC96",
+        "task": "lorenz",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "beta_pi": 0.03,
+        "lambda_pi": 0.125,
+        "gamma": 0.12,
+        "features": 96,
+        "mean_val_nmse": 6.086117636642595e-06,
+        "mean_holdout_nmse": 2.392212746023989e-06,
+        "rows": 10
+      },
+      "esn100_selected": {
+        "model": "ESN100",
+        "task": "lorenz",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "units": 100,
+        "spectral_radius": 0.5,
+        "input_scale": 0.5,
+        "leak": 1.0,
+        "features": 100,
+        "mean_val_nmse": 4.1097922650149014e-09,
+        "mean_holdout_nmse": 3.3181216666786307e-09,
+        "rows": 10
+      }
+    },
+    "narma10": {
+      "delta": {
+        "mean": 0.09175979481024618,
+        "ci95_low": 0.07167119905159536,
+        "ci95_high": 0.11204758141029429,
+        "draws": 50000,
+        "seed": 20260523
+      },
+      "tests": {
+        "n": 10,
+        "wins": 10,
+        "losses": 0,
+        "ties": 0,
+        "wilcoxon_greater_p": 0.0009765625,
+        "wilcoxon_two_sided_p": 0.001953125,
+        "sign_greater_p": 0.0009765625,
+        "sign_two_sided_p": 0.001953125
+      },
+      "qrc_selected": {
+        "model": "QRC96",
+        "task": "narma10",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "beta_pi": 0.02,
+        "lambda_pi": 0.125,
+        "gamma": 0.08,
+        "features": 96,
+        "mean_val_nmse": 0.11562764452054615,
+        "mean_holdout_nmse": 0.12435965317484035,
+        "rows": 10
+      },
+      "esn100_selected": {
+        "model": "ESN100",
+        "task": "narma10",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "units": 100,
+        "spectral_radius": 0.9,
+        "input_scale": 0.1,
+        "leak": 1.0,
+        "features": 100,
+        "mean_val_nmse": 0.14626042814074985,
+        "mean_holdout_nmse": 0.21611944798508653,
+        "rows": 10
+      }
+    },
+    "sunspots_annual": {
+      "delta": {
+        "mean": 0.021469539332965745,
+        "ci95_low": -0.0007304909485229986,
+        "ci95_high": 0.05474116626694818,
+        "draws": 50000,
+        "seed": 20260523
+      },
+      "tests": {
+        "n": 10,
+        "wins": 6,
+        "losses": 4,
+        "ties": 0,
+        "wilcoxon_greater_p": 0.1376953125,
+        "wilcoxon_two_sided_p": 0.275390625,
+        "sign_greater_p": 0.376953125,
+        "sign_two_sided_p": 0.75390625
+      },
+      "qrc_selected": {
+        "model": "QRC96",
+        "task": "sunspots_annual",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "beta_pi": 0.01,
+        "lambda_pi": 0.035,
+        "gamma": 0.1,
+        "features": 96,
+        "mean_val_nmse": 0.14518570834297076,
+        "mean_holdout_nmse": 0.18475051834475992,
+        "rows": 10
+      },
+      "esn100_selected": {
+        "model": "ESN100",
+        "task": "sunspots_annual",
+        "selection": "task-wise mean validation NMSE across seeds",
+        "units": 100,
+        "spectral_radius": 0.5,
+        "input_scale": 0.1,
+        "leak": 0.3,
+        "features": 100,
+        "mean_val_nmse": 0.17339287208968318,
+        "mean_holdout_nmse": 0.2062200576777257,
+        "rows": 10
+      }
+    }
+  },
+  "seed_level_all_tasks": {
+    "qrc96_mean_holdout_nmse": 0.07728053672136001,
+    "esn100_mean_holdout_nmse": 0.10558507007187523,
+    "delta": {
+      "mean": 0.02830453335051523,
+      "ci95_low": 0.021801119392315386,
+      "ci95_high": 0.03671399688079307,
+      "draws": 50000,
+      "seed": 20260523
+    },
+    "tests": {
+      "n": 10,
+      "wins": 10,
+      "losses": 0,
+      "ties": 0,
+      "wilcoxon_greater_p": 0.0009765625,
+      "wilcoxon_two_sided_p": 0.001953125,
+      "sign_greater_p": 0.0009765625,
+      "sign_two_sided_p": 0.001953125
+    }
+  },
+  "non_floor_tasks": [
+    "narma10",
+    "sunspots_annual"
+  ],
+  "non_floor_summary": {
+    "qrc96_mean_holdout_nmse": 0.15455508575980015,
+    "esn100_mean_holdout_nmse": 0.2111697528314061,
+    "delta": {
+      "mean": 0.05661466707160597,
+      "ci95_low": 0.033633591856251276,
+      "ci95_high": 0.08068080538440614,
+      "draws": 50000,
+      "seed": 20260523
+    },
+    "tests": {
+      "n": 20,
+      "wins": 16,
+      "losses": 4,
+      "ties": 0,
+      "wilcoxon_greater_p": 0.00016117095947265625,
+      "wilcoxon_two_sided_p": 0.0003223419189453125,
+      "sign_greater_p": 0.005908966064453125,
+      "sign_two_sided_p": 0.01181793212890625
+    }
+  },
+  "per_task": [
+    {
+      "task": "mackey_glass",
+      "esn100_mean_nmse": 7.713065670368375e-07,
+      "qrc96_mean_nmse": 9.583153093677405e-06,
+      "delta_esn_minus_qrc": -8.811846526640568e-06,
+      "qrc96_wins": 0,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "0/10",
+      "qrc96_selected_short": "0.030/0.125/0.080",
+      "esn100_selected_short": "0.9/0.1/1.0"
+    },
+    {
+      "task": "lorenz",
+      "esn100_mean_nmse": 3.3181216666786307e-09,
+      "qrc96_mean_nmse": 2.392212746023989e-06,
+      "delta_esn_minus_qrc": -2.3888946243573108e-06,
+      "qrc96_wins": 0,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "0/10",
+      "qrc96_selected_short": "0.030/0.125/0.120",
+      "esn100_selected_short": "0.5/0.5/1.0"
+    },
+    {
+      "task": "narma10",
+      "esn100_mean_nmse": 0.21611944798508653,
+      "qrc96_mean_nmse": 0.12435965317484036,
+      "delta_esn_minus_qrc": 0.09175979481024618,
+      "qrc96_wins": 10,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "10/10",
+      "qrc96_selected_short": "0.020/0.125/0.080",
+      "esn100_selected_short": "0.9/0.1/1.0"
+    },
+    {
+      "task": "sunspots_annual",
+      "esn100_mean_nmse": 0.2062200576777257,
+      "qrc96_mean_nmse": 0.18475051834475992,
+      "delta_esn_minus_qrc": 0.021469539332965745,
+      "qrc96_wins": 6,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "6/10",
+      "qrc96_selected_short": "0.010/0.035/0.100",
+      "esn100_selected_short": "0.5/0.1/0.3"
+    }
+  ],
+  "gates": {
+    "narma10_strong": true,
+    "sunspots_mean_lower": true,
+    "sunspots_seed_gate": false,
+    "sunspots_ci_mostly_positive": true,
+    "sunspots_full_gate": true,
+    "non_floor_claim_allowed": true
+  }
+}

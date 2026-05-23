@@ -1,0 +1,9 @@
+model,task,selection,beta_pi,lambda_pi,gamma,features,mean_val_nmse,mean_holdout_nmse,rows,units,spectral_radius,input_scale,leak
+QRC96,mackey_glass,task-wise mean validation NMSE across seeds,0.03,0.125,0.08,96,7.87007806577611e-06,9.583153093677405e-06,10,,,,
+ESN100,mackey_glass,task-wise mean validation NMSE across seeds,,,,100,6.379816628281546e-07,7.713065670368375e-07,10,100.0,0.9,0.1,1.0
+QRC96,lorenz,task-wise mean validation NMSE across seeds,0.03,0.125,0.12,96,6.086117636642595e-06,2.392212746023989e-06,10,,,,
+ESN100,lorenz,task-wise mean validation NMSE across seeds,,,,100,4.1097922650149014e-09,3.3181216666786307e-09,10,100.0,0.5,0.5,1.0
+QRC96,narma10,task-wise mean validation NMSE across seeds,0.02,0.125,0.08,96,0.11562764452054615,0.12435965317484035,10,,,,
+ESN100,narma10,task-wise mean validation NMSE across seeds,,,,100,0.14626042814074985,0.21611944798508653,10,100.0,0.9,0.1,1.0
+QRC96,sunspots_annual,task-wise mean validation NMSE across seeds,0.01,0.035,0.1,96,0.14518570834297076,0.18475051834475992,10,,,,
+ESN100,sunspots_annual,task-wise mean validation NMSE across seeds,,,,100,0.17339287208968318,0.2062200576777257,10,100.0,0.5,0.1,0.3

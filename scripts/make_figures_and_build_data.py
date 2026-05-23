@@ -31,6 +31,10 @@ stats_path=DATA/'qrc96_esn100_stats.json'
 if not stats_path.exists():
     raise FileNotFoundError(f"Missing {stats_path}; run scripts/analyze_qrc96_esn100.py first.")
 qrc_stats=json.loads(stats_path.read_text())
+taskwise_stats_path=DATA/'qrc96_esn100_taskwise_stats.json'
+if not taskwise_stats_path.exists():
+    raise FileNotFoundError(f"Missing {taskwise_stats_path}; run scripts/analyze_qrc96_esn100_taskwise.py first.")
+taskwise_stats=json.loads(taskwise_stats_path.read_text())
 qrc_selected=qrc_stats['qrc96_selected']
 esn_selected=qrc_stats['esn100_selected']
 q['replicate']=q.task+'__seed'+q.seed.astype(str)
@@ -91,7 +95,7 @@ plt.close(fig)
 
 # Figure 2: ESN comparison + controls
 comp=pd.read_csv(DATA/'final_qrc_esn_comparison.csv')
-q96=pd.read_csv(DATA/'qrc96_local_refinement_grid.csv')
+q96=pd.read_csv(DATA/'qrc96_same_arch_expanded_grid.csv')
 q96sel=q96[
     (np.isclose(q96.beta_pi,float(qrc_selected['beta_pi'])))&
     (np.isclose(q96.lambda_pi,float(qrc_selected['lambda_pi'])))&
@@ -127,14 +131,15 @@ axes[0].set_ylabel('holdout NMSE')
 axes[0].set_ylim(0,0.135)
 for i,v in enumerate(vals): axes[0].text(i,v+0.004,f'{v:.3f}',ha='center',va='bottom',fontsize=8)
 axes[0].tick_params(axis='x',rotation=25,labelsize=8)
-# (b) per task
-pt_q=q96sel.groupby('task').test_nmse.mean().reindex(['mackey_glass','lorenz','narma10','sunspots_annual'])
-pt_e=esnsel.groupby('task').test_nmse.mean().reindex(pt_q.index)
+# (b) task-wise selected per task
+taskwise_pt=pd.read_csv(DATA/'qrc96_esn100_taskwise_per_task.csv').set_index('task').reindex(['mackey_glass','lorenz','narma10','sunspots_annual'])
+pt_q=taskwise_pt.qrc96_mean_nmse
+pt_e=taskwise_pt.esn100_mean_nmse
 x=np.arange(len(pt_q)); width=0.36
 axes[1].bar(x-width/2,pt_e.values,width,label='ESN100',color='#fb6a4a',edgecolor='black',linewidth=0.25)
 axes[1].bar(x+width/2,pt_q.values,width,label='QRC96',color='#2b8cbe',edgecolor='black',linewidth=0.25)
 axes[1].set_xticks(x,['MG','Lorenz','NARMA10','Sunspots'],rotation=25,ha='right',fontsize=8)
-axes[1].set_title('(b) per-task holdout',fontsize=10); axes[1].set_ylabel('holdout NMSE'); axes[1].set_ylim(0,0.24); axes[1].legend(frameon=False,fontsize=8)
+axes[1].set_title('(b) task-wise selected holdout',fontsize=10); axes[1].set_ylabel('holdout NMSE'); axes[1].set_ylim(0,0.24); axes[1].legend(frameon=False,fontsize=8)
 # (c) seed means
 seed_pairs=pd.read_csv(DATA/'qrc96_esn100_seed_pairs.csv')
 qseed=seed_pairs.set_index('seed').qrc_mean_nmse
@@ -228,6 +233,12 @@ summary={
  'qrc96_esn100_seed_delta_ci95_high': float(qrc_stats['seed_level']['delta']['ci95_high']),
  'qrc96_esn100_seed_wilcoxon_greater_p': float(qrc_stats['seed_level']['tests']['wilcoxon_greater_p']),
  'qrc96_esn100_seed_sign_greater_p': float(qrc_stats['seed_level']['tests']['sign_greater_p']),
+ 'qrc96_taskwise_non_floor_delta_mean': float(taskwise_stats['non_floor_summary']['delta']['mean']),
+ 'qrc96_taskwise_non_floor_delta_ci95_low': float(taskwise_stats['non_floor_summary']['delta']['ci95_low']),
+ 'qrc96_taskwise_non_floor_delta_ci95_high': float(taskwise_stats['non_floor_summary']['delta']['ci95_high']),
+ 'qrc96_taskwise_sunspots_delta_mean': float(taskwise_stats['by_task']['sunspots_annual']['delta']['mean']),
+ 'qrc96_taskwise_sunspots_wins': int(taskwise_stats['by_task']['sunspots_annual']['tests']['wins']),
+ 'qrc96_taskwise_non_floor_claim_allowed': bool(taskwise_stats['gates']['non_floor_claim_allowed']),
 }
 (DATA/'final_summary_numbers.json').write_text(json.dumps(summary,indent=2))
 print(json.dumps(summary,indent=2))

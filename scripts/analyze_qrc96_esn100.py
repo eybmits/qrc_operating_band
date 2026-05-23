@@ -13,8 +13,8 @@ from scipy.stats import binomtest, wilcoxon
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
 
-QRC_PATH = DATA / "qrc96_local_refinement_grid.csv"
-QRC_METADATA_PATH = DATA / "qrc96_local_refinement_metadata.json"
+QRC_PATH = DATA / "qrc96_same_arch_expanded_grid.csv"
+QRC_METADATA_PATH = DATA / "qrc96_same_arch_expanded_metadata.json"
 ESN_PATH = DATA / "esn_candidate_performance.csv"
 STATS_PATH = DATA / "qrc96_esn100_stats.json"
 PER_TASK_PATH = DATA / "qrc96_esn100_per_task.csv"
@@ -200,7 +200,7 @@ def write_latex_macros(stats: Dict[str, Any], per_task: pd.DataFrame) -> None:
 
 def main() -> None:
     if not QRC_PATH.exists():
-        raise SystemExit(f"Missing {QRC_PATH}; run scripts/run_qrc96_local_refinement.py first.")
+        raise SystemExit(f"Missing {QRC_PATH}; run scripts/run_qrc96_same_arch_expanded.py first.")
     qrc = pd.read_csv(QRC_PATH)
     esn = pd.read_csv(ESN_PATH)
     qmeta = load_qrc_metadata()
