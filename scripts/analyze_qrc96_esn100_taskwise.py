@@ -214,6 +214,7 @@ def gate_summary(per_task: pd.DataFrame, stats_by_task: Dict[str, Any]) -> Dict[
 
 def write_latex_macros(stats: Dict[str, Any], per_task: pd.DataFrame) -> None:
     rows = []
+    compact_rows = []
     for task in TASK_ORDER:
         row = per_task[per_task["task"] == task].iloc[0]
         rows.append(
@@ -227,6 +228,15 @@ def write_latex_macros(stats: Dict[str, Any], per_task: pd.DataFrame) -> None:
                 row["esn100_selected_short"],
             )
         )
+        compact_rows.append(
+            "{} & {} & {} & {} & {} \\\\".format(
+                task_label(task),
+                fmt_table_float(row["esn100_mean_nmse"]),
+                fmt_table_float(row["qrc96_mean_nmse"]),
+                fmt_table_float(row["delta_esn_minus_qrc"]),
+                row["qrc96_wins_over_seeds"],
+            )
+        )
 
     non_floor = stats["non_floor_summary"]
     gates = stats["gates"]
@@ -238,17 +248,26 @@ def write_latex_macros(stats: Dict[str, Any], per_task: pd.DataFrame) -> None:
         f"\\newcommand{{\\QRCTaskwiseNonFloorCILow}}{{{fmt_float(non_floor['delta']['ci95_low'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseNonFloorCIHigh}}{{{fmt_float(non_floor['delta']['ci95_high'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseNonFloorWins}}{{{int(non_floor['tests']['wins'])}/{int(non_floor['tests']['n'])}}}",
+        f"\\newcommand{{\\QRCTaskwiseNonFloorWilcoxonGreaterP}}{{{fmt_p(non_floor['tests']['wilcoxon_greater_p'])}}}",
+        f"\\newcommand{{\\QRCTaskwiseNonFloorSignGreaterP}}{{{fmt_p(non_floor['tests']['sign_greater_p'])}}}",
         f"\\newcommand{{\\QRCTaskwiseNarmaDelta}}{{{fmt_float(narma['delta']['mean'], 4)}}}",
+        f"\\newcommand{{\\QRCTaskwiseNarmaCILow}}{{{fmt_float(narma['delta']['ci95_low'], 4)}}}",
+        f"\\newcommand{{\\QRCTaskwiseNarmaCIHigh}}{{{fmt_float(narma['delta']['ci95_high'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseNarmaWins}}{{{int(narma['tests']['wins'])}/{int(narma['tests']['n'])}}}",
+        f"\\newcommand{{\\QRCTaskwiseNarmaWilcoxonGreaterP}}{{{fmt_p(narma['tests']['wilcoxon_greater_p'])}}}",
         f"\\newcommand{{\\QRCTaskwiseSunDelta}}{{{fmt_float(sun['delta']['mean'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseSunCILow}}{{{fmt_float(sun['delta']['ci95_low'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseSunCIHigh}}{{{fmt_float(sun['delta']['ci95_high'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseSunWins}}{{{int(sun['tests']['wins'])}/{int(sun['tests']['n'])}}}",
         f"\\newcommand{{\\QRCTaskwiseSunWilcoxonGreaterP}}{{{fmt_p(sun['tests']['wilcoxon_greater_p'])}}}",
+        f"\\newcommand{{\\QRCTaskwiseSunSignGreaterP}}{{{fmt_p(sun['tests']['sign_greater_p'])}}}",
         f"\\newcommand{{\\QRCTaskwiseSunCIExcludesZero}}{{{'yes' if gates['sunspots_ci_excludes_zero'] else 'no'}}}",
         f"\\newcommand{{\\QRCTaskwiseClaimAllowed}}{{{'yes' if gates['non_floor_claim_allowed'] else 'no'}}}",
         "\\newcommand{\\QRCTaskwiseRows}{%",
         "\n".join(rows),
+        "}",
+        "\\newcommand{\\QRCTaskwiseCompactRows}{%",
+        "\n".join(compact_rows),
         "}",
     ]
     LATEX_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)

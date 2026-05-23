@@ -25,6 +25,25 @@ plt.rcParams.update({
     'figure.dpi':150,
 })
 
+QRC_BLUE = '#1f78b4'
+ESN_ORANGE = '#f28e2b'
+INK = '#1f2933'
+MUTED = '#6b7280'
+GRID = '#d9dee7'
+
+
+def clean_axis(ax):
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.grid(axis='y', color=GRID, linewidth=0.45, alpha=0.75)
+    ax.set_axisbelow(True)
+
+
+def savefig_dual(fig, stem):
+    fig.savefig(GFX / f'{stem}.png', dpi=360, bbox_inches='tight')
+    fig.savefig(GFX / f'{stem}.pdf', bbox_inches='tight')
+    plt.close(fig)
+
 # Load data
 q=pd.read_csv(DATA/'qrc_seed_ensemble_grid.csv')
 stats_path=DATA/'qrc96_esn100_stats.json'
@@ -92,6 +111,71 @@ cbar.ax.tick_params(labelsize=8)
 fig.savefig(GFX/'fig1_operating_regime_fixed_gamma.png',dpi=320,bbox_inches='tight')
 fig.savefig(GFX/'fig1_operating_regime_fixed_gamma.pdf',bbox_inches='tight')
 plt.close(fig)
+
+# Short-paper Figure 1: compact, polished phase maps.
+short_panels = [
+    ('all tasks', all_tasks),
+    ('leave out MG', [x for x in all_tasks if x != 'mackey_glass']),
+    ('leave out NARMA10', [x for x in all_tasks if x != 'narma10']),
+    ('leave out Lorenz', [x for x in all_tasks if x != 'lorenz']),
+    ('leave out Sunspots', [x for x in all_tasks if x != 'sunspots_annual']),
+]
+fig, axes = plt.subplots(1, 5, figsize=(7.25, 1.72), sharex=True, sharey=True)
+for ax, (title, tasks) in zip(axes, short_panels):
+    d = qg[qg.task.isin(tasks)].copy()
+    agg = d.groupby(['beta_pi', 'lambda_pi']).agg(mean_rank=('val_rank_pct', 'mean')).reset_index()
+    x = agg.beta_pi.values
+    y = agg.lambda_pi.values
+    z = agg.mean_rank.values
+    xi = np.linspace(0, xmax, 220)
+    yi = np.linspace(0, ymax, 180)
+    XI, YI = np.meshgrid(xi, yi)
+    Zi = griddata((x, y), z, (XI, YI), method='cubic')
+    Zn = griddata((x, y), z, (XI, YI), method='nearest')
+    Zs = np.where(np.isnan(Zi), Zn, Zi)
+    for _ in range(2):
+        P = np.pad(Zs, 1, mode='edge')
+        Zs = (P[:-2, 1:-1] + P[2:, 1:-1] + P[1:-1, :-2] + P[1:-1, 2:] + 4 * P[1:-1, 1:-1]) / 8.0
+    im = ax.imshow(
+        Zs,
+        origin='lower',
+        extent=[0, xmax, 0, ymax],
+        cmap='magma_r',
+        vmin=0.05,
+        vmax=0.8,
+        aspect='auto',
+    )
+    ax.contour(XI, YI, Zs, levels=[0.15, 0.25, 0.40], colors='white', linewidths=[0.55, 0.45, 0.35], alpha=0.78)
+    chunks = []
+    for _, g in d.groupby('replicate'):
+        h = g.copy()
+        h['top20'] = h.val_rank_pct <= 0.20
+        chunks.append(h)
+    fr = pd.concat(chunks).groupby(['beta_pi', 'lambda_pi']).top20.mean().reset_index()
+    core = fr[fr.top20 >= 0.70]
+    if len(core):
+        ax.scatter(core.beta_pi, core.lambda_pi, s=10, color='#2b8cbe', edgecolor='white', linewidth=0.25, zorder=4)
+    ax.scatter(
+        [qrc_selected['beta_pi']],
+        [qrc_selected['lambda_pi']],
+        marker='*',
+        s=42,
+        linewidths=0.35,
+        color='#ff7f0e',
+        edgecolor='black',
+        zorder=5,
+    )
+    ax.set_title(title, fontsize=7.5, pad=2.5, color=INK)
+    ax.set_xlim(0, xmax)
+    ax.set_ylim(0, ymax)
+    ax.tick_params(labelsize=6, length=2)
+    ax.set_xlabel(r'$\beta/\pi$', fontsize=7)
+axes[0].set_ylabel(r'$\lambda/\pi$', fontsize=7.5)
+cbar = fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.022, pad=0.012)
+cbar.set_label('validation rank percentile', fontsize=7)
+cbar.ax.tick_params(labelsize=6, length=2)
+fig.suptitle(r'Phase maps reveal a transferable low-input, nonzero-damping operating regime ($\gamma=0.12$)', fontsize=9.5, y=1.08, color=INK)
+savefig_dual(fig, 'fig1_short_phase_maps')
 
 # Figure 2: ESN comparison + controls
 comp=pd.read_csv(DATA/'final_qrc_esn_comparison.csv')
@@ -209,6 +293,101 @@ fig.tight_layout(w_pad=1.7)
 fig.savefig(GFX/'fig3_memory_capacity_screens.png',dpi=320,bbox_inches='tight')
 fig.savefig(GFX/'fig3_memory_capacity_screens.pdf',bbox_inches='tight')
 plt.close(fig)
+
+# Short-paper Figure 2: accuracy, robustness, controls, and diagnostic evidence.
+fig = plt.figure(figsize=(7.25, 4.85))
+gs = fig.add_gridspec(2, 2, hspace=0.55, wspace=0.34)
+axes = [fig.add_subplot(gs[i, j]) for i in range(2) for j in range(2)]
+
+# (a) Shared readout-dimension comparison.
+ax = axes[0]
+shared_labels = ['QRC16', 'ESN16', 'ESN100', 'QRC96']
+shared_vals = [
+    float(comp.set_index('method').loc['QRC grid shared', 'mean_test_nmse']),
+    float(comp.set_index('method').loc['ESN16 shared', 'mean_test_nmse']),
+    float(comp.set_index('method').loc['ESN100 shared', 'mean_test_nmse']),
+    float(q96sel.test_nmse.mean()),
+]
+shared_cols = ['#9ecae1', '#fdd49e', ESN_ORANGE, QRC_BLUE]
+bars = ax.bar(shared_labels, shared_vals, color=shared_cols, edgecolor='white', linewidth=0.9)
+ax.set_title('(a) Matched readout dimension', fontsize=8.2, color=INK, pad=4)
+ax.set_ylabel('holdout NMSE', fontsize=7.5)
+ax.set_ylim(0, 0.135)
+clean_axis(ax)
+ax.tick_params(axis='x', labelsize=7, rotation=20)
+ax.tick_params(axis='y', labelsize=7)
+for b, v in zip(bars, shared_vals):
+    ax.text(b.get_x() + b.get_width() / 2, v + 0.004, f'{v:.3f}', ha='center', va='bottom', fontsize=6.6)
+ax.text(
+    0.98,
+    0.93,
+    r'$\Delta=0.0134$' + '\n95% CI [0.008, 0.019]',
+    transform=ax.transAxes,
+    fontsize=6.1,
+    color=INK,
+    ha='right',
+    va='top',
+    bbox=dict(boxstyle='round,pad=0.22', facecolor='white', edgecolor='none', alpha=0.82),
+)
+
+# (b) Task-wise non-floor comparison.
+ax = axes[1]
+tw = pd.read_csv(DATA / 'qrc96_esn100_taskwise_per_task.csv').set_index('task')
+tasks_nf = ['narma10', 'sunspots_annual']
+labels_nf = ['NARMA10', 'Sunspots']
+x = np.arange(len(tasks_nf))
+width = 0.34
+esn_vals = [float(tw.loc[t, 'esn100_mean_nmse']) for t in tasks_nf]
+qrc_vals = [float(tw.loc[t, 'qrc96_mean_nmse']) for t in tasks_nf]
+ax.bar(x - width / 2, esn_vals, width, label='ESN100', color=ESN_ORANGE, edgecolor='white', linewidth=0.9)
+ax.bar(x + width / 2, qrc_vals, width, label='QRC96', color=QRC_BLUE, edgecolor='white', linewidth=0.9)
+ax.set_xticks(x, labels_nf)
+ax.set_ylim(0, 0.27)
+ax.set_title('(b) Non-floor task-wise comparison', fontsize=8.2, color=INK, pad=4)
+ax.set_ylabel('holdout NMSE', fontsize=7.5)
+ax.legend(frameon=False, fontsize=7, loc='center right')
+clean_axis(ax)
+ax.tick_params(labelsize=7)
+for i, task in enumerate(tasks_nf):
+    row = tw.loc[task]
+    ax.text(i, max(esn_vals[i], qrc_vals[i]) + 0.010, f"$\\Delta$={row.delta_esn_minus_qrc:.3f}\n{row.qrc96_wins_over_seeds}", ha='center', fontsize=6.6, color=INK)
+
+# (c) Mechanism controls.
+ax = axes[2]
+ctrl = data_controls.copy()
+ctrl['display'] = ['QRC96', 'Rx-ZZ-Rx', 'QRC16', 'Rx only', 'no mix', r'$\gamma=0$', 'dephase']
+ctrl_cols = [QRC_BLUE, '#7fb3d5', '#b39ddb', '#f6c177', '#ef8354', '#d1495b', '#8d99ae']
+ax.bar(np.arange(len(ctrl)), ctrl.value, color=ctrl_cols, edgecolor='white', linewidth=0.8)
+ax.set_yscale('log')
+ax.set_ylim(0.045, 1.7)
+ax.set_xticks(np.arange(len(ctrl)), ctrl.display, rotation=28, ha='right')
+ax.set_ylabel('holdout NMSE (log)', fontsize=7.5)
+ax.set_title('(c) Mechanism controls', fontsize=8.2, color=INK, pad=4)
+clean_axis(ax)
+ax.tick_params(labelsize=7)
+for i, v in enumerate(ctrl.value):
+    if i < 3:
+        ax.text(i, v * 1.14, f'{v:.3f}', ha='center', va='bottom', fontsize=6.4)
+
+# (d) Memory diagnostics.
+ax = axes[3]
+diag = pd.read_csv(DATA / 'qrc_real_current_diagnostic_spearman_named.csv')
+diag = diag.set_index('metric').reindex(['MC', 'IPCmem', 'IPCtot', 'IPCnonlin', 'Vfeat', 'reff']).reset_index()
+diag_values = diag['spearman_vs_val_rank'].to_numpy(dtype=float)
+colors = [QRC_BLUE if v < 0 else '#d62728' for v in diag_values]
+ax.bar(np.arange(len(diag)), diag_values, color=colors, edgecolor='white', linewidth=0.8)
+ax.axhline(0, color=INK, linewidth=0.7)
+ax.set_ylim(-1.0, 0.25)
+ax.set_xticks(np.arange(len(diag)), [r'MC', r'IPC$_m$', r'IPC$_t$', r'IPC$_n$', r'$V_f$', r'$r_e$'], rotation=22, ha='right')
+ax.set_ylabel(r'Spearman $\rho_s$', fontsize=7.5)
+ax.set_title('(d) Memory predicts low validation rank', fontsize=8.2, color=INK, pad=4)
+clean_axis(ax)
+ax.tick_params(labelsize=7)
+for i, v in enumerate(diag_values):
+    ax.text(i, v + 0.035 if v < 0 else v + 0.035, f'{v:.2f}', ha='center', va='bottom', fontsize=6.2)
+
+fig.suptitle('Supporting evidence: accuracy, controls, and memory diagnostics', fontsize=9.0, y=1.005, color=INK)
+savefig_dual(fig, 'fig2_short_evidence')
 
 # store figure numbers and summary
 summary={
