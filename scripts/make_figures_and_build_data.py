@@ -182,6 +182,7 @@ def plot_rank_map(ax, d, title, xmax, ymax, selected=None, core=None, labelsize=
     ax.set_title(title, fontsize=labelsize + 0.8, pad=2.5, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
+    ax.set_box_aspect(1)
     polish_phase_axis(ax, labelsize=labelsize, show_ticks=show_ticks)
     if highlight:
         for spine in ax.spines.values():
