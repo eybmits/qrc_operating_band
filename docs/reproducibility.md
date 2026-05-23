@@ -82,6 +82,7 @@ The final QRC96/ESN100 comparison uses an expanded local QRC96 grid inside the Q
 
 ```bash
 python scripts/run_qrc96_same_arch_expanded.py --overwrite
+python scripts/run_qrc96_sunspots_fine_refinement.py --overwrite
 python scripts/analyze_qrc96_esn100.py
 python scripts/analyze_qrc96_esn100_taskwise.py
 ```
@@ -90,6 +91,8 @@ This writes:
 
 - `data/qrc96_same_arch_expanded_grid.csv`
 - `data/qrc96_same_arch_expanded_metadata.json`
+- `data/qrc96_sunspots_fine_refinement_grid.csv`
+- `data/qrc96_sunspots_fine_refinement_metadata.json`
 - `data/qrc96_esn100_stats.json`
 - `data/qrc96_esn100_taskwise_stats.json`
 - `data/qrc96_esn100_per_task.csv`
@@ -103,7 +106,7 @@ This writes:
 - `paper/generated/qrc96_esn100_numbers.tex`
 - `paper/generated/qrc96_taskwise_numbers.tex`
 
-The shared analysis selects QRC96 and ESN100 only by mean validation NMSE across tasks and seeds. The task-wise analysis selects one QRC96 and one ESN100 setting per task by mean validation NMSE across seeds. Both analyses compute holdout NMSE and paired tests only after selection.
+The shared analysis selects QRC96 and ESN100 only by mean validation NMSE across tasks and seeds. The task-wise analysis is also holdout-blind: it keeps configurations within 1% of the task's best mean validation NMSE over seeds and selects the normalized hyperparameter medoid of that validation plateau. ESN100 uses the same task-wise selector; in the saved ESN grid the 1% plateau has size one for each task. Both analyses compute holdout NMSE and paired tests only after selection.
 
 ## Simulator Smoke Test
 

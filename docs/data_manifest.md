@@ -5,18 +5,20 @@
 - `qrc_seed_ensemble_grid.csv`: QRC grid evaluations across tasks, seeds, and parameter points.
 - `qrc96_local_refinement_grid.csv`: frozen 3x3x3 QRC96 Pauli-ring local refinement grid used for the final comparison.
 - `qrc96_local_refinement_metadata.json`: task splits, feature names, grid values, seeds, and ridge grid for the local QRC96 run.
-- `qrc96_same_arch_expanded_grid.csv`: expanded 5x5x5 same-architecture QRC96 Pauli-ring grid used for shared and task-wise ESN100 comparisons.
+- `qrc96_same_arch_expanded_grid.csv`: expanded 5x5x5 same-architecture QRC96 Pauli-ring grid used for shared ESN100 comparisons and task-wise non-Sunspots selections.
 - `qrc96_same_arch_expanded_metadata.json`: architecture lock, task splits, feature names, grid values, seeds, and ridge grid for the expanded QRC96 run.
+- `qrc96_sunspots_fine_refinement_grid.csv`: same-architecture Sunspots fine refinement grid used by the task-wise validation-plateau selector.
+- `qrc96_sunspots_fine_refinement_metadata.json`: architecture lock, Sunspots split, feature names, grid values, seeds, and ridge grid for the Sunspots fine run.
 - `qrc96_esn100_stats.json`: shared-validation selected QRC96/ESN100 configurations, paired bootstrap intervals, Wilcoxon tests, sign tests, and per-task decomposition.
-- `qrc96_esn100_taskwise_stats.json`: task-wise validation selected QRC96/ESN100 configurations and paired statistics.
+- `qrc96_esn100_taskwise_stats.json`: task-wise validation-plateau selected QRC96/ESN100 configurations and paired statistics.
 - `qrc96_esn100_per_task.csv`: per-task selected-config holdout means and QRC96 wins over seeds.
-- `qrc96_esn100_taskwise_per_task.csv`: per-task task-wise selected holdout means, selected settings, and QRC96 wins over seeds.
+- `qrc96_esn100_taskwise_per_task.csv`: per-task task-wise validation-plateau selected holdout means, selected settings, and QRC96 wins over seeds.
 - `qrc96_esn100_seed_pairs.csv`: seed-level task-mean paired holdout deltas.
-- `qrc96_esn100_taskwise_seed_pairs.csv`: seed-level paired deltas after task-wise validation selection.
+- `qrc96_esn100_taskwise_seed_pairs.csv`: seed-level paired deltas after task-wise validation-plateau selection.
 - `qrc96_esn100_task_seed_pairs.csv`: full task-seed paired holdout table for selected QRC96 and ESN100.
-- `qrc96_esn100_taskwise_task_seed_pairs.csv`: full task-seed paired holdout table for task-wise selected QRC96 and ESN100.
+- `qrc96_esn100_taskwise_task_seed_pairs.csv`: full task-seed paired holdout table for task-wise validation-plateau selected QRC96 and ESN100.
 - `qrc96_esn100_selected_configs.csv`: validation-selected QRC96 and ESN100 settings.
-- `qrc96_esn100_taskwise_selected_configs.csv`: task-wise validation-selected QRC96 and ESN100 settings.
+- `qrc96_esn100_taskwise_selected_configs.csv`: task-wise validation-plateau selected QRC96 and ESN100 settings.
 - `qrc96_final10_results.csv`: archived earlier partial QRC96 selected-regime evaluations; retained for provenance, not used by the rebuilt final figures.
 - `esn_candidate_performance.csv`: ESN candidate baseline evaluations.
 - `final_qrc_esn_comparison.csv`: compact QRC/ESN comparison table used by Fig. 2.

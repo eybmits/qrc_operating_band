@@ -139,7 +139,7 @@ x=np.arange(len(pt_q)); width=0.36
 axes[1].bar(x-width/2,pt_e.values,width,label='ESN100',color='#fb6a4a',edgecolor='black',linewidth=0.25)
 axes[1].bar(x+width/2,pt_q.values,width,label='QRC96',color='#2b8cbe',edgecolor='black',linewidth=0.25)
 axes[1].set_xticks(x,['MG','Lorenz','NARMA10','Sunspots'],rotation=25,ha='right',fontsize=8)
-axes[1].set_title('(b) task-wise selected holdout',fontsize=10); axes[1].set_ylabel('holdout NMSE'); axes[1].set_ylim(0,0.24); axes[1].legend(frameon=False,fontsize=8)
+axes[1].set_title('(b) task-wise plateau holdout',fontsize=10); axes[1].set_ylabel('holdout NMSE'); axes[1].set_ylim(0,0.24); axes[1].legend(frameon=False,fontsize=8)
 # (c) seed means
 seed_pairs=pd.read_csv(DATA/'qrc96_esn100_seed_pairs.csv')
 qseed=seed_pairs.set_index('seed').qrc_mean_nmse

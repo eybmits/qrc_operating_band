@@ -7,7 +7,7 @@ This directory contains the cleaned manuscript package integrated from `qrc_fina
 - `IEEEtran.cls`: local class file kept for reproducible builds.
 - `references.bib`: bibliography source from the paper package.
 - `generated/qrc96_esn100_numbers.tex`: generated macros for the shared selected QRC96/ESN100 comparison and paired statistics.
-- `generated/qrc96_taskwise_numbers.tex`: generated macros for the task-wise selected same-architecture QRC96/ESN100 comparison.
+- `generated/qrc96_taskwise_numbers.tex`: generated macros for the task-wise validation-plateau same-architecture QRC96/ESN100 comparison.
 - `gfx/`: manuscript figures generated from the repository root `data/` tables.
 
 Build the paper from this directory or from the repository root:

@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Task-wise validation-only QRC96 vs ESN100 analysis for the expanded same-architecture grid."""
+"""Task-wise validation-only QRC96 vs ESN100 analysis.
+
+The shared comparison is still selected by mean validation NMSE in
+``analyze_qrc96_esn100.py``. This task-wise analysis uses the same locked QRC96
+architecture, but selects QRC task settings from a validation plateau: retain
+settings within 1% of the task's best mean validation NMSE, then choose the
+normalized hyperparameter medoid of that plateau. Holdout values are used only
+after this validation-only selection.
+"""
 from __future__ import annotations
 
 import json
@@ -16,6 +24,8 @@ DATA = ROOT / "data"
 
 QRC_PATH = DATA / "qrc96_same_arch_expanded_grid.csv"
 QRC_METADATA_PATH = DATA / "qrc96_same_arch_expanded_metadata.json"
+QRC_SUNSPOTS_FINE_PATH = DATA / "qrc96_sunspots_fine_refinement_grid.csv"
+QRC_SUNSPOTS_FINE_METADATA_PATH = DATA / "qrc96_sunspots_fine_refinement_metadata.json"
 ESN_PATH = DATA / "esn_candidate_performance.csv"
 STATS_PATH = DATA / "qrc96_esn100_taskwise_stats.json"
 PER_TASK_PATH = DATA / "qrc96_esn100_taskwise_per_task.csv"
@@ -26,6 +36,12 @@ LATEX_OUTPUT_PATH = ROOT / "paper" / "generated" / "qrc96_taskwise_numbers.tex"
 
 TASK_ORDER = ["mackey_glass", "lorenz", "narma10", "sunspots_annual"]
 NON_FLOOR_TASKS = ["narma10", "sunspots_annual"]
+PLATEAU_REL_TOL = 0.01
+TASKWISE_SELECTION = (
+    "task-wise validation plateau medoid: retain configs within 1% of the best mean "
+    "validation NMSE across seeds, then choose the normalized hyperparameter medoid; "
+    "no holdout values are used for selection"
+)
 
 
 def _jsonify(value: Any) -> Any:
@@ -89,24 +105,70 @@ def select_by_mean_validation(df: pd.DataFrame, cols: Iterable[str]) -> Tuple[pd
     return best, df[mask].copy()
 
 
+def select_by_validation_plateau_medoid(
+    df: pd.DataFrame, cols: Iterable[str], rel_tol: float = PLATEAU_REL_TOL
+) -> Tuple[pd.Series, pd.DataFrame, pd.DataFrame]:
+    cols = list(cols)
+    grouped = (
+        df.groupby(cols, as_index=False)
+        .agg(mean_val_nmse=("val_nmse", "mean"), mean_test_nmse=("test_nmse", "mean"), rows=("test_nmse", "size"))
+        .sort_values(["mean_val_nmse", "mean_test_nmse"])
+        .reset_index(drop=True)
+    )
+    grouped["validation_rank"] = np.arange(1, len(grouped) + 1)
+    best_mean = float(grouped["mean_val_nmse"].iloc[0])
+    plateau = grouped[grouped["mean_val_nmse"] <= best_mean * (1.0 + rel_tol)].copy()
+    if plateau.empty:
+        raise RuntimeError("Validation plateau selection produced an empty candidate set.")
+
+    numeric_cols = [col for col in cols if np.issubdtype(plateau[col].dtype, np.number)]
+    if len(plateau) == 1 or not numeric_cols:
+        selected = plateau.sort_values(["mean_val_nmse", "mean_test_nmse"]).iloc[0].copy()
+        selected["plateau_medoid_distance"] = 0.0
+    else:
+        values = plateau[numeric_cols].to_numpy(dtype=float)
+        scales = np.ptp(grouped[numeric_cols].to_numpy(dtype=float), axis=0)
+        scales = np.where(scales <= 0, 1.0, scales)
+        z = values / scales
+        distances = np.sqrt(((z[:, None, :] - z[None, :, :]) ** 2).sum(axis=2))
+        plateau["plateau_medoid_distance"] = distances.mean(axis=1)
+        selected = plateau.sort_values(["plateau_medoid_distance", "mean_val_nmse", "mean_test_nmse"]).iloc[0].copy()
+
+    selected["best_mean_val_nmse"] = best_mean
+    selected["plateau_rel_tol"] = float(rel_tol)
+    selected["plateau_size"] = int(len(plateau))
+    mask = np.ones(len(df), dtype=bool)
+    for col in cols:
+        if np.issubdtype(df[col].dtype, np.number):
+            mask &= np.isclose(df[col].to_numpy(dtype=float), float(selected[col]))
+        else:
+            mask &= df[col].astype(str).to_numpy() == str(selected[col])
+    return selected, df[mask].copy(), grouped
+
+
 def selected_config_row(model: str, task: str, best: pd.Series) -> Dict[str, Any]:
     if model == "QRC96":
         return {
             "model": model,
             "task": task,
-            "selection": "task-wise mean validation NMSE across seeds",
+            "selection": TASKWISE_SELECTION,
             "beta_pi": float(best["beta_pi"]),
             "lambda_pi": float(best["lambda_pi"]),
             "gamma": float(best["gamma"]),
             "features": 96,
             "mean_val_nmse": float(best["mean_val_nmse"]),
             "mean_holdout_nmse": float(best["mean_test_nmse"]),
+            "best_mean_val_nmse": float(best.get("best_mean_val_nmse", best["mean_val_nmse"])),
+            "validation_rank": int(best.get("validation_rank", 1)),
+            "plateau_rel_tol": float(best.get("plateau_rel_tol", PLATEAU_REL_TOL)),
+            "plateau_size": int(best.get("plateau_size", 1)),
+            "plateau_medoid_distance": float(best.get("plateau_medoid_distance", 0.0)),
             "rows": int(best["rows"]),
         }
     return {
         "model": model,
         "task": task,
-        "selection": "task-wise mean validation NMSE across seeds",
+        "selection": TASKWISE_SELECTION,
         "units": int(best["units"]),
         "spectral_radius": float(best["sr"]),
         "input_scale": float(best["input_scale"]),
@@ -114,6 +176,11 @@ def selected_config_row(model: str, task: str, best: pd.Series) -> Dict[str, Any
         "features": int(best["units"]),
         "mean_val_nmse": float(best["mean_val_nmse"]),
         "mean_holdout_nmse": float(best["mean_test_nmse"]),
+        "best_mean_val_nmse": float(best.get("best_mean_val_nmse", best["mean_val_nmse"])),
+        "validation_rank": int(best.get("validation_rank", 1)),
+        "plateau_rel_tol": float(best.get("plateau_rel_tol", PLATEAU_REL_TOL)),
+        "plateau_size": int(best.get("plateau_size", 1)),
+        "plateau_medoid_distance": float(best.get("plateau_medoid_distance", 0.0)),
         "rows": int(best["rows"]),
     }
 
@@ -128,16 +195,19 @@ def gate_summary(per_task: pd.DataFrame, stats_by_task: Dict[str, Any]) -> Dict[
         "narma10_strong": bool(narma["delta_esn_minus_qrc"] > 0 and narma_tests["tests"]["wins"] >= 8),
         "sunspots_mean_lower": bool(sun["delta_esn_minus_qrc"] > 0),
         "sunspots_seed_gate": bool(sun_tests["tests"]["wins"] >= 7),
+        "sunspots_ci_excludes_zero": bool(sun_ci[0] > 0),
         "sunspots_ci_mostly_positive": bool(sun_ci[1] > 0 and sun_ci[0] > -0.01),
         "sunspots_full_gate": bool(
             sun["delta_esn_minus_qrc"] > 0
-            and (sun_tests["tests"]["wins"] >= 7 or (sun_ci[1] > 0 and sun_ci[0] > -0.01))
+            and sun_tests["tests"]["wins"] >= 7
+            and sun_ci[0] > 0
         ),
         "non_floor_claim_allowed": bool(
             narma["delta_esn_minus_qrc"] > 0
             and narma_tests["tests"]["wins"] >= 8
             and sun["delta_esn_minus_qrc"] > 0
-            and (sun_tests["tests"]["wins"] >= 7 or (sun_ci[1] > 0 and sun_ci[0] > -0.01))
+            and sun_tests["tests"]["wins"] >= 7
+            and sun_ci[0] > 0
         ),
     }
 
@@ -175,6 +245,7 @@ def write_latex_macros(stats: Dict[str, Any], per_task: pd.DataFrame) -> None:
         f"\\newcommand{{\\QRCTaskwiseSunCIHigh}}{{{fmt_float(sun['delta']['ci95_high'], 4)}}}",
         f"\\newcommand{{\\QRCTaskwiseSunWins}}{{{int(sun['tests']['wins'])}/{int(sun['tests']['n'])}}}",
         f"\\newcommand{{\\QRCTaskwiseSunWilcoxonGreaterP}}{{{fmt_p(sun['tests']['wilcoxon_greater_p'])}}}",
+        f"\\newcommand{{\\QRCTaskwiseSunCIExcludesZero}}{{{'yes' if gates['sunspots_ci_excludes_zero'] else 'no'}}}",
         f"\\newcommand{{\\QRCTaskwiseClaimAllowed}}{{{'yes' if gates['non_floor_claim_allowed'] else 'no'}}}",
         "\\newcommand{\\QRCTaskwiseRows}{%",
         "\n".join(rows),
@@ -187,10 +258,24 @@ def write_latex_macros(stats: Dict[str, Any], per_task: pd.DataFrame) -> None:
 def main() -> None:
     if not QRC_PATH.exists():
         raise SystemExit(f"Missing {QRC_PATH}; run scripts/run_qrc96_same_arch_expanded.py first.")
-    qrc = pd.read_csv(QRC_PATH)
+    qrc_base = pd.read_csv(QRC_PATH)
+    if QRC_SUNSPOTS_FINE_PATH.exists():
+        qrc_sunspots = pd.read_csv(QRC_SUNSPOTS_FINE_PATH)
+        qrc = pd.concat(
+            [qrc_base[qrc_base["task"] != "sunspots_annual"], qrc_sunspots],
+            ignore_index=True,
+        )
+    else:
+        qrc_sunspots = None
+        qrc = qrc_base
     esn = pd.read_csv(ESN_PATH)
     esn100 = esn[esn["units"] == 100].copy()
     metadata = json.loads(QRC_METADATA_PATH.read_text()) if QRC_METADATA_PATH.exists() else {}
+    sunspots_metadata = (
+        json.loads(QRC_SUNSPOTS_FINE_METADATA_PATH.read_text())
+        if QRC_SUNSPOTS_FINE_METADATA_PATH.exists()
+        else {}
+    )
 
     pair_rows = []
     selected_configs = []
@@ -200,8 +285,8 @@ def main() -> None:
     for task in TASK_ORDER:
         qtask = qrc[qrc["task"] == task].copy()
         etask = esn100[esn100["task"] == task].copy()
-        qbest, qsel = select_by_mean_validation(qtask, ["beta_pi", "lambda_pi", "gamma"])
-        ebest, esel = select_by_mean_validation(etask, ["units", "sr", "input_scale", "leak"])
+        qbest, qsel, _ = select_by_validation_plateau_medoid(qtask, ["beta_pi", "lambda_pi", "gamma"])
+        ebest, esel, _ = select_by_validation_plateau_medoid(etask, ["units", "sr", "input_scale", "leak"])
         selected_configs.append(selected_config_row("QRC96", task, qbest))
         selected_configs.append(selected_config_row("ESN100", task, ebest))
 
@@ -261,13 +346,30 @@ def main() -> None:
     non_floor_delta = non_floor_pairs["delta_esn_minus_qrc"].to_numpy(dtype=float)
     stats = {
         "delta_definition": "Delta = holdout NMSE_ESN100 - holdout NMSE_QRC96; positive values favor QRC96.",
-        "selection": "task-wise mean validation NMSE across seeds; no holdout values are used for selection.",
+        "selection": TASKWISE_SELECTION,
+        "plateau_rel_tol": PLATEAU_REL_TOL,
         "architecture_lock": metadata.get("architecture_lock", {}),
+        "sunspots_fine_refinement": {
+            "path": str(QRC_SUNSPOTS_FINE_PATH.relative_to(ROOT)),
+            "used": bool(qrc_sunspots is not None),
+            "metadata_path": str(QRC_SUNSPOTS_FINE_METADATA_PATH.relative_to(ROOT)),
+            "rows": int(0 if qrc_sunspots is None else len(qrc_sunspots)),
+            "metadata": sunspots_metadata,
+        },
         "qrc96_grid": {
             "beta_pi": sorted(float(x) for x in qrc["beta_pi"].unique()),
             "lambda_pi": sorted(float(x) for x in qrc["lambda_pi"].unique()),
             "gamma": sorted(float(x) for x in qrc["gamma"].unique()),
             "rows": int(len(qrc)),
+        },
+        "qrc96_grid_by_task": {
+            task: {
+                "beta_pi": sorted(float(x) for x in qrc[qrc["task"] == task]["beta_pi"].unique()),
+                "lambda_pi": sorted(float(x) for x in qrc[qrc["task"] == task]["lambda_pi"].unique()),
+                "gamma": sorted(float(x) for x in qrc[qrc["task"] == task]["gamma"].unique()),
+                "rows": int(len(qrc[qrc["task"] == task])),
+            }
+            for task in TASK_ORDER
         },
         "esn100_grid": {
             "units": sorted(int(x) for x in esn100["units"].unique()),
