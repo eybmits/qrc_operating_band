@@ -351,9 +351,7 @@ diag["logMC"] = np.log1p(diag["MC"])
 spearman = pd.read_csv(DATA / "qrc_real_current_diagnostic_spearman_named.csv")
 fig, axes = plt.subplots(1, 4, figsize=(14.0, 3.1))
 nz = diag[diag.MC > 0]
-zero = diag[diag.MC == 0]
-axes[0].scatter(nz.MC, nz.mean_val_rank, s=8, alpha=0.25, color=PHASE_ROSE, edgecolor="none", label="MC>0")
-axes[0].scatter(zero.MC, zero.mean_val_rank, s=9, alpha=0.52, color=PHASE_AMBER, edgecolor="none", label="MC=0")
+axes[0].scatter(nz.MC, nz.mean_val_rank, s=8, alpha=0.27, color=PHASE_ROSE, edgecolor="none")
 if len(nz):
     z = np.polyfit(nz.MC, nz.mean_val_rank, 1)
     xs = np.linspace(nz.MC.min(), nz.MC.max(), 200)
@@ -361,7 +359,6 @@ if len(nz):
 axes[0].set_title("(a) memory capacity")
 axes[0].set_xlabel("MC")
 axes[0].set_ylabel("validation rank")
-axes[0].legend(frameon=False, fontsize=7)
 axes[1].scatter(diag.logMC, diag.mean_val_rank, s=8, alpha=0.28, color=PHASE_ROSE, edgecolor="none")
 z = np.polyfit(diag.logMC, diag.mean_val_rank, 1)
 xs = np.linspace(diag.logMC.min(), diag.logMC.max(), 200)
