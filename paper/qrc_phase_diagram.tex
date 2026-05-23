@@ -139,26 +139,11 @@ The evidence supports a universal operating-regime hypothesis, not a theorem. Th
 The scope is intentionally narrower than a hardware or advantage claim. Finite-shot sampling, measurement-basis scheduling, calibration drift, and device noise are not modeled. Likewise, the phase map does not say that every task has the same optimum. It says that useful QRC learning should first be searched in a memory-preserving band, and that leaving this band by removing damping or recurrent mixing destroys the robust phase-map signature.
 
 \section{Conclusion}
-Dissipative QRC performance is organized by a memory-defined operating regime. The phase maps transfer across tasks and seeds; mechanism ablations remove the robust base band; and intrinsic memory/processing diagnostics recover the same useful region. For this QRC family, the practical claim is simple: before scaling features or chasing a benchmark winner, identify the phase-map band where input drive, recurrence, and damping jointly preserve usable temporal memory.
+The usefulness of a dissipative quantum reservoir is not a property of its size but of where it is operated. Across tasks and reservoir initializations, strong performance does not wander the control space; it gathers in a single memory-preserving region where input drive, recurrent coupling, and dissipation hold one another in balance. That region transfers, it survives the removal of the very mechanisms that define it only by collapsing, and it can be found in advance by a diagnostic that asks nothing about the task---only whether the reservoir remembers.
 
-\begin{table*}[t!]
-\centering
-\scriptsize
-\caption{Artifact map for exact reproduction of the QRC-only paper.}
-\label{tab:artifacts}
-\begin{tabular}{@{}p{0.20\textwidth}p{0.74\textwidth}@{}}
-\toprule
-Artifact & Role\\
-\midrule
-QRC phase grid & \texttt{data/qrc\_seed\_ensemble\_grid.csv}: main QRC16 phase-map grid over tasks, seeds, and $(\beta,\lambda,\gamma)$.\\
-QRC ablation slices & \texttt{data/qrc\_phase\_ablation\_slice\_grid.csv}: focused mechanism stress tests at $\gamma=0.12$.\\
-Band and holdout statistics & \texttt{data/phase\_map\_generalization\_stats.json} and \texttt{data/phase\_map\_holdout\_performance.csv}: band sizes, connectedness, leave-one-task/seed bootstrap CIs, post-selection holdout audit, ablation retention, and diagnostic correlations.\\
-Generated numbers & \texttt{paper/generated/phase\_map\_numbers.tex}: all numeric macros used in the manuscript.\\
-Figures & \texttt{scripts/make\_figures\_and\_build\_data.py}: regenerates the phase maps, band-frequency view, ablation rank-loss maps, and diagnostic screening plots.\\
-Build & \texttt{./reproduce.sh} and \texttt{./paper/build.sh --update-pdf}: end-to-end regeneration and PDF refresh.\\
-\bottomrule
-\end{tabular}
-\end{table*}
+The lesson is deflationary in the most productive sense. The resource that makes this quantum reservoir work is not a quantum mystery but the same fading-memory-and-nonlinearity balance that classical reservoir theory identified long ago \cite{dambre2012,tanaka2019}, realized here through physical channels rather than chosen weights. Read this way, the contribution is methodological before it is physical: it reframes reservoir selection as the task of locating a transferable operating regime, and it offers memory, rather than raw feature diversity, as the compass that points there.
+
+What remains is the harder half. These results are established in simulation, on a small family of architectures, with measurement treated as free; finite sampling, calibration drift, device noise, and the true cost of reading out many observables all lie outside the present claim. The natural next step is not a larger benchmark but a more honest one---to ask whether the same memory-defined regime persists once the reservoir must be measured, calibrated, and run on hardware that does not forget on command. We expect it to, and we have given the map for finding out.
 
 \begin{thebibliography}{6}
 \bibitem{jaeger2004} H. Jaeger and H. Haas, ``Harnessing nonlinearity: Predicting chaotic systems and saving energy in wireless communication,'' \emph{Science}, vol. 304, no. 5667, pp. 78--80, 2004.
