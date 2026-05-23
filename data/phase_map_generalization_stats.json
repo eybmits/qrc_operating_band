@@ -474,6 +474,53 @@
       }
     ]
   },
+  "holdout_performance": [
+    {
+      "task": "mackey_glass",
+      "task_label": "Mackey--Glass",
+      "n_task_seed": 10,
+      "band_holdout_nmse_mean": 8.765326979376693e-05,
+      "medoid_holdout_nmse_mean": 8.18740358201361e-05,
+      "band_holdout_rank_mean": 0.1053061224489796,
+      "band_validation_rank_mean": 0.11693877551020408
+    },
+    {
+      "task": "lorenz",
+      "task_label": "Lorenz",
+      "n_task_seed": 10,
+      "band_holdout_nmse_mean": 5.276994207078679e-05,
+      "medoid_holdout_nmse_mean": 7.361102328272161e-05,
+      "band_holdout_rank_mean": 0.1690816326530612,
+      "band_validation_rank_mean": 0.16928571428571432
+    },
+    {
+      "task": "narma10",
+      "task_label": "NARMA10",
+      "n_task_seed": 10,
+      "band_holdout_nmse_mean": 0.5606060906707848,
+      "medoid_holdout_nmse_mean": 0.5195538277298408,
+      "band_holdout_rank_mean": 0.17153061224489796,
+      "band_validation_rank_mean": 0.15928571428571428
+    },
+    {
+      "task": "sunspots_annual",
+      "task_label": "Sunspots",
+      "n_task_seed": 10,
+      "band_holdout_nmse_mean": 0.19394021555405286,
+      "medoid_holdout_nmse_mean": 0.1789022522328998,
+      "band_holdout_rank_mean": 0.17653061224489794,
+      "band_validation_rank_mean": 0.2413265306122449
+    },
+    {
+      "task": "all",
+      "task_label": "All",
+      "n_task_seed": 40,
+      "band_holdout_nmse_mean": 0.18867168235917559,
+      "medoid_holdout_nmse_mean": 0.17465289125546088,
+      "band_holdout_rank_mean": 0.1556122448979592,
+      "band_validation_rank_mean": 0.17170918367346938
+    }
+  ],
   "ablation_retention": [
     {
       "variant": "base_amplitude_rxzz",

@@ -32,6 +32,12 @@ def tex_escape(s: str) -> str:
     return s.replace("_", r"\_")
 
 
+def fmt_nmse(x: float) -> str:
+    if abs(x) < 1e-3:
+        return f"{x:.2e}"
+    return f"{x:.3f}"
+
+
 def macro(name: str, value: object) -> str:
     return rf"\newcommand{{\{name}}}{{{value}}}"
 
@@ -170,6 +176,8 @@ def main() -> None:
 
     primary = membership[(membership["p"] == PRIMARY_P) & np.isclose(membership["q"], PRIMARY_Q)]
     primary_keys = key_tuples(primary[primary["in_band"]])
+    primary_key = f"B{PRIMARY_P}_q{str(PRIMARY_Q).replace('.', 'p')}"
+    primary_summary = band_summaries[primary_key]
 
     loto_values: List[float] = []
     loto_rows: List[Dict[str, object]] = []
@@ -214,6 +222,65 @@ def main() -> None:
 
     transfer_matrix = mean_rank_for_keys(q, primary_keys, ["task", "seed"])
     transfer_matrix.to_csv(DATA / "phase_map_task_seed_transfer_matrix.csv", index=False)
+
+    band_mask = q[KEYS].apply(lambda r: tuple(float(r[k]) for k in KEYS) in primary_keys, axis=1)
+    medoid = primary_summary["medoid"]
+    medoid_key = tuple(float(medoid[k]) for k in KEYS)
+    medoid_mask = q[KEYS].apply(lambda r: tuple(float(r[k]) for k in KEYS) == medoid_key, axis=1)
+    band_holdout_seed = (
+        q[band_mask]
+        .groupby(["task", "seed"])
+        .agg(
+            band_holdout_nmse=("test_nmse", "mean"),
+            band_holdout_rank=("test_rank_pct", "mean"),
+            band_validation_rank=("val_rank_pct", "mean"),
+        )
+        .reset_index()
+    )
+    medoid_holdout_seed = (
+        q[medoid_mask]
+        .groupby(["task", "seed"])
+        .agg(
+            medoid_holdout_nmse=("test_nmse", "mean"),
+            medoid_holdout_rank=("test_rank_pct", "mean"),
+        )
+        .reset_index()
+    )
+    holdout_seed = band_holdout_seed.merge(medoid_holdout_seed, on=["task", "seed"], how="left")
+    task_labels = {
+        "mackey_glass": "Mackey--Glass",
+        "lorenz": "Lorenz",
+        "narma10": "NARMA10",
+        "sunspots_annual": "Sunspots",
+    }
+    holdout_rows: List[Dict[str, object]] = []
+    task_order = ["mackey_glass", "lorenz", "narma10", "sunspots_annual"]
+    for task in task_order:
+        g = holdout_seed[holdout_seed["task"] == task]
+        holdout_rows.append(
+            {
+                "task": task,
+                "task_label": task_labels[task],
+                "n_task_seed": int(len(g)),
+                "band_holdout_nmse_mean": float(g["band_holdout_nmse"].mean()),
+                "medoid_holdout_nmse_mean": float(g["medoid_holdout_nmse"].mean()),
+                "band_holdout_rank_mean": float(g["band_holdout_rank"].mean()),
+                "band_validation_rank_mean": float(g["band_validation_rank"].mean()),
+            }
+        )
+    holdout_rows.append(
+        {
+            "task": "all",
+            "task_label": "All",
+            "n_task_seed": int(len(holdout_seed)),
+            "band_holdout_nmse_mean": float(holdout_seed["band_holdout_nmse"].mean()),
+            "medoid_holdout_nmse_mean": float(holdout_seed["medoid_holdout_nmse"].mean()),
+            "band_holdout_rank_mean": float(holdout_seed["band_holdout_rank"].mean()),
+            "band_validation_rank_mean": float(holdout_seed["band_validation_rank"].mean()),
+        }
+    )
+    holdout = pd.DataFrame(holdout_rows)
+    holdout.to_csv(DATA / "phase_map_holdout_performance.csv", index=False)
 
     ablation_path = DATA / "qrc_phase_ablation_slice_grid.csv"
     if not ablation_path.exists():
@@ -262,15 +329,13 @@ def main() -> None:
     sp = dict(zip(spearman["metric"], spearman["spearman_vs_val_rank"]))
     loto_ci = bootstrap_ci(loto_values)
     loso_ci = bootstrap_ci(loso_values)
-    primary_key = f"B{PRIMARY_P}_q{str(PRIMARY_Q).replace('.', 'p')}"
-    primary_summary = band_summaries[primary_key]
-
     stats = {
         "definition": "B_{p,q} = points whose validation rank is in the top p percent for at least q of task-seed replicates.",
         "primary_band": primary_key,
         "bands": band_summaries,
         "leave_one_task_out": {**loto_ci, "rows": loto_rows},
         "leave_one_seed_out": {**loso_ci, "rows": loso_rows},
+        "holdout_performance": holdout_rows,
         "ablation_retention": ablation.to_dict(orient="records"),
         "diagnostic_spearman": {k: float(v) for k, v in sp.items()},
     }
@@ -294,6 +359,14 @@ def main() -> None:
         rows.append(
             rf"{labels[variant]} & {int(row.band_size)} & {fmt(row.retention_fraction, 2)} & {fmt(row.mean_rank_on_base_band)}\\"
         )
+    holdout_tex_rows = []
+    for row in holdout_rows:
+        task = row["task_label"]
+        if task == "All":
+            task = r"\textbf{All}"
+        holdout_tex_rows.append(
+            rf"{task} & {fmt_nmse(row['band_holdout_nmse_mean'])} & {fmt_nmse(row['medoid_holdout_nmse_mean'])} & {fmt(row['band_holdout_rank_mean'])}\\"
+        )
 
     macros = [
         "% Auto-generated by scripts/analyze_phase_map_generalization.py",
@@ -312,6 +385,8 @@ def main() -> None:
         macro("PhaseLosoMeanRank", fmt(loso_ci["mean"])),
         macro("PhaseLosoCILow", fmt(loso_ci["ci95_low"])),
         macro("PhaseLosoCIHigh", fmt(loso_ci["ci95_high"])),
+        macro("PhaseHoldoutAllRank", fmt(holdout_rows[-1]["band_holdout_rank_mean"])),
+        macro("PhaseHoldoutRows", "\n".join(holdout_tex_rows)),
         macro("PhaseMCSpearman", fmt(sp["MC"], 2)),
         macro("PhaseIPCmemSpearman", fmt(sp["IPCmem"], 2)),
         macro("PhaseIPCtotSpearman", fmt(sp["IPCtot"], 2)),

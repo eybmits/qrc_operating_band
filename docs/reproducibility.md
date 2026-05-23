@@ -37,6 +37,7 @@ Expected outputs include:
 - `data/phase_map_leave_one_task_out.csv`
 - `data/phase_map_leave_one_seed_out.csv`
 - `data/phase_map_task_seed_transfer_matrix.csv`
+- `data/phase_map_holdout_performance.csv`
 - `data/phase_map_ablation_retention.csv`
 - `paper/generated/phase_map_numbers.tex`
 - `paper/gfx/fig1_short_phase_maps.{png,pdf}`

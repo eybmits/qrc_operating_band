@@ -10,6 +10,7 @@
 - `phase_map_leave_one_task_out.csv`: leave-one-task band-transfer summary for the primary `B_{20,0.7}` protocol.
 - `phase_map_leave_one_seed_out.csv`: leave-one-seed band-transfer summary for the primary `B_{20,0.7}` protocol.
 - `phase_map_task_seed_transfer_matrix.csv`: task-by-seed validation ranks of the primary band.
+- `phase_map_holdout_performance.csv`: final post-selection holdout NMSE and rank audit for the validation-defined primary band and its medoid.
 - `phase_map_ablation_retention.csv`: retention of the primary base band under focused QRC-only ablations.
 - `final_summary_numbers.json`: compact summary consumed by quick status checks.
 

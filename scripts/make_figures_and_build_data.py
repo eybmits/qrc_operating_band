@@ -343,6 +343,9 @@ summary = {
     "leave_one_seed_mean_rank": stats["leave_one_seed_out"]["mean"],
     "leave_one_seed_ci95_low": stats["leave_one_seed_out"]["ci95_low"],
     "leave_one_seed_ci95_high": stats["leave_one_seed_out"]["ci95_high"],
+    "holdout_band_rank": stats["holdout_performance"][-1]["band_holdout_rank_mean"],
+    "holdout_band_nmse": stats["holdout_performance"][-1]["band_holdout_nmse_mean"],
+    "holdout_medoid_nmse": stats["holdout_performance"][-1]["medoid_holdout_nmse_mean"],
     "qrc_mc_spearman": float(spearman.set_index("metric").loc["MC", "spearman_vs_val_rank"]),
     "qrc_ipctot_spearman": float(spearman.set_index("metric").loc["IPCtot", "spearman_vs_val_rank"]),
 }

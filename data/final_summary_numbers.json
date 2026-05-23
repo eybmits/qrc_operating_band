@@ -11,6 +11,9 @@
   "leave_one_seed_mean_rank": 0.17991326530612245,
   "leave_one_seed_ci95_low": 0.153600212585034,
   "leave_one_seed_ci95_high": 0.20853911564625852,
+  "holdout_band_rank": 0.1556122448979592,
+  "holdout_band_nmse": 0.18867168235917559,
+  "holdout_medoid_nmse": 0.17465289125546088,
   "qrc_mc_spearman": -0.8535591747217215,
   "qrc_ipctot_spearman": -0.9038130116361606
 }

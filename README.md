@@ -61,6 +61,7 @@ The saved QRC-only summary in `data/final_summary_numbers.json` reports:
 - Primary band medoid: `(beta/pi, lambda/pi, gamma) = (0.04, 0.12, 0.12)`
 - Leave-one-task held-out validation rank: `0.23990253793825228` with 95% bootstrap CI `[0.21520140524158385, 0.26467299515960224]`
 - Leave-one-seed held-out validation rank: `0.17991326530612245` with 95% bootstrap CI `[0.153600212585034, 0.20853911564625852]`
+- Final validation-selected band holdout rank: `0.1556122448979592`; see `data/phase_map_holdout_performance.csv`
 - QRC memory-capacity Spearman correlation with validation rank: `-0.8535591747217215`
 - QRC IPC-total Spearman correlation with validation rank: `-0.9038130116361606`
 

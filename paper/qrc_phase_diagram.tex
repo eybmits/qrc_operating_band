@@ -84,6 +84,23 @@ Diagnostics & Memory capacity and intrinsic processing capacities are computed f
 \section{Evidence}
 \textbf{Phase-map transfer.} Fig.~\ref{fig:phase} shows the core pattern: low validation rank is concentrated, not randomly scattered. The primary band \PhasePrimaryBand{} has \PhaseBTwentyQSeventySize{} connected points, all at $\gamma=0.12$. When one task is withheld while defining the band from the remaining tasks, the held-out task-seed mean validation rank is \PhaseLotoMeanRank{} with bootstrap CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$. When one seed is withheld, the corresponding mean rank is \PhaseLosoMeanRank{} with CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The band is therefore a top-quartile search prior that transfers across both task identity and reservoir initialization.
 
+\textbf{Final holdout audit.} After \PhasePrimaryBand{} is fixed by validation ranks, the selected band is evaluated on the held-out split. Table~\ref{tab:holdout} reports the mean over the validation-selected band and the fixed medoid; no coordinate is chosen by holdout NMSE. The aggregate band holdout rank is \PhaseHoldoutAllRank{}, so the operating-regime prior remains top-quartile on unseen data.
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{Holdout performance after validation-only band selection. Means are over ten seeds per task; ``All'' averages the 40 task-seed rows.}
+\label{tab:holdout}
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Task & Band NMSE & Medoid NMSE & Band rank\\
+\midrule
+\PhaseHoldoutRows
+\bottomrule
+\end{tabular}
+\end{table}
+
 \textbf{Mechanism stress tests.} The operating band is not just a plotting artifact. At the central slice, the projected base band has \PhaseAblationBaseBandSize{} points. Removing the controlled damping mechanism gives retention \PhaseGammaZeroRetention{}; removing recurrent mixing gives retention \PhaseNoMixerRetention{}; replacing amplitude damping by dephasing gives retention \PhaseDephaseRetention{}. In every focused ablation, the base band ceases to be a robust top-ranked region under the same validation-rank criterion. The result supports the mechanism story: useful dynamics need input that is not too strong, recurrent mixing, and damping that preserves usable memory rather than merely adding noise.
 
 \begin{center}
@@ -133,7 +150,7 @@ Artifact & Role\\
 \midrule
 QRC phase grid & \texttt{data/qrc\_seed\_ensemble\_grid.csv}: main QRC16 phase-map grid over tasks, seeds, and $(\beta,\lambda,\gamma)$.\\
 QRC ablation slices & \texttt{data/qrc\_phase\_ablation\_slice\_grid.csv}: focused mechanism stress tests at $\gamma=0.12$.\\
-Band statistics & \texttt{data/phase\_map\_generalization\_stats.json}: band sizes, connectedness, leave-one-task/seed bootstrap CIs, ablation retention, and diagnostic correlations.\\
+Band and holdout statistics & \texttt{data/phase\_map\_generalization\_stats.json} and \texttt{data/phase\_map\_holdout\_performance.csv}: band sizes, connectedness, leave-one-task/seed bootstrap CIs, post-selection holdout audit, ablation retention, and diagnostic correlations.\\
 Generated numbers & \texttt{paper/generated/phase\_map\_numbers.tex}: all numeric macros used in the manuscript.\\
 Figures & \texttt{scripts/make\_figures\_and\_build\_data.py}: regenerates the phase maps, ablation atlas, transfer matrix, and diagnostic screening plots.\\
 Build & \texttt{./reproduce.sh} and \texttt{./paper/build.sh --update-pdf}: end-to-end regeneration and PDF refresh.\\
