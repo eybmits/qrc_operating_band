@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.patches import Ellipse
-from scipy.interpolate import griddata
+from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -374,8 +374,15 @@ axes[2].set_yticks(np.arange(len(sp)), ["MC", r"IPC$_m$", r"IPC$_t$", r"IPC$_n$"
 axes[2].invert_yaxis()
 axes[2].set_title("(c) diagnostic rank correlation")
 axes[2].set_xlabel(r"Spearman $\rho_s$")
+screen_x = screen["budget_pct"].to_numpy(dtype=float)
+screen_dense = np.linspace(float(screen_x.min()), float(screen_x.max()), 420)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
-    axes[3].plot(screen["budget_pct"], screen[col], label=col, color=color, lw=1.4)
+    screen_y = np.maximum.accumulate(screen[col].to_numpy(dtype=float))
+    if col == "random":
+        axes[3].plot(screen_x, screen_y, label=col, color=color, lw=1.35)
+    else:
+        smooth_y = np.clip(PchipInterpolator(screen_x, screen_y)(screen_dense), 0.0, 100.0)
+        axes[3].plot(screen_dense, smooth_y, label=col, color=color, lw=1.7, solid_capstyle="round")
 axes[3].set_title("(d) screening retention")
 axes[3].set_xlabel("budget (%)")
 axes[3].set_ylabel("retained (%)")
