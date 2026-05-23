@@ -6,6 +6,7 @@ This directory contains the cleaned manuscript package integrated from `qrc_fina
 - `qrc_phase_diagram.pdf`: reviewed compiled PDF copy.
 - `IEEEtran.cls`: local class file kept for reproducible builds.
 - `references.bib`: bibliography source from the paper package.
+- `generated/qrc96_esn100_numbers.tex`: generated macros for the selected QRC96/ESN100 comparison and paired statistics.
 - `gfx/`: manuscript figures generated from the repository root `data/` tables.
 
 Build the paper from this directory or from the repository root:

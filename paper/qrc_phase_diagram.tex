@@ -11,13 +11,14 @@
 \makeatother
 \newcommand{\MC}{\mathrm{MC}}
 \newcommand{\NMSE}{\mathrm{NMSE}}
+\input{generated/qrc96_esn100_numbers.tex}
 \begin{document}
-\title{Memory-Defined Operating Regimes for Dissipative Quantum Reservoirs: Transfer, Prediction, and an ESN Baseline Win}
+\title{Memory-Defined Operating Regimes for Dissipative Quantum Reservoirs: Transfer, Prediction, and a Readout-Dimension ESN Comparison}
 \author{Anonymous QCE Submission}
 \maketitle
 
 \begin{abstract}
-Reservoir computing trains only a simple readout on top of a fixed dynamical system, making it attractive for physical implementations. For quantum reservoirs, the open question is which physical resource makes the fixed dynamics useful rather than merely expressive. This work identifies a memory-defined operating regime in a stateful dissipative gate-model quantum reservoir. The regime balances gentle input perturbation, recurrent mixing, and controlled damping so that the reservoir retains useful history while exposing nonlinear features to the readout. Memory capacity predicts this regime and also acts as a diagnostic for classical Echo-State Networks, making it a reservoir-level screening signal rather than a quantum-specific score. Targeting the regime and then enriching the fixed quantum readout lifts the quantum reservoir above a strong classical Echo-State baseline under a comparable feature budget; leaving the regime removes the gain. The claim is limited to simulated benchmarks and does not assert quantum advantage, hardware transfer, or finite-measurement robustness.
+Reservoir computing trains only a simple readout on top of a fixed dynamical system, making it attractive for physical implementations. For quantum reservoirs, the open question is which physical resource makes the fixed dynamics useful rather than merely expressive. This work identifies a memory-defined operating regime in a stateful dissipative gate-model quantum reservoir. The regime balances gentle input perturbation, recurrent mixing, and controlled damping so that the reservoir retains useful history while exposing nonlinear features to the readout. Memory capacity predicts this regime and also acts as a diagnostic for classical Echo-State Networks, making it a reservoir-level screening signal rather than a quantum-specific score. Targeting the regime and then enriching the fixed quantum readout gives a QRC96 model with holdout NMSE \QRCNinetySixMeanTest{} versus \ESNHundredMeanTest{} for a tuned ESN100 under matched readout dimension. The claim is limited to simulated benchmarks and does not assert quantum advantage, hardware transfer, finite-measurement robustness, or full resource equivalence.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -29,9 +30,9 @@ Reservoir computing turns temporal learning into a linear readout problem: a fix
 
 The open question is therefore mechanistic. A quantum reservoir becomes useful only when its physical resources create a state that remembers enough history, forgets old information controllably, and exposes nonlinear functions of the history to a trainable readout. A high-dimensional quantum state alone does not solve this problem. Excessive drive overwrites memory, missing damping prevents useful fading memory, and missing recurrent mixing leaves the readout with weak temporal features.
 
-The central assertion is that dissipative quantum reservoirs possess a memory-defined operating regime. This regime is not a plotting convention and not a post-hoc description of a best coordinate. It is a causal region in the resource space of input strength, recurrent coupling, and damping. Inside the region, memory capacity predicts good validation rank, a richer fixed quantum readout beats a strong Echo-State Network (ESN) baseline under a comparable feature budget, and minimal ablations destroy the gain. Outside the region, readout enrichment alone does not rescue the reservoir.
+The central assertion is that dissipative quantum reservoirs possess a memory-defined operating regime. This regime is not a plotting convention and not a post-hoc description of a best coordinate. It is a causal region in the resource space of input strength, recurrent coupling, and damping. Inside the region, memory capacity predicts good validation rank, a richer fixed quantum readout can be competitive with a strong Echo-State Network (ESN) baseline at matched readout dimension, and minimal ablations destroy the gain. Outside the region, readout enrichment alone does not rescue the reservoir.
 
-The evidence has three parts. First, the regime is a transferable zone rather than a universal point: a strict all-seed intersection is too strong, but a connected frequency-level core persists across tasks and reservoir seeds. Second, memory capacity provides a reservoir-level compass that points toward the useful regime in both quantum reservoirs and ESNs. Third, targeted operation inside the regime lifts a fixed quantum readout above a strong ESN baseline, while removing damping or mixing collapses performance. The scope remains intentionally bounded to simulated benchmarks with comparable feature budgets; finite-shot costs, calibration noise, hardware transfer, and full resource accounting remain outside the claim.
+The evidence has three parts. First, the regime is a transferable zone rather than a universal point: a strict all-seed intersection is too strong, but a connected frequency-level core persists across tasks and reservoir seeds. Second, memory capacity provides a reservoir-level compass that points toward the useful regime in both quantum reservoirs and ESNs. Third, targeted operation inside the regime lifts a fixed quantum readout above the selected ESN100 in aggregate seed-level holdout means, while removing damping or mixing collapses performance. The scope remains intentionally bounded to simulated benchmarks with matched classical readout dimension; finite-shot costs, calibration noise, hardware transfer, and full resource accounting remain outside the claim.
 
 \section{Methodology}
 A stateful dissipative quantum reservoir carries its density matrix from one time step to the next. For scalar input $u_t$, input injection perturbs the previous reservoir state rather than resetting it:
@@ -68,6 +69,22 @@ Memory capacity supplies the predictive diagnostic. It is computed by training l
 \end{equation}
 High memory capacity does not guarantee low task error, but it rejects collapsed reservoirs before expensive task-specific sweeps. The same diagnostic is computed for ESN candidates to test whether memory capacity is a reservoir-level signal rather than a QRC-specific score.
 
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Frozen selection protocol. Holdout data are excluded from both regime discovery and hyperparameter selection.}
+\label{tab:selection-protocol}
+\begin{tabular}{@{}p{0.14\textwidth}p{0.12\textwidth}p{0.22\textwidth}p{0.28\textwidth}p{0.10\textwidth}@{}}
+\toprule
+Stage & Model & Search space & Selection criterion & Holdout used?\\
+\midrule
+Regime discovery & QRC16 & coarse $(\beta,\lambda,\gamma)$ grid & validation rank and memory diagnostics & no\\
+Regime refinement & QRC96 & local grid inside discovered regime & mean validation NMSE over tasks and seeds & no\\
+Final report & QRC96 vs ESN100 & selected configs only & holdout NMSE and paired statistics & yes\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{gfx/fig1_operating_regime_fixed_gamma.pdf}
@@ -76,7 +93,7 @@ High memory capacity does not guarantee low task error, but it rejects collapsed
 \end{figure*}
 
 \section{Experimental Setup}
-The benchmark suite contains Mackey--Glass, NARMA10, Lorenz, and annual Sunspots. All tasks use chronological train, validation, and holdout splits. Ridge regularization is selected on validation from $\{10^{-8},\ldots,10^{3}\}$, and all reported performance numbers are holdout NMSE. The grid contains seven input-strength values, seven coupling values, and five damping values:
+The benchmark suite contains Mackey--Glass, NARMA10, Lorenz, and annual Sunspots. All tasks use chronological train, validation, and holdout splits. Inputs are scaled to $[-1,1]$, targets are standardized, and reported performance is holdout NMSE. Ridge regularization is selected on validation from $\{10^{-8},10^{-7},\ldots,10^{3}\}$. The QRC16 regime-discovery grid contains seven input-strength values, seven coupling values, and five damping values:
 \begin{align*}
 \beta/\pi &\in \{0,0.02,0.04,0.07,0.10,0.22,0.50\},\\
 \lambda/\pi &\in \{0,0.05,0.10,0.12,0.16,0.28,0.42\},\\
@@ -84,9 +101,81 @@ The benchmark suite contains Mackey--Glass, NARMA10, Lorenz, and annual Sunspots
 \end{align*}
 Reservoir seeds are $42$--$51$, giving $40$ task-seed replicates.
 
-The ESN baselines use the identical tasks, splits, seeds, ridge grid, and shared-validation selection protocol. ESN16 matches the QRC16 feature dimension. ESN100 is the strong classical baseline for the enriched QRC96 comparison. QRC96 has $96$ expectation-value features and ESN100 has $100$ recurrent state features, so the comparison is feature-budget comparable. It is not a full resource-accounting comparison because QRC96 also requires additional measurement bases, finite shots are not modeled, and calibration overhead is absent.
+The QRC96 point is not chosen from this coarse grid. Instead, after the QRC16 screen identifies the low-input, nonzero-damping, nonmaximal-coupling regime, a frozen local QRC96 refinement grid is evaluated inside that regime:
+\begin{align*}
+\beta/\pi &\in \{0.005,0.010,0.020\},\\
+\lambda/\pi &\in \{0.050,0.075,0.100\},\\
+\gamma &\in \{0.050,0.080,0.120\}.
+\end{align*}
+The selected QRC96 configuration is $(\beta/\pi,\lambda/\pi,\gamma)=(\QRCNinetySixBetaPi,\QRCNinetySixLambdaPi,\QRCNinetySixGamma)$, chosen by mean validation NMSE over all tasks and seeds. Holdout NMSE is then reported once for this selected configuration.
 
-Shared-validation selection is deliberately conservative. A single hyperparameter setting is selected by mean validation NMSE across tasks and seeds, and that setting is evaluated on holdout. Task-seed upper bounds are not used for the main ESN win because they allow a separate hyperparameter choice for each replicate and therefore measure an optimistic selector rather than a deployable shared model.
+The ESN baselines use the identical tasks, splits, seeds, ridge grid, and shared-validation selection protocol. ESN16 matches the QRC16 readout dimension. ESN100 is the audited classical baseline for the enriched QRC96 comparison, with the sweep in Table~\ref{tab:esn-audit}. The selected ESN100 has spectral radius \ESNHundredSpectralRadius, input scaling \ESNHundredInputScale, and leak rate \ESNHundredLeak.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Auditable ESN100 baseline. One shared setting is selected by mean validation NMSE across tasks and seeds.}
+\label{tab:esn-audit}
+\begin{tabular}{lll}
+\toprule
+ESN parameter & Values swept & Selected\\
+\midrule
+Reservoir size & $100$ & $100$\\
+Spectral radius & $\{0.5,0.9,1.1\}$ & \ESNHundredSpectralRadius\\
+Input scaling & $\{0.1,0.5,1.0\}$ & \ESNHundredInputScale\\
+Leak rate & $\{0.3,0.7,1.0\}$ & \ESNHundredLeak\\
+Recurrent matrix & dense Gaussian, scaled & dense\\
+Bias & Gaussian, std. $0.01$ & included\\
+Activation & $\tanh$ & $\tanh$\\
+Seeds & $42$--$51$ & all\\
+Ridge grid & $10^{-8}$ to $10^{3}$ & validation\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Shared-validation selection is deliberately conservative. A single hyperparameter setting is selected by mean validation NMSE across tasks and seeds, and that setting is evaluated on holdout. Task-seed upper bounds are not used for the main comparison because they allow a separate hyperparameter choice for each replicate and therefore measure an optimistic selector rather than a deployable shared model.
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Resource scope of the comparison. The final comparison matches the number of classical readout features, not wall-clock, shot, measurement-basis, calibration, or hardware cost.}
+\label{tab:resource-scope}
+\begin{tabular}{@{}p{0.12\textwidth}p{0.18\textwidth}p{0.16\textwidth}p{0.30\textwidth}p{0.14\textwidth}@{}}
+\toprule
+Model & Readout features & Trained parameters & Quantum measurement cost & Included in comparison?\\
+\midrule
+ESN100 & $100$ recurrent state features & ridge readout only & none & yes\\
+QRC96 & $96$ Pauli expectation features & ridge readout only & many local and two-body Pauli observables & yes, cost excluded\\
+QRC16 & $16$ $Z$ and $ZZ$ features & ridge readout only & fewer observables & regime discovery/control\\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\caption{Reproducibility details for the saved comparison artifacts.}
+\label{tab:reproducibility}
+\begin{tabular}{p{0.22\textwidth}p{0.72\textwidth}}
+\toprule
+Item & Value\\
+\midrule
+Datasets & Mackey--Glass, NARMA10, Lorenz, annual Sunspots\\
+Prediction target & one-step target for Mackey--Glass, Lorenz, and Sunspots; standard NARMA10 recurrence target\\
+Synthetic-task split & washout/train/validation/holdout $=300/1600/400/400$\\
+Sunspots split & washout/train/validation/holdout $=20/150/50/60$\\
+Normalization & inputs scaled to $[-1,1]$; targets standardized before chronological splitting\\
+QRC washout & task-specific chronological washout above\\
+Ridge grid & $\{10^{-8},10^{-7},\ldots,10^{3}\}$\\
+MC delay cutoff & $D=10$ for memory capacity; IPC memory diagnostic uses $D=20$\\
+Seeds & $42$--$51$\\
+QRC coarse grid & $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, $\gamma=\{0,0.05,0.12,0.22,0.30\}$\\
+QRC96 local grid & $\beta/\pi=\{0.005,0.010,0.020\}$, $\lambda/\pi=\{0.050,0.075,0.100\}$, $\gamma=\{0.050,0.080,0.120\}$\\
+ESN100 grid & spectral radius $\{0.5,0.9,1.1\}$, input scaling $\{0.1,0.5,1.0\}$, leak $\{0.3,0.7,1.0\}$\\
+Code/config availability & all scripts, grids, selected configs, and generated statistics are stored in the repository\\
+\bottomrule
+\end{tabular}
+\end{table*}
 
 \section{Evaluation}
 \subsection{The regime is transferable, but not a universal point}
@@ -94,19 +183,35 @@ The strict all-seed top-20\% intersection is empty. This falsifies the strongest
 
 Fig.~\ref{fig:regime} displays the regime at a fixed damping slice. This choice removes a visualization artifact produced by best-over-damping projections, where different damping slices can be spliced into a single two-dimensional surface. The displayed panels preserve the same qualitative structure without such switching: the low-rank region is broad in coupling, sharply avoids excessive input strength, and remains visible under leave-one-task-out conditioning.
 
-\subsection{Targeting the regime beats a strong ESN baseline}
-The baseline QRC16 does not beat the classical baselines. Its shared-validation holdout NMSE is $0.120$, compared with $0.112$ for ESN16 and $0.090$ for ESN100. The operating regime nevertheless supplies a useful search prior. The enriched QRC96 readout is evaluated inside the low-input, nonzero-damping core rather than over a blind architecture search. The selected point is $(\beta/\pi,\lambda/\pi,\gamma)=(0.010,0.050,0.080)$, with mean validation NMSE $0.082$ and mean holdout NMSE $0.073$.
+\subsection{Targeting the regime improves the aggregate ESN100 comparison}
+The baseline QRC16 does not beat the classical baselines. Its shared-validation holdout NMSE is $0.120$, compared with $0.112$ for ESN16 and $0.090$ for ESN100. The operating regime nevertheless supplies a useful search prior. The enriched QRC96 readout is evaluated on the frozen local grid in Table~\ref{tab:selection-protocol}, not by a post-hoc coordinate choice. The selected point is $(\beta/\pi,\lambda/\pi,\gamma)=(\QRCNinetySixBetaPi,\QRCNinetySixLambdaPi,\QRCNinetySixGamma)$, with mean validation NMSE \QRCNinetySixMeanVal{} and mean holdout NMSE \QRCNinetySixMeanTest{}.
 
-This value beats the shared-validation ESN100 baseline at $0.090$ under the same tasks, seeds, splits, and validation protocol. The gain is concentrated in NARMA10, where the QRC96 point reduces the ESN100 error while maintaining near-zero holdout error on Mackey--Glass and Lorenz. Seed-level means remain below the ESN100 distribution across seeds $42$--$51$. Fig.~\ref{fig:evidence} summarizes the comparison, the per-task contributions, seed-level stability, and minimal controls.
+The selected ESN100 baseline has mean validation NMSE \ESNHundredMeanVal{} and holdout NMSE \ESNHundredMeanTest{} under the same tasks, seeds, splits, and validation protocol. The aggregate seed-level difference is positive: for $\Delta=\NMSE_{\mathrm{ESN100}}-\NMSE_{\mathrm{QRC96}}$, the mean paired seed-level delta is \QRCSeedDeltaMean{} with bootstrap 95\% CI $[\QRCSeedDeltaCILow,\QRCSeedDeltaCIHigh]$. QRC96 has lower task-mean holdout NMSE in \QRCSeedWins{} seeds; the directional tests give Wilcoxon $p=\QRCSeedWilcoxonGreaterP{}$ and paired sign test $p=\QRCSeedSignGreaterP{}$.
+
+This is not a uniform task-wise dominance claim. Treating all $40$ task-seed pairs as exchangeable gives $\Delta=\QRCTaskSeedDeltaMean{}$ with CI $[\QRCTaskSeedDeltaCILow,\QRCTaskSeedDeltaCIHigh]$, and QRC96 wins only \QRCTaskSeedWins{} task-seed pairs. The per-task decomposition in Table~\ref{tab:paired-stats} shows why: the aggregate gain is driven by NARMA10, while Mackey--Glass and Lorenz are near numerical floor for both models and Sunspots favors ESN100. Fig.~\ref{fig:evidence} summarizes the readout-dimension comparison, per-task contributions, seed-level stability, and minimal controls.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\caption{Paired holdout decomposition for the selected QRC96 and ESN100 configurations. Positive $\Delta$ favors QRC96.}
+\label{tab:paired-stats}
+\begin{tabular}{lrrrr}
+\toprule
+Task & ESN100 & QRC96 & $\Delta$ & QRC wins\\
+\midrule
+\QRCPerTaskStatsRows
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.98\textwidth]{gfx/fig2_regime_beats_esn_controls.pdf}
-\caption{Performance and mechanism controls. (a) QRC16 loses to both ESN baselines, while the memory-regime-targeted QRC96 readout beats ESN100 under shared-validation selection. (b) The QRC96 win is mainly carried by NARMA10; both models solve Mackey--Glass and Lorenz nearly perfectly. (c) Seed-level means remain lower for QRC96 than for ESN100. (d) Removing the memory-preserving mechanism collapses performance: richer readout access helps only after recurrent mixing and nonzero damping establish usable memory.}
+\caption{Performance and mechanism controls. (a) QRC16 loses to both ESN baselines, while the memory-regime-targeted QRC96 readout improves the aggregate ESN100 comparison at matched readout dimension. (b) The QRC96 gain is mainly carried by NARMA10; Mackey--Glass and Lorenz are near floor, and Sunspots favors ESN100. (c) Seed-level task means are lower for QRC96 than for ESN100. (d) Removing the memory-preserving mechanism collapses performance: richer readout access helps only after recurrent mixing and nonzero damping establish usable memory.}
 \label{fig:evidence}
 \end{figure*}
 
-\subsection{Ablations locate the cause of the win}
+\subsection{Ablations locate the cause of the gain}
 The enriched readout is a gain amplifier, not the root cause. The $R_x$--ZZ--$R_x$ variant reaches $0.168$, and the baseline dissipative QRC16 core reaches $0.187$. Removing recurrent mixing raises error to $0.976$. Setting damping to zero gives $1.025$, and dephasing gives $1.043$. These controls destroy the advantage by removing the memory-preserving regime. The improved QRC96 readout succeeds because it extracts more observables from a state that already sits in the correct dynamical regime.
 
 The resource interpretation follows directly. Input strength perturbs the carried state; excessive input drive overwrites history, and zero input creates collapsed memory. Damping creates controlled forgetting; zero damping fails to produce the same fading-memory behavior. Recurrent ZZ coupling mixes stored history across qubits and remains task dependent rather than monotone. The useful design rule is therefore causal: establish the memory-preserving dissipative regime first, then enrich readout access inside it.
@@ -126,7 +231,7 @@ The screening-retention view makes the practical value explicit. If only $20\%$ 
 \end{figure*}
 
 \section{Conclusion}
-Dissipative quantum reservoirs become useful when their physical resources form a memory-preserving operating regime. Gentle input perturbation, controlled damping, and recurrent mixing create a state that retains useful history and exposes nonlinear features to a fixed readout. Memory capacity identifies this regime before exhaustive task sweeps, and the same diagnostic applies to classical reservoirs. Within the simulated benchmark, targeting the regime and then enriching the fixed quantum readout lifts the quantum reservoir above a strong Echo-State baseline under a comparable feature budget; leaving the regime removes the gain. The result is not a quantum-advantage or hardware-transfer claim. Natural next tests include finite measurements, calibration noise, alternative topologies, and measurement-cost accounting.
+Dissipative quantum reservoirs become useful when their physical resources form a memory-preserving operating regime. Gentle input perturbation, controlled damping, and recurrent mixing create a state that retains useful history and exposes nonlinear features to a fixed readout. Memory capacity identifies this regime before exhaustive task sweeps, and the same diagnostic applies to classical reservoirs. Within the simulated benchmark, targeting the regime and then enriching the fixed quantum readout improves the aggregate comparison against a tuned ESN100 at matched readout dimension; leaving the regime removes the gain. The result is not a quantum-advantage, hardware-transfer, wall-clock, shot-noise, calibration, or full resource-accounting claim. Natural next tests include finite measurements, calibration noise, alternative topologies, and measurement-cost accounting.
 
 \begin{thebibliography}{10}
 \bibitem{jaeger2004} H. Jaeger and H. Haas, ``Harnessing nonlinearity: Predicting chaotic systems and saving energy in wireless communication,'' \emph{Science}, vol. 304, no. 5667, pp. 78--80, 2004.

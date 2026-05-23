@@ -5,6 +5,8 @@ This repository contains the cleaned code and data package for the QRC operating
 ## Contents
 
 - `scripts/make_figures_and_build_data.py`: rebuilds the main paper figure set from the included CSV/JSON tables.
+- `scripts/run_qrc96_local_refinement.py`: reruns the frozen 3x3x3 QRC96 Pauli-ring local refinement grid.
+- `scripts/analyze_qrc96_esn100.py`: selects QRC96/ESN100 by shared validation and writes paired statistical tests.
 - `scripts/make_qrc_v6_with_real_diagnostics.py`: recomputes the intrinsic-diagnostic ranking tables and the Fig. 3 diagnostic panels from the included diagnostic table.
 - `scripts/compute_qrc_real_diagnostics.py`: full intrinsic-diagnostic recomputation from the QRC simulator and saved grid.
 - `scripts/compute_qrc_real_diagnostics_chunk.py`: chunked version of the intrinsic-diagnostic recomputation.
@@ -43,6 +45,15 @@ python scripts/compute_qrc_real_diagnostics.py
 
 That full run evaluates 2,450 QRC configurations and is much slower than the figure-only rebuild. For split execution, use `scripts/compute_qrc_real_diagnostics_chunk.py START END` and write chunks into `data/diag_parts/`.
 
+To rerun the frozen QRC96 local-refinement grid used for the final readout-dimension ESN100 comparison:
+
+```bash
+python scripts/run_qrc96_local_refinement.py --overwrite
+python scripts/analyze_qrc96_esn100.py
+```
+
+The local refinement evaluates 27 QRC96 settings across 10 seeds and 4 tasks, then selects one setting by mean validation NMSE before reporting holdout statistics.
+
 To rebuild only the paper PDF:
 
 ```bash
@@ -53,8 +64,9 @@ To rebuild only the paper PDF:
 
 The saved summary in `data/final_summary_numbers.json` reports:
 
-- QRC96 shared mean holdout NMSE: `0.07268684590654748`
+- QRC96 shared mean holdout NMSE: `0.07768925554710517`
 - ESN100 shared mean holdout NMSE: `0.09033359418003997`
+- Seed-level paired delta `ESN100 - QRC96`: `0.01264433863293481` with bootstrap 95% CI `[0.007527776569199887, 0.017961484896988997]`
 - QRC memory-capacity Spearman correlation: `-0.8528302709370734`
 - legacy MC-screen zero-memory points: `922 / 2450`
 - current intrinsic-diagnostic zero-memory points used by the paper: `792 / 2450`

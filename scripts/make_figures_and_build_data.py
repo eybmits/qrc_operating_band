@@ -27,6 +27,12 @@ plt.rcParams.update({
 
 # Load data
 q=pd.read_csv(DATA/'qrc_seed_ensemble_grid.csv')
+stats_path=DATA/'qrc96_esn100_stats.json'
+if not stats_path.exists():
+    raise FileNotFoundError(f"Missing {stats_path}; run scripts/analyze_qrc96_esn100.py first.")
+qrc_stats=json.loads(stats_path.read_text())
+qrc_selected=qrc_stats['qrc96_selected']
+esn_selected=qrc_stats['esn100_selected']
 q['replicate']=q.task+'__seed'+q.seed.astype(str)
 q['val_rank_pct']=q.groupby('replicate').val_nmse.rank(method='average', pct=True)
 keys=['beta_pi','lambda_pi','gamma']
@@ -66,8 +72,8 @@ for ax,(title,tasks) in zip(axes,panels):
     cp=fr[fr.top20>=0.70]
     if len(bp): ax.scatter(bp.beta_pi,bp.lambda_pi,s=15,c='#2b8cbe',alpha=0.22,edgecolor='none')
     if len(cp): ax.scatter(cp.beta_pi,cp.lambda_pi,s=24,c='#2b8cbe',edgecolor='white',linewidth=0.35)
-    # local best at this slice; QRC96 projection as star/cross 
-    ax.scatter([0.010],[0.050],marker='*',s=70,linewidths=0.7,c='#ff7f0e',edgecolor='black',zorder=5)
+    # selected QRC96 local-refinement projection
+    ax.scatter([qrc_selected['beta_pi']],[qrc_selected['lambda_pi']],marker='*',s=70,linewidths=0.7,c='#ff7f0e',edgecolor='black',zorder=5)
     ax.axvline(0.10,color='white',ls='--',lw=0.85,alpha=0.85)
     ax.axhline(0.10,color='white',ls='--',lw=0.85,alpha=0.85)
     ax.set_xlim(0,xmax); ax.set_ylim(0,ymax)
@@ -85,12 +91,21 @@ plt.close(fig)
 
 # Figure 2: ESN comparison + controls
 comp=pd.read_csv(DATA/'final_qrc_esn_comparison.csv')
-q96=pd.read_csv(DATA/'qrc96_final10_results.csv')
-q96sel=q96[(np.isclose(q96.beta_pi,0.010))&(np.isclose(q96.lambda_pi,0.050))&(np.isclose(q96.gamma,0.080))]
+q96=pd.read_csv(DATA/'qrc96_local_refinement_grid.csv')
+q96sel=q96[
+    (np.isclose(q96.beta_pi,float(qrc_selected['beta_pi'])))&
+    (np.isclose(q96.lambda_pi,float(qrc_selected['lambda_pi'])))&
+    (np.isclose(q96.gamma,float(qrc_selected['gamma'])))
+]
 esn=pd.read_csv(DATA/'esn_candidate_performance.csv')
-esnsel=esn[(np.isclose(esn.sr,0.9))&(np.isclose(esn.input_scale,0.1))&(np.isclose(esn.leak,1.0))]
+esnsel=esn[
+    (esn.units.astype(int)==int(esn_selected['units']))&
+    (np.isclose(esn.sr,float(esn_selected['spectral_radius'])))&
+    (np.isclose(esn.input_scale,float(esn_selected['input_scale'])))&
+    (np.isclose(esn.leak,float(esn_selected['leak'])))
+]
 abl=pd.read_csv(DATA/'minimal_ablations_seeded_summary.csv')
-# Use qrc96 as first control with value 0.073, qrc16 controls from ablations
+# Use the validation-selected QRC96 result as the first control, then QRC16 controls from ablations.
 data_controls=pd.DataFrame([
     {'label':'QRC96','value':float(q96sel.test_nmse.mean())},
     {'label':'Rx-ZZ-Rx','value':float(abl.set_index('ablation').loc['mixer_rx_zz_rx','mean_test_nmse'])},
@@ -107,7 +122,7 @@ vals=[float(comp.set_index('method').loc[m,'mean_test_nmse']) for m in order]+[f
 labs=['QRC16\nshared','ESN16\nshared','ESN100\nshared','QRC96\nregime']
 cols=['#80b1d3','#fdb462','#fb6a4a','#2b8cbe']
 axes[0].bar(labs,vals,color=cols,edgecolor='black',linewidth=0.35)
-axes[0].set_title('(a) feature-budget baseline',fontsize=10)
+axes[0].set_title('(a) readout-dimension comparison',fontsize=10)
 axes[0].set_ylabel('holdout NMSE')
 axes[0].set_ylim(0,0.135)
 for i,v in enumerate(vals): axes[0].text(i,v+0.004,f'{v:.3f}',ha='center',va='bottom',fontsize=8)
@@ -121,7 +136,9 @@ axes[1].bar(x+width/2,pt_q.values,width,label='QRC96',color='#2b8cbe',edgecolor=
 axes[1].set_xticks(x,['MG','Lorenz','NARMA10','Sunspots'],rotation=25,ha='right',fontsize=8)
 axes[1].set_title('(b) per-task holdout',fontsize=10); axes[1].set_ylabel('holdout NMSE'); axes[1].set_ylim(0,0.24); axes[1].legend(frameon=False,fontsize=8)
 # (c) seed means
-qseed=q96sel.groupby('seed').test_nmse.mean(); eseed=esnsel.groupby('seed').test_nmse.mean()
+seed_pairs=pd.read_csv(DATA/'qrc96_esn100_seed_pairs.csv')
+qseed=seed_pairs.set_index('seed').qrc_mean_nmse
+eseed=seed_pairs.set_index('seed').esn_mean_nmse
 axes[2].boxplot([eseed.values,qseed.values],tick_labels=['ESN100','QRC96'],patch_artist=True,boxprops={'facecolor':'#fdb462','alpha':0.7},medianprops={'color':'black'},widths=0.45)
 # manually recolor second
 for patch,col in zip(axes[2].artists, ['#fdb462','#2b8cbe']): patch.set_facecolor(col)
@@ -203,6 +220,14 @@ summary={
  'mc_zero_fraction': float((qmc.MC==0).mean()),
  'lambda_max_plotted': ymax,
  'gamma_slice': gamma_star,
+ 'qrc96_selected_beta_pi': float(qrc_selected['beta_pi']),
+ 'qrc96_selected_lambda_pi': float(qrc_selected['lambda_pi']),
+ 'qrc96_selected_gamma': float(qrc_selected['gamma']),
+ 'qrc96_esn100_seed_delta_mean': float(qrc_stats['seed_level']['delta']['mean']),
+ 'qrc96_esn100_seed_delta_ci95_low': float(qrc_stats['seed_level']['delta']['ci95_low']),
+ 'qrc96_esn100_seed_delta_ci95_high': float(qrc_stats['seed_level']['delta']['ci95_high']),
+ 'qrc96_esn100_seed_wilcoxon_greater_p': float(qrc_stats['seed_level']['tests']['wilcoxon_greater_p']),
+ 'qrc96_esn100_seed_sign_greater_p': float(qrc_stats['seed_level']['tests']['sign_greater_p']),
 }
 (DATA/'final_summary_numbers.json').write_text(json.dumps(summary,indent=2))
 print(json.dumps(summary,indent=2))

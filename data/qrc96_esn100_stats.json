@@ -1,0 +1,161 @@
+{
+  "delta_definition": "Delta = holdout NMSE_ESN100 - holdout NMSE_QRC96; positive values favor QRC96.",
+  "primary_unit": "seed-level task-mean holdout deltas, n=10",
+  "secondary_unit": "task-seed holdout deltas, n=40",
+  "qrc96_selected": {
+    "model": "QRC96",
+    "selection": "mean validation NMSE across all tasks and seeds",
+    "beta_pi": 0.02,
+    "lambda_pi": 0.1,
+    "gamma": 0.08,
+    "features": 96,
+    "mean_val_nmse": 0.06670796497757622,
+    "mean_holdout_nmse": 0.07768925554710517,
+    "rows": 40
+  },
+  "esn100_selected": {
+    "model": "ESN100",
+    "selection": "mean validation NMSE across all tasks and seeds",
+    "features": 100,
+    "mean_val_nmse": 0.08663013729549146,
+    "mean_holdout_nmse": 0.09033359418003997,
+    "rows": 40,
+    "units": 100.0,
+    "spectral_radius": 0.9,
+    "input_scale": 0.1,
+    "leak": 1.0
+  },
+  "qrc96_grid": {
+    "beta_pi": [
+      0.005,
+      0.01,
+      0.02
+    ],
+    "lambda_pi": [
+      0.05,
+      0.075,
+      0.1
+    ],
+    "gamma": [
+      0.05,
+      0.08,
+      0.12
+    ],
+    "rows": 1080
+  },
+  "esn100_grid": {
+    "units": [
+      100
+    ],
+    "spectral_radius": [
+      0.5,
+      0.9,
+      1.1
+    ],
+    "input_scale": [
+      0.1,
+      0.5,
+      1.0
+    ],
+    "leak": [
+      0.3,
+      0.7,
+      1.0
+    ],
+    "rows": 1080
+  },
+  "ridge_alpha_grid": [
+    1e-08,
+    1e-07,
+    1e-06,
+    1e-05,
+    0.0001,
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0,
+    100.0,
+    1000.0
+  ],
+  "seed_level": {
+    "qrc96_mean_holdout_nmse": 0.07768925554710515,
+    "esn100_mean_holdout_nmse": 0.09033359418003997,
+    "delta": {
+      "mean": 0.01264433863293481,
+      "ci95_low": 0.007527776569199887,
+      "ci95_high": 0.017961484896988997,
+      "draws": 50000,
+      "seed": 20260523
+    },
+    "tests": {
+      "n": 10,
+      "wins": 10,
+      "losses": 0,
+      "ties": 0,
+      "wilcoxon_greater_p": 0.0009765625,
+      "wilcoxon_two_sided_p": 0.001953125,
+      "sign_greater_p": 0.0009765625,
+      "sign_two_sided_p": 0.001953125
+    }
+  },
+  "task_seed_level": {
+    "qrc96_mean_holdout_nmse": 0.07768925554710517,
+    "esn100_mean_holdout_nmse": 0.09033359418003997,
+    "delta": {
+      "mean": 0.01264433863293481,
+      "ci95_low": -0.0035330468746464583,
+      "ci95_high": 0.030097527822814482,
+      "draws": 50000,
+      "seed": 20260523
+    },
+    "tests": {
+      "n": 40,
+      "wins": 10,
+      "losses": 30,
+      "ties": 0,
+      "wilcoxon_greater_p": 0.7975311301752299,
+      "wilcoxon_two_sided_p": 0.4125340336249792,
+      "sign_greater_p": 0.9996602258725034,
+      "sign_two_sided_p": 0.0022214337732293643
+    }
+  },
+  "per_task": [
+    {
+      "task": "lorenz",
+      "esn100_mean_nmse": 1.0633628599231741e-08,
+      "qrc96_mean_nmse": 8.320236499268152e-06,
+      "delta_esn_minus_qrc": -8.309602870668922e-06,
+      "qrc96_wins": 0,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "0/10"
+    },
+    {
+      "task": "mackey_glass",
+      "esn100_mean_nmse": 7.713065670368375e-07,
+      "qrc96_mean_nmse": 1.642224087748756e-05,
+      "delta_esn_minus_qrc": -1.5650934310450724e-05,
+      "qrc96_wins": 0,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "0/10"
+    },
+    {
+      "task": "narma10",
+      "esn100_mean_nmse": 0.21611944798508653,
+      "qrc96_mean_nmse": 0.11978191869052209,
+      "delta_esn_minus_qrc": 0.09633752929456445,
+      "qrc96_wins": 10,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "10/10"
+    },
+    {
+      "task": "sunspots_annual",
+      "esn100_mean_nmse": 0.1452141467948777,
+      "qrc96_mean_nmse": 0.19095036102052182,
+      "delta_esn_minus_qrc": -0.0457362142256441,
+      "qrc96_wins": 0,
+      "seeds": 10,
+      "qrc96_wins_over_seeds": "0/10"
+    }
+  ]
+}

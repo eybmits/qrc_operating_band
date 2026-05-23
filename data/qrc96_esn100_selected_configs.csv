@@ -1,0 +1,3 @@
+model,selection,beta_pi,lambda_pi,gamma,features,mean_val_nmse,mean_holdout_nmse,rows,units,spectral_radius,input_scale,leak
+QRC96,mean validation NMSE across all tasks and seeds,0.02,0.1,0.08,96,0.06670796497757622,0.07768925554710517,40,,,,
+ESN100,mean validation NMSE across all tasks and seeds,,,,100,0.08663013729549146,0.09033359418003997,40,100.0,0.9,0.1,1.0

@@ -22,6 +22,7 @@ This runs:
 
 ```bash
 python -m compileall -q scripts
+python scripts/analyze_qrc96_esn100.py
 python scripts/make_figures_and_build_data.py
 python scripts/make_qrc_v6_with_real_diagnostics.py
 ./paper/build.sh
@@ -29,6 +30,10 @@ python scripts/make_qrc_v6_with_real_diagnostics.py
 
 Expected outputs include:
 
+- `data/qrc96_esn100_stats.json`
+- `data/qrc96_esn100_per_task.csv`
+- `data/qrc96_esn100_seed_pairs.csv`
+- `paper/generated/qrc96_esn100_numbers.tex`
 - `data/final_summary_numbers.json`
 - `data/screening_retention_recomputed_intrinsic_diagnostics.csv`
 - `data/qrc_real_current_diagnostic_spearman_named.csv`
@@ -66,6 +71,28 @@ python scripts/compute_qrc_real_diagnostics_chunk.py 300 600
 ```
 
 Chunk outputs are written under `data/diag_parts/`.
+
+## QRC96 Local Refinement Recompute
+
+The final QRC96/ESN100 comparison uses a frozen local QRC96 grid inside the QRC16-discovered operating regime:
+
+```bash
+python scripts/run_qrc96_local_refinement.py --overwrite
+python scripts/analyze_qrc96_esn100.py
+```
+
+This writes:
+
+- `data/qrc96_local_refinement_grid.csv`
+- `data/qrc96_local_refinement_metadata.json`
+- `data/qrc96_esn100_stats.json`
+- `data/qrc96_esn100_per_task.csv`
+- `data/qrc96_esn100_seed_pairs.csv`
+- `data/qrc96_esn100_task_seed_pairs.csv`
+- `data/qrc96_esn100_selected_configs.csv`
+- `paper/generated/qrc96_esn100_numbers.tex`
+
+The analysis selects QRC96 and ESN100 only by mean validation NMSE across tasks and seeds, then computes holdout NMSE and paired tests for the selected configurations.
 
 ## Simulator Smoke Test
 
