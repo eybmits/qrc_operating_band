@@ -51,6 +51,12 @@ Use this command to refresh the tracked PDF copy after reviewing a clean build:
 ./paper/build.sh --update-pdf
 ```
 
+The optional visual-candidate gallery is not part of the standard paper build. Regenerate it manually with:
+
+```bash
+python scripts/make_phase_map_candidate_gallery.py
+```
+
 ## Focused Ablation Recompute
 
 To force recomputation of the focused mechanism ablations:

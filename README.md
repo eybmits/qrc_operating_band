@@ -7,6 +7,7 @@ This repository contains the cleaned code, data, figures, and paper source for t
 - `scripts/run_qrc_phase_ablation_slices.py`: focused QRC-only mechanism ablation sweep at the central `gamma=0.12` phase-map slice.
 - `scripts/analyze_phase_map_generalization.py`: computes phase-map bands, leave-one-task/seed transfer, ablation retention, bootstrap CIs, and manuscript number macros.
 - `scripts/make_figures_and_build_data.py`: rebuilds the paper figures and `data/final_summary_numbers.json` from checked-in CSV/JSON artifacts.
+- `scripts/make_phase_map_candidate_gallery.py`: optional gallery generator for alternate phase-map visualizations; outputs are kept under `paper/gfx/candidate_phase_maps/`.
 - `scripts/compute_qrc_real_diagnostics.py` and `scripts/compute_qrc_real_diagnostics_chunk.py`: full simulator-backed intrinsic diagnostic recomputation.
 - `scripts/qrc_stateful_minimal_suite.py`: standalone stateful dissipative QRC simulator used by the sweeps and diagnostics.
 - `data/`: canonical CSV/JSON tables used by the scripts and manuscript figures.
@@ -51,6 +52,12 @@ python scripts/compute_qrc_real_diagnostics.py
 ```
 
 The full diagnostic run evaluates 2,450 QRC configurations. For split execution, use `scripts/compute_qrc_real_diagnostics_chunk.py START END` and write chunks into `data/diag_parts/`.
+
+To refresh the optional figure-selection gallery:
+
+```bash
+python scripts/make_phase_map_candidate_gallery.py
+```
 
 ## Key Saved Results
 
