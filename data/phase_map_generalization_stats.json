@@ -1,0 +1,550 @@
+{
+  "definition": "B_{p,q} = points whose validation rank is in the top p percent for at least q of task-seed replicates.",
+  "primary_band": "B20_q0p7",
+  "bands": {
+    "B10_q0p5": {
+      "p": 10,
+      "q": 0.5,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B10_q0p6": {
+      "p": 10,
+      "q": 0.6,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B10_q0p7": {
+      "p": 10,
+      "q": 0.7,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B10_q0p8": {
+      "p": 10,
+      "q": 0.8,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B15_q0p5": {
+      "p": 15,
+      "q": 0.5,
+      "size": 8,
+      "components": 3,
+      "largest_component": 6,
+      "gamma_counts": {
+        "0.12": 4,
+        "0.22": 4
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.12,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.17700255102040818
+    },
+    "B15_q0p6": {
+      "p": 15,
+      "q": 0.6,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B15_q0p7": {
+      "p": 15,
+      "q": 0.7,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B15_q0p8": {
+      "p": 15,
+      "q": 0.8,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B20_q0p5": {
+      "p": 20,
+      "q": 0.5,
+      "size": 39,
+      "components": 1,
+      "largest_component": 39,
+      "gamma_counts": {
+        "0.12": 17,
+        "0.22": 13,
+        "0.3": 9
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.19301936159079014
+    },
+    "B20_q0p6": {
+      "p": 20,
+      "q": 0.6,
+      "size": 14,
+      "components": 2,
+      "largest_component": 11,
+      "gamma_counts": {
+        "0.12": 8,
+        "0.22": 6
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.12,
+        "gamma": 0.12
+      },
+      "mean_val_rank": 0.17618804664723028
+    },
+    "B20_q0p7": {
+      "p": 20,
+      "q": 0.7,
+      "size": 4,
+      "components": 1,
+      "largest_component": 4,
+      "gamma_counts": {
+        "0.12": 4
+      },
+      "medoid": {
+        "beta_pi": 0.04,
+        "lambda_pi": 0.12,
+        "gamma": 0.12
+      },
+      "mean_val_rank": 0.17170918367346938
+    },
+    "B20_q0p8": {
+      "p": 20,
+      "q": 0.8,
+      "size": 0,
+      "components": 0,
+      "largest_component": 0,
+      "gamma_counts": {},
+      "medoid": {
+        "beta_pi": null,
+        "lambda_pi": null,
+        "gamma": null
+      },
+      "mean_val_rank": null
+    },
+    "B25_q0p5": {
+      "p": 25,
+      "q": 0.5,
+      "size": 61,
+      "components": 1,
+      "largest_component": 61,
+      "gamma_counts": {
+        "0.05": 1,
+        "0.12": 22,
+        "0.22": 21,
+        "0.3": 17
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.20479926396788226
+    },
+    "B25_q0p6": {
+      "p": 25,
+      "q": 0.6,
+      "size": 48,
+      "components": 1,
+      "largest_component": 48,
+      "gamma_counts": {
+        "0.12": 19,
+        "0.22": 19,
+        "0.3": 10
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.1986437074829932
+    },
+    "B25_q0p7": {
+      "p": 25,
+      "q": 0.7,
+      "size": 19,
+      "components": 1,
+      "largest_component": 19,
+      "gamma_counts": {
+        "0.12": 13,
+        "0.22": 6
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.12
+      },
+      "mean_val_rank": 0.1848388829215897
+    },
+    "B25_q0p8": {
+      "p": 25,
+      "q": 0.8,
+      "size": 7,
+      "components": 2,
+      "largest_component": 6,
+      "gamma_counts": {
+        "0.12": 6,
+        "0.22": 1
+      },
+      "medoid": {
+        "beta_pi": 0.04,
+        "lambda_pi": 0.12,
+        "gamma": 0.12
+      },
+      "mean_val_rank": 0.1716180758017493
+    },
+    "B30_q0p5": {
+      "p": 30,
+      "q": 0.5,
+      "size": 77,
+      "components": 1,
+      "largest_component": 77,
+      "gamma_counts": {
+        "0.05": 3,
+        "0.12": 24,
+        "0.22": 25,
+        "0.3": 25
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.21610389610389616
+    },
+    "B30_q0p6": {
+      "p": 30,
+      "q": 0.6,
+      "size": 67,
+      "components": 1,
+      "largest_component": 67,
+      "gamma_counts": {
+        "0.05": 1,
+        "0.12": 24,
+        "0.22": 23,
+        "0.3": 19
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.20963904964971064
+    },
+    "B30_q0p7": {
+      "p": 30,
+      "q": 0.7,
+      "size": 46,
+      "components": 1,
+      "largest_component": 46,
+      "gamma_counts": {
+        "0.12": 21,
+        "0.22": 16,
+        "0.3": 9
+      },
+      "medoid": {
+        "beta_pi": 0.04,
+        "lambda_pi": 0.16,
+        "gamma": 0.22
+      },
+      "mean_val_rank": 0.19766415261756876
+    },
+    "B30_q0p8": {
+      "p": 30,
+      "q": 0.8,
+      "size": 23,
+      "components": 2,
+      "largest_component": 19,
+      "gamma_counts": {
+        "0.12": 13,
+        "0.22": 8,
+        "0.3": 2
+      },
+      "medoid": {
+        "beta_pi": 0.07,
+        "lambda_pi": 0.16,
+        "gamma": 0.12
+      },
+      "mean_val_rank": 0.18694764862466726
+    }
+  },
+  "leave_one_task_out": {
+    "mean": 0.23990253793825228,
+    "ci95_low": 0.21520140524158385,
+    "ci95_high": 0.26467299515960224,
+    "draws": 50000,
+    "seed": 20260523,
+    "n": 40,
+    "rows": [
+      {
+        "heldout_task": "lorenz",
+        "band_size": 6,
+        "mean_heldout_rank": 0.20795918367346938,
+        "median_heldout_rank": 0.1925170068027211,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.16,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_task": "mackey_glass",
+        "band_size": 4,
+        "mean_heldout_rank": 0.17581632653061227,
+        "median_heldout_rank": 0.19795918367346937,
+        "rep_beta_pi": 0.07,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_task": "narma10",
+        "band_size": 13,
+        "mean_heldout_rank": 0.3201883830455259,
+        "median_heldout_rank": 0.31695447409733124,
+        "rep_beta_pi": 0.07,
+        "rep_lambda_pi": 0.16,
+        "rep_gamma": 0.22
+      },
+      {
+        "heldout_task": "sunspots_annual",
+        "band_size": 9,
+        "mean_heldout_rank": 0.25564625850340134,
+        "median_heldout_rank": 0.23401360544217686,
+        "rep_beta_pi": 0.07,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      }
+    ]
+  },
+  "leave_one_seed_out": {
+    "mean": 0.17991326530612245,
+    "ci95_low": 0.153600212585034,
+    "ci95_high": 0.20853911564625852,
+    "draws": 50000,
+    "seed": 20260523,
+    "n": 40,
+    "rows": [
+      {
+        "heldout_seed": 42,
+        "band_size": 3,
+        "mean_heldout_rank": 0.16870748299319727,
+        "median_heldout_rank": 0.17210884353741496,
+        "rep_beta_pi": 0.07,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 43,
+        "band_size": 3,
+        "mean_heldout_rank": 0.20408163265306123,
+        "median_heldout_rank": 0.13945578231292516,
+        "rep_beta_pi": 0.07,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 44,
+        "band_size": 2,
+        "mean_heldout_rank": 0.16122448979591836,
+        "median_heldout_rank": 0.14489795918367346,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 45,
+        "band_size": 2,
+        "mean_heldout_rank": 0.1556122448979592,
+        "median_heldout_rank": 0.12346938775510205,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 46,
+        "band_size": 4,
+        "mean_heldout_rank": 0.18571428571428572,
+        "median_heldout_rank": 0.18061224489795918,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 47,
+        "band_size": 1,
+        "mean_heldout_rank": 0.11326530612244898,
+        "median_heldout_rank": 0.11224489795918367,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 48,
+        "band_size": 3,
+        "mean_heldout_rank": 0.19863945578231293,
+        "median_heldout_rank": 0.20204081632653062,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 49,
+        "band_size": 5,
+        "mean_heldout_rank": 0.21571428571428572,
+        "median_heldout_rank": 0.23224489795918368,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 50,
+        "band_size": 4,
+        "mean_heldout_rank": 0.21760204081632653,
+        "median_heldout_rank": 0.20255102040816328,
+        "rep_beta_pi": 0.07,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      },
+      {
+        "heldout_seed": 51,
+        "band_size": 2,
+        "mean_heldout_rank": 0.17857142857142855,
+        "median_heldout_rank": 0.186734693877551,
+        "rep_beta_pi": 0.04,
+        "rep_lambda_pi": 0.12,
+        "rep_gamma": 0.12
+      }
+    ]
+  },
+  "ablation_retention": [
+    {
+      "variant": "base_amplitude_rxzz",
+      "band_size": 4,
+      "base_band_size": 4,
+      "retained_base_band_points": 4,
+      "retention_fraction": 1.0,
+      "mean_top20_frequency_on_base_band": 0.375,
+      "mean_rank_on_base_band": 0.2556122448979592
+    },
+    {
+      "variant": "mixer_none",
+      "band_size": 0,
+      "base_band_size": 4,
+      "retained_base_band_points": 0,
+      "retention_fraction": 0.0,
+      "mean_top20_frequency_on_base_band": 0.0,
+      "mean_rank_on_base_band": 0.40306122448979587
+    },
+    {
+      "variant": "dephasing",
+      "band_size": 0,
+      "base_band_size": 4,
+      "retained_base_band_points": 0,
+      "retention_fraction": 0.0,
+      "mean_top20_frequency_on_base_band": 0.18125000000000002,
+      "mean_rank_on_base_band": 0.44247448979591836
+    },
+    {
+      "variant": "gamma0_amplitude",
+      "band_size": 0,
+      "base_band_size": 4,
+      "retained_base_band_points": 0,
+      "retention_fraction": 0.0,
+      "mean_top20_frequency_on_base_band": 0.11875000000000001,
+      "mean_rank_on_base_band": 0.464795918367347
+    },
+    {
+      "variant": "mixer_zz_only",
+      "band_size": 0,
+      "base_band_size": 4,
+      "retained_base_band_points": 0,
+      "retention_fraction": 0.0,
+      "mean_top20_frequency_on_base_band": 0.0625,
+      "mean_rank_on_base_band": 0.5025510204081632
+    },
+    {
+      "variant": "mixer_rx_only",
+      "band_size": 0,
+      "base_band_size": 4,
+      "retained_base_band_points": 0,
+      "retention_fraction": 0.0,
+      "mean_top20_frequency_on_base_band": 0.0125,
+      "mean_rank_on_base_band": 0.5209183673469389
+    },
+    {
+      "variant": "depolarizing",
+      "band_size": 0,
+      "base_band_size": 4,
+      "retained_base_band_points": 0,
+      "retention_fraction": 0.0,
+      "mean_top20_frequency_on_base_band": 0.0125,
+      "mean_rank_on_base_band": 0.5256377551020408
+    }
+  ],
+  "diagnostic_spearman": {
+    "MC": -0.8535591747217215,
+    "IPCmem": -0.8442324291802852,
+    "IPCtot": -0.9038130116361606,
+    "IPCnonlin": -0.8001884000392915,
+    "Vfeat": 0.1596225029041743,
+    "reff": 0.1509313291916376
+  }
+}

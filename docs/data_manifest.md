@@ -1,42 +1,34 @@
 # Data Manifest
 
-## Main Tables
+## Main QRC-Only Tables
 
-- `qrc_seed_ensemble_grid.csv`: QRC grid evaluations across tasks, seeds, and parameter points.
-- `qrc96_local_refinement_grid.csv`: frozen 3x3x3 QRC96 Pauli-ring local refinement grid used for the final comparison.
-- `qrc96_local_refinement_metadata.json`: task splits, feature names, grid values, seeds, and ridge grid for the local QRC96 run.
-- `qrc96_same_arch_expanded_grid.csv`: expanded 5x5x5 same-architecture QRC96 Pauli-ring grid used for shared ESN100 comparisons and task-wise non-Sunspots selections.
-- `qrc96_same_arch_expanded_metadata.json`: architecture lock, task splits, feature names, grid values, seeds, and ridge grid for the expanded QRC96 run.
-- `qrc96_sunspots_fine_refinement_grid.csv`: same-architecture Sunspots fine refinement grid used by the task-wise validation-plateau selector.
-- `qrc96_sunspots_fine_refinement_metadata.json`: architecture lock, Sunspots split, feature names, grid values, seeds, and ridge grid for the Sunspots fine run.
-- `qrc96_esn100_stats.json`: shared-validation selected QRC96/ESN100 configurations, paired bootstrap intervals, Wilcoxon tests, sign tests, and per-task decomposition.
-- `qrc96_esn100_taskwise_stats.json`: task-wise validation-plateau selected QRC96/ESN100 configurations and paired statistics.
-- `qrc96_esn100_per_task.csv`: per-task selected-config holdout means and QRC96 wins over seeds.
-- `qrc96_esn100_taskwise_per_task.csv`: per-task task-wise validation-plateau selected holdout means, selected settings, and QRC96 wins over seeds.
-- `qrc96_esn100_seed_pairs.csv`: seed-level task-mean paired holdout deltas.
-- `qrc96_esn100_taskwise_seed_pairs.csv`: seed-level paired deltas after task-wise validation-plateau selection.
-- `qrc96_esn100_task_seed_pairs.csv`: full task-seed paired holdout table for selected QRC96 and ESN100.
-- `qrc96_esn100_taskwise_task_seed_pairs.csv`: full task-seed paired holdout table for task-wise validation-plateau selected QRC96 and ESN100.
-- `qrc96_esn100_selected_configs.csv`: validation-selected QRC96 and ESN100 settings.
-- `qrc96_esn100_taskwise_selected_configs.csv`: task-wise validation-plateau selected QRC96 and ESN100 settings.
-- `qrc96_final10_results.csv`: archived earlier partial QRC96 selected-regime evaluations; retained for provenance, not used by the rebuilt final figures.
-- `esn_candidate_performance.csv`: ESN candidate baseline evaluations.
-- `final_qrc_esn_comparison.csv`: compact QRC/ESN comparison table used by Fig. 2.
-- `minimal_ablations_seeded_summary.csv`: mechanism-control summary used by Fig. 2.
-- `qrc_memory_capacity_by_seed_theta.csv`: memory-capacity screen used by Fig. 3.
-- `esn_memory_capacity_recomputed.csv`: recomputed ESN memory-capacity screen.
+- `qrc_seed_ensemble_grid.csv`: main QRC16 phase-map grid across four tasks, ten seeds, and the coarse `(beta, lambda, gamma)` grid.
+- `qrc_phase_ablation_slice_grid.csv`: focused QRC-only mechanism ablation sweep at the central `gamma=0.12` slice.
+- `qrc_phase_ablation_slice_metadata.json`: task splits, grid values, seeds, ridge grid, and variant definitions for the ablation sweep.
+- `phase_map_generalization_stats.json`: primary band summary, connectedness, leave-one-task/seed transfer, bootstrap CIs, ablation retention, and diagnostic correlations.
+- `phase_map_band_membership.csv`: membership of all grid points in `B_{p,q}` bands for `p={10,15,20,25,30}` and `q={0.5,0.6,0.7,0.8}`.
+- `phase_map_leave_one_task_out.csv`: leave-one-task band-transfer summary for the primary `B_{20,0.7}` protocol.
+- `phase_map_leave_one_seed_out.csv`: leave-one-seed band-transfer summary for the primary `B_{20,0.7}` protocol.
+- `phase_map_task_seed_transfer_matrix.csv`: task-by-seed validation ranks of the primary band.
+- `phase_map_ablation_retention.csv`: retention of the primary base band under focused QRC-only ablations.
+- `final_summary_numbers.json`: compact summary consumed by quick status checks.
 
 ## Intrinsic Diagnostics
 
 - `qrc_real_current_intrinsic_diagnostics.csv`: simulator-backed intrinsic diagnostics for each QRC configuration.
 - `qrc_real_current_intrinsic_diagnostics_with_perf.csv`: diagnostics merged with validation/test performance summaries.
 - `qrc_real_current_diagnostic_spearman.csv`: Spearman correlations from the full diagnostic recomputation.
-- `qrc_real_current_diagnostic_spearman_named.csv`: named diagnostic correlations used in the final Fig. 3 text/plot.
+- `qrc_real_current_diagnostic_spearman_named.csv`: named diagnostic correlations used in the paper.
 - `screening_retention_recomputed_intrinsic_diagnostics.csv`: retained-top-decile curves for memory and intrinsic-capacity metrics.
 - `diag_parts/*.csv`: chunk outputs that reproduce the diagnostic table.
 
-The older `qrc_memory_capacity_by_seed_theta.csv` memory-capacity screen has `922 / 2450` zero-MC points. The current intrinsic diagnostic table used by the paper has `792 / 2450` zero-MC points; both values are recorded in `data/final_summary_numbers.json` under separate keys.
+## Manuscript Artifacts
 
-## Reference Figures
+- `paper/generated/phase_map_numbers.tex`: generated numeric macros used by `paper/qrc_phase_diagram.tex`.
+- `paper/gfx/fig1_short_phase_maps.{png,pdf}`: leave-one-task-out phase maps.
+- `paper/gfx/fig2_short_evidence.{png,pdf}`: QRC-only gamma atlas, mechanism ablations, transfer matrix, and diagnostic screening figure.
+- `paper/gfx/fig3_memory_capacity_screens.{png,pdf}`: optional QRC-only diagnostic reference figure.
 
-The `paper/gfx/` directory contains PNG and PDF versions of the rebuilt figure outputs. They are tracked because they are small enough for normal Git use and serve as visual reference artifacts for the saved data.
+## Archived Optional Baseline Tables
+
+The `qrc96_*`, `esn_*`, and `final_qrc_esn_comparison.csv` artifacts are retained for provenance from an earlier baseline-audit version of the project. They are not used by the current four-page QRC-only paper or standard `./reproduce.sh` path. See `docs/esn_audit_legacy.md`.

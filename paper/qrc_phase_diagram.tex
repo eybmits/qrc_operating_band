@@ -10,34 +10,33 @@
 \renewcommand{\arraystretch}{1.04}
 \newcommand{\MC}{\mathrm{MC}}
 \newcommand{\NMSE}{\mathrm{NMSE}}
-\input{generated/qrc96_esn100_numbers.tex}
-\input{generated/qrc96_taskwise_numbers.tex}
+\input{generated/phase_map_numbers.tex}
 \begin{document}
 \title{Memory-Defined Phase Maps for Dissipative Quantum Reservoirs}
 \author{Anonymous QCE Submission}
 \maketitle
 
 \begin{abstract}
-We study when a stateful dissipative gate-model quantum reservoir is useful for time-series prediction. The main claim is not quantum advantage, but a reproducible phase-map claim: across tasks and seeds, good validation performance concentrates in a memory-defined operating regime with gentle input drive, nonmaximal recurrent coupling, and controlled amplitude damping. Memory capacity and intrinsic processing-capacity diagnostics identify this regime before exhaustive task sweeps. As supporting evidence, the same four-qubit, two-layer QRC96 architecture, with only ridge readout training, is competitive with an audited ESN100 baseline at matched classical readout dimension. Under shared validation selection it improves seed-level mean holdout NMSE, and under task-wise validation-plateau selection it improves the non-floor NARMA10 and Sunspots comparisons. The comparison is matched in readout features, not in measurement, shot, calibration, wall-clock, or hardware cost.
+We study when a stateful dissipative gate-model quantum reservoir is useful for scalar time-series prediction. The paper's central object is a phase map, not a single tuned benchmark point. Across four tasks and ten reservoir seeds, good validation performance concentrates in a reproducible operating regime with gentle input drive, nonmaximal recurrent coupling, and controlled damping. We formulate this as a universal operating-regime hypothesis for this QRC family: learnable temporal tasks are expected to occupy the same memory-preserving band, rather than arbitrary coordinates of the reservoir parameter space. Leave-one-task and leave-one-seed tests, mechanism ablations, and intrinsic diagnostics support the hypothesis. The result is empirical and simulator-level; it is not a theorem over all possible data-generating processes or a hardware-resource claim.
 \end{abstract}
 
 \begin{IEEEkeywords}
-quantum reservoir computing, dissipative dynamics, memory capacity, phase diagrams, echo-state networks
+quantum reservoir computing, dissipative dynamics, memory capacity, phase diagrams, operating regimes
 \end{IEEEkeywords}
 
 \section{Question and Claim}
-Reservoir computing trains a linear readout on fixed nonlinear dynamics \cite{jaeger2004,lukosevicius2009}. In a quantum reservoir, the useful resource is not Hilbert-space dimension alone. The physical dynamics must preserve recent input history, forget old history, and expose nonlinear observables to a classical readout \cite{fujii2017,tanaka2019,sannia2024}. Excessive input drive overwrites the carried state; absent dissipation prevents controlled fading memory; absent recurrent mixing leaves weak temporal features.
+Reservoir computing trains a linear readout on fixed nonlinear dynamics \cite{jaeger2004,lukosevicius2009}. In a quantum reservoir, Hilbert-space dimension alone is not the useful resource. The dynamics must preserve recent input history, forget old history, and expose nonlinear observables to the readout \cite{fujii2017,tanaka2019,sannia2024}. Too much input drive overwrites state, zero damping prevents controlled fading memory, and missing recurrent mixing leaves weak temporal features.
 
-This paper therefore treats the phase diagram as the scientific object. We ask whether a dissipative QRC has a transferable operating regime, rather than whether one tuned coordinate wins one benchmark. The main result is that phase maps generalize as a frequency-level regime across four tasks and ten reservoir seeds. Accuracy against ESN100 is a supporting claim: it tests whether features from this regime are useful at a comparable classical readout dimension.
+We therefore treat the phase diagram as the scientific object. The claim is a QRC-only generalization claim: for the studied stateful dissipative QRC family, useful learning is organized by a transferable operating regime. The strongest reviewer-safe statement is a hypothesis supported by four tasks, ten seeds, and ablations: scalar temporal tasks that can be learned by this architecture should be searched first in a low-input, nonzero-damping, nonmaximal-coupling band.
 
-\section{Model and Selection Protocol}
+\section{Protocol}
 The reservoir carries a density matrix from one input time step to the next. For scalar input $u_t$,
 \begin{equation}
 \rho_{t,0}=U_{\mathrm{in}}(u_t)\rho_{t-1,L}U_{\mathrm{in}}^\dagger(u_t),
 \qquad
 U_{\mathrm{in}}(u_t)=\bigotimes_i R_y(\beta u_t).
 \end{equation}
-Each virtual layer applies frozen local $R_x$ rotations, a ZZ ring, and product amplitude damping:
+Each virtual layer applies frozen local rotations, a ZZ ring, and a product noise channel:
 \begin{equation}
 \begin{aligned}
 \rho_{t,\ell}
@@ -48,30 +47,29 @@ U_\lambda
 &=\prod_{(i,j)\in E_{\rm ring}}e^{-i\lambda Z_iZ_j}.
 \end{aligned}
 \end{equation}
-The QRC96 architecture is fixed throughout the ESN comparison: $n=4$, two layers, ring topology, $R_x$--ZZ--$R_x$ mixer, uniform input, amplitude damping, and ridge readout only. QRC96 measures 12 local Pauli expectations and 36 ring-pair Pauli correlations per layer, giving 96 readout features.
+The main phase maps use $n=4$, two layers, ring topology, uniform input, amplitude damping, the $Z+ZZ$ QRC16 readout, and ridge-only training. Hyperparameters are never selected by holdout data.
 
 For task $j$ and seed $s$, let $r_{j,s}(\theta)$ be the validation percentile rank of $\theta=(\beta,\lambda,\gamma)$, with lower rank better. A transferable operating band is
 \begin{equation}
 B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
-This frequency-level definition avoids overclaiming a universal optimum. The strict all-seed top-20\% intersection is empty, but $B_{20,0.7}$ contains four connected points and $B_{20,0.6}$ contains fourteen.
+This frequency-level definition is deliberately weaker than a universal optimum. It asks whether a region repeatedly behaves well, not whether the same coordinate wins every task.
 
 \begin{table*}[t!]
 \centering
 \scriptsize
-\caption{Reviewer audit trail. Holdout data are excluded from regime discovery and hyperparameter selection.}
+\caption{QRC-only audit trail. Holdout data are not used to define the operating regime.}
 \label{tab:audit}
-\begin{tabular}{@{}p{0.16\textwidth}p{0.78\textwidth}@{}}
+\begin{tabular}{@{}p{0.17\textwidth}p{0.77\textwidth}@{}}
 \toprule
 Item & Value\\
 \midrule
 Tasks and splits & Mackey--Glass, Lorenz, NARMA10: washout/train/validation/holdout $=300/1600/400/400$; annual Sunspots: $20/150/50/60$. Inputs are scaled to $[-1,1]$ and targets standardized.\\
 Seeds and ridge & Reservoir seeds $42$--$51$; ridge grid $\{10^{-8},10^{-7},\ldots,10^3\}$ selected on validation.\\
-QRC regime discovery & QRC16 coarse grid over $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, $\gamma=\{0,0.05,0.12,0.22,0.30\}$; holdout unused.\\
-QRC96 refinement & Same architecture; local grid $\beta/\pi=\{0.005,0.010,0.015,0.020,0.030\}$, $\lambda/\pi=\{0.035,0.050,0.075,0.100,0.125\}$, $\gamma=\{0.050,0.080,0.100,0.120,0.160\}$. The Sunspots audit adds a same-architecture fine grid inside the regime: $\beta/\pi=0.006{:}0.001{:}0.016$, $\lambda/\pi=\{0.025,0.030,0.035,0.040,0.045,0.050,0.060,0.075,0.090,0.100\}$, $\gamma=\{0.070,0.080,0.085,0.090,0.095,0.100,0.105,0.110,0.120\}$.\\
-ESN100 audit & Dense Gaussian recurrent matrix scaled to spectral radius $\{0.5,0.9,1.1\}$, input scaling $\{0.1,0.5,1.0\}$, leak $\{0.3,0.7,1.0\}$, Gaussian bias std. $0.01$, $\tanh$ activation, same tasks, splits, seeds, and ridge grid.\\
-Selectors and tests & Shared selector: one setting minimizing mean validation NMSE across tasks and seeds. Task-wise selector: keep settings within $1\%$ of best mean validation NMSE over seeds and choose the normalized hyperparameter medoid. Paired bootstrap CIs, Wilcoxon signed-rank tests, and sign tests use matched seed/task keys.\\
-Resource scope & QRC96 and ESN100 are compared at matched classical readout dimension, 96 vs. 100 features. Quantum measurement bases, shots, calibration, wall-clock cost, and hardware noise are not modeled.\\
+Phase grid & QRC16 coarse grid over $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, $\gamma=\{0,0.05,0.12,0.22,0.30\}$.\\
+Primary band & \PhasePrimaryBand{} contains \PhaseBTwentyQSeventySize{} connected points; the medoid is $(\beta/\pi,\lambda/\pi,\gamma)=(\PhaseRepresentativeBetaPi,\PhaseRepresentativeLambdaPi,\PhaseRepresentativeGamma)$. Relaxing to $B_{20,0.6}$ gives \PhaseBTwentyQSixtySize{} points and $B_{30,0.7}$ gives \PhaseBThirtyQSeventySize{} points.\\
+Stress tests & Focused QRC-only ablation maps at $\gamma=0.12$ compare base amplitude damping against $\gamma=0$, dephasing, depolarizing, no mixer, Rx-only mixer, and ZZ-only mixer. The readout, tasks, seeds, and ridge protocol are unchanged.\\
+Diagnostics & Memory capacity and intrinsic processing capacities are computed from simulator trajectories and compared to validation rank and top-decile screening retention.\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -79,83 +77,71 @@ Resource scope & QRC96 and ESN100 are compared at matched classical readout dime
 \begin{figure*}[t!]
 \centering
 \includegraphics[width=0.98\textwidth]{gfx/fig1_short_phase_maps.pdf}
-\caption{Validation phase maps at the fixed $\gamma=0.12$ slice. Bright regions are low validation percentile rank. Blue dots show coordinates that appear in the top-20\% for at least 70\% of task-seed replicates in the displayed conditioning set; the star is the shared QRC96 selected point's $(\beta,\lambda)$ projection. The same low-input, nonmaximal-coupling regime persists under leave-one-task-out views.}
+\caption{Validation phase maps at the fixed $\gamma=0.12$ slice. Bright regions are low validation percentile rank. Gold circles mark points that appear in the top-20\% for at least 70\% of the displayed task-seed replicates; the star is the medoid of the primary band. The same low-input, nonmaximal-coupling region persists under leave-one-task-out conditioning.}
 \label{fig:phase}
 \end{figure*}
 
 \section{Evidence}
-\textbf{Phase-map transfer.} Fig.~\ref{fig:phase} shows the core observation: low validation error is not scattered randomly across the grid. It concentrates in a small-input, nonzero-damping, nonmaximal-coupling region, and the leave-one-task-out maps preserve the same shape. The leave-one-task-out held-out validation rank is $0.240$ with bootstrap CI $[0.218,0.271]$, so the regime is a top-quartile search prior rather than a task-specific coordinate.
+\textbf{Phase-map transfer.} Fig.~\ref{fig:phase} shows the core pattern: low validation rank is concentrated, not randomly scattered. The primary band \PhasePrimaryBand{} has \PhaseBTwentyQSeventySize{} connected points, all at $\gamma=0.12$. When one task is withheld while defining the band from the remaining tasks, the held-out task-seed mean validation rank is \PhaseLotoMeanRank{} with bootstrap CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$. When one seed is withheld, the corresponding mean rank is \PhaseLosoMeanRank{} with CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The band is therefore a top-quartile search prior that transfers across both task identity and reservoir initialization.
 
-\textbf{Diagnostic mechanism.} Memory capacity predicts the useful region. On the current QRC diagnostic rerun, $\MC$ has Spearman $\rho_s=-0.85$ against validation rank; $\mathrm{IPC}_{\rm mem}$, $\mathrm{IPC}_{\rm tot}$, and $\mathrm{IPC}_{\rm nonlin}$ give $-0.84$, $-0.90$, and $-0.80$. Feature variation and effective rank are weakly positive, $0.16$ and $0.15$, so raw diversity alone retains poor reservoirs. Removing the mechanism also breaks accuracy: no recurrent mixing, zero damping, or dephasing raises holdout NMSE to near one, while QRC96 inside the regime is $0.077$.
-
-\textbf{ESN comparison as supporting evidence.} Under shared validation selection, QRC96 selects $(\beta/\pi,\lambda/\pi,\gamma)=(\QRCNinetySixBetaPi,\QRCNinetySixLambdaPi,\QRCNinetySixGamma)$ and ESN100 selects $(\rho,\mathrm{input},\mathrm{leak})=(\ESNHundredSpectralRadius,\ESNHundredInputScale,\ESNHundredLeak)$. Mean holdout NMSE is \QRCNinetySixMeanTest{} for QRC96 and \ESNHundredMeanTest{} for ESN100. The paired seed-level delta $\Delta=\NMSE_{\rm ESN100}-\NMSE_{\rm QRC96}$ is \QRCSeedDeltaMean{} with CI $[\QRCSeedDeltaCILow,\QRCSeedDeltaCIHigh]$, and QRC96 wins \QRCSeedWins{} seeds. This aggregate is driven by NARMA10 under the shared selector, so we do not claim uniform task-wise dominance.
-
-The task-wise validation-plateau selector keeps the architecture fixed but allows one setting per task for both QRC96 and ESN100. On the two non-floor tasks, QRC96 improves the combined task-seed mean by \QRCTaskwiseNonFloorDeltaMean{} with CI $[\QRCTaskwiseNonFloorCILow,\QRCTaskwiseNonFloorCIHigh]$ and wins \QRCTaskwiseNonFloorWins{} pairs. NARMA10 gives $\Delta=\QRCTaskwiseNarmaDelta{}$ with \QRCTaskwiseNarmaWins{} wins. Sunspots gives $\Delta=\QRCTaskwiseSunDelta{}$, CI $[\QRCTaskwiseSunCILow,\QRCTaskwiseSunCIHigh]$, \QRCTaskwiseSunWins{} wins, and Wilcoxon $p=\QRCTaskwiseSunWilcoxonGreaterP{}$. Mackey--Glass and Lorenz are floor checks: ESN100 is already at numerical floor and is lower there.
+\textbf{Mechanism stress tests.} The operating band is not just a plotting artifact. At the central slice, the projected base band has \PhaseAblationBaseBandSize{} points. Removing the controlled damping mechanism gives retention \PhaseGammaZeroRetention{}; removing recurrent mixing gives retention \PhaseNoMixerRetention{}; replacing amplitude damping by dephasing gives retention \PhaseDephaseRetention{}. In every focused ablation, the base band ceases to be a robust top-ranked region under the same validation-rank criterion. The result supports the mechanism story: useful dynamics need input that is not too strong, recurrent mixing, and damping that preserves usable memory rather than merely adding noise.
 
 \begin{center}
 \scriptsize
-\setlength{\tabcolsep}{3pt}
-\begin{tabular}{@{}p{0.35\columnwidth}p{0.57\columnwidth}@{}}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-\multicolumn{2}{c}{\textsc{Robustness audit: positive $\Delta$ favors QRC96}}\\
+Variant & Band pts. & Retention & Rank on base band\\
 \midrule
-Shared seed means & $\Delta=\QRCSeedDeltaMean$, CI $[\QRCSeedDeltaCILow,\QRCSeedDeltaCIHigh]$; wins \QRCSeedWins; Wilcoxon/sign $p=\QRCSeedWilcoxonGreaterP$.\\
-Shared task--seed pairs & $\Delta=\QRCTaskSeedDeltaMean$, CI $[\QRCTaskSeedDeltaCILow,\QRCTaskSeedDeltaCIHigh]$; wins \QRCTaskSeedWins; exposes floor-task heterogeneity.\\
-Task-wise non-floor & $\Delta=\QRCTaskwiseNonFloorDeltaMean$, CI $[\QRCTaskwiseNonFloorCILow,\QRCTaskwiseNonFloorCIHigh]$; wins \QRCTaskwiseNonFloorWins; Wilcoxon $p=\QRCTaskwiseNonFloorWilcoxonGreaterP$.\\
-Sunspots gate & $\Delta=\QRCTaskwiseSunDelta$, CI $[\QRCTaskwiseSunCILow,\QRCTaskwiseSunCIHigh]$; wins \QRCTaskwiseSunWins; Wilcoxon $p=\QRCTaskwiseSunWilcoxonGreaterP$; sign $p=\QRCTaskwiseSunSignGreaterP$.\\
+\PhaseAblationRows
 \bottomrule
 \end{tabular}
 \end{center}
 
+\textbf{Diagnostics.} Memory-based diagnostics identify the same useful region before task-specific holdout evaluation. On the current simulator-backed diagnostic rerun, $\MC$ has Spearman $\rho_s=\PhaseMCSpearman{}$ against validation rank; $\mathrm{IPC}_{\rm mem}$, $\mathrm{IPC}_{\rm tot}$, and $\mathrm{IPC}_{\rm nonlin}$ give \PhaseIPCmemSpearman{}, \PhaseIPCtotSpearman{}, and \PhaseIPCnonlinSpearman{}. Feature variation and effective rank are weakly positive, \PhaseVfeatSpearman{} and \PhaseReffSpearman{}, so raw diversity alone is not the mechanism.
+
 \begin{figure*}[t!]
 \centering
 \includegraphics[width=0.98\textwidth]{gfx/fig2_short_evidence.pdf}
-\caption{Supporting evidence for the operating-regime claim. (a) At comparable readout dimension, shared QRC96 improves seed-level mean holdout NMSE over ESN100. (b) Under validation-plateau task-wise selection, the same QRC96 architecture improves NARMA10 and Sunspots. (c) Mechanism controls show that richer readout helps only when recurrent mixing and nonzero damping preserve usable memory. (d) Memory and IPC diagnostics predict validation rank, whereas diversity-only diagnostics do not.}
+\caption{QRC-only evidence for the operating-regime hypothesis. (a) Gamma-slice atlas: the useful region emerges only away from zero damping and away from maximal coupling. (b) Focused ablations at $\gamma=0.12$: outlines show the base \PhasePrimaryBand{} projection; $\gamma=0$, no-mix, and dephasing controls do not preserve it as a robust top region. (c) Task-seed transfer ranks for the primary band. (d) Intrinsic memory and processing-capacity diagnostics recover top validation-decile reservoirs more efficiently than random or diversity-only screening.}
 \label{fig:evidence}
 \end{figure*}
 
-\begin{table*}[t!]
+\begin{figure*}[t!]
 \centering
-\scriptsize
-\caption{Task-wise validation-plateau holdout comparison. Positive $\Delta$ favors QRC96. Settings are selected by validation only and written as QRC $(\beta/\pi,\lambda/\pi,\gamma)$ and ESN $(\rho,\mathrm{input},\mathrm{leak})$.}
-\label{tab:taskwise}
-\begin{tabular}{lrrrrcc}
-\toprule
-Task & ESN100 & QRC96 & $\Delta$ & QRC wins & QRC setting & ESN setting\\
-\midrule
-\QRCTaskwiseRows
-\bottomrule
-\end{tabular}
-\end{table*}
+\includegraphics[width=0.98\textwidth]{gfx/fig3_memory_capacity_screens.pdf}
+\caption{Diagnostic audit for the QRC phase-map claim. Raw and log-scaled memory capacity both anticorrelate with validation rank, intrinsic processing-capacity diagnostics give the strongest rank correlations, and screening by memory/IPC recovers useful reservoirs earlier than random or diversity-only screens.}
+\label{fig:diagnostics}
+\end{figure*}
 
 \section{Discussion and Scope}
-The accuracy comparison is fair for a narrow benchmark statement: tasks, splits, seeds, ridge grid, holdout protocol, paired keys, and classical readout dimension are aligned; both models are selected without holdout access. It is not a full resource comparison. QRC96 requires many Pauli observables, and finite-shot sampling, measurement-basis scheduling, calibration, and hardware noise are outside this simulated study. The reviewer-safe interpretation is therefore: the phase maps identify a reproducible memory-defined operating regime; within that regime, QRC96 features are competitive with, and on NARMA10/Sunspots outperform, an audited ESN100 at matched readout dimension.
+The evidence supports a universal operating-regime hypothesis, not a theorem. The tested tasks differ in chaotic smooth dynamics, nonlinear memory, and real annual observations, and the same frequency-defined phase region remains useful across seeds and leave-one-task-out splits. The statement should still be read within the modeled family: four-qubit stateful gate-model QRCs, scalar time-series prediction, exact simulated expectation values, ridge readouts, and the specified grid.
+
+The scope is intentionally narrower than a hardware or advantage claim. Finite-shot sampling, measurement-basis scheduling, calibration drift, and device noise are not modeled. Likewise, the phase map does not say that every task has the same optimum. It says that useful QRC learning should first be searched in a memory-preserving band, and that leaving this band by removing damping or recurrent mixing destroys the robust phase-map signature.
 
 \section{Conclusion}
-Dissipative QRC performance is organized by a memory-defined operating regime. Phase maps transfer across tasks and seeds, memory diagnostics predict the useful region, and ablations show that recurrent mixing plus controlled damping are necessary before richer readout access helps. The ESN comparison supports, but does not replace, the phase-map claim: at matched classical readout dimension and holdout-blind validation selection, the same QRC96 architecture gives strong aggregate accuracy and robust non-floor NARMA10/Sunspots wins. The result is not a quantum-advantage or hardware-resource claim; the next tests are finite measurements, calibration noise, and expanded classical baselines.
+Dissipative QRC performance is organized by a memory-defined operating regime. The phase maps transfer across tasks and seeds; mechanism ablations remove the robust base band; and intrinsic memory/processing diagnostics recover the same useful region. For this QRC family, the practical claim is simple: before scaling features or chasing a benchmark winner, identify the phase-map band where input drive, recurrence, and damping jointly preserve usable temporal memory.
 
 \begin{table*}[t!]
 \centering
 \scriptsize
-\caption{Artifact map for exact reproduction. The paper PDF, figures, and tables are generated from checked-in CSV/JSON artifacts; holdout data are read only after validation selection.}
+\caption{Artifact map for exact reproduction of the QRC-only paper.}
 \label{tab:artifacts}
-\begin{tabular}{@{}p{0.17\textwidth}p{0.77\textwidth}@{}}
+\begin{tabular}{@{}p{0.20\textwidth}p{0.74\textwidth}@{}}
 \toprule
 Artifact & Role\\
 \midrule
-QRC16 grid & \texttt{data/qrc\_seed\_ensemble\_grid.csv}: coarse grid for regime discovery and leave-one-task-out phase-map transfer.\\
-QRC96 grid & \texttt{data/qrc96\_same\_arch\_expanded\_grid.csv}: same-architecture validation search with 125 configurations, ten seeds, and four tasks.\\
-Sunspots audit & \texttt{data/qrc96\_sunspots\_fine\_refinement\_grid.csv}: same-architecture refinement used only by the task-wise validation-plateau selector.\\
-ESN grid & \texttt{data/esn\_seed\_ensemble\_grid.csv}: audited ESN16/ESN100 sweep with the same tasks, splits, seeds, and ridge grid.\\
-Statistics & \texttt{data/qrc96\_esn100\_stats.json} and \texttt{data/qrc96\_esn100\_taskwise\_stats.json}: selected configs, paired deltas, bootstrap CIs, Wilcoxon tests, sign tests, and gate checks.\\
-Selectors & \texttt{scripts/analyze\_qrc96\_esn100*.py}: validation-only selection with matched task/seed keys enforced before holdout comparisons.\\
-Figures & \texttt{scripts/make\_figures\_and\_build\_data.py}: regenerates all plotted values and figure files used by the manuscript.\\
-Build & \texttt{./reproduce.sh} and \texttt{./paper/build.sh --update-pdf}: end-to-end regeneration of data products and the submitted PDF.\\
+QRC phase grid & \texttt{data/qrc\_seed\_ensemble\_grid.csv}: main QRC16 phase-map grid over tasks, seeds, and $(\beta,\lambda,\gamma)$.\\
+QRC ablation slices & \texttt{data/qrc\_phase\_ablation\_slice\_grid.csv}: focused mechanism stress tests at $\gamma=0.12$.\\
+Band statistics & \texttt{data/phase\_map\_generalization\_stats.json}: band sizes, connectedness, leave-one-task/seed bootstrap CIs, ablation retention, and diagnostic correlations.\\
+Generated numbers & \texttt{paper/generated/phase\_map\_numbers.tex}: all numeric macros used in the manuscript.\\
+Figures & \texttt{scripts/make\_figures\_and\_build\_data.py}: regenerates the phase maps, ablation atlas, transfer matrix, and diagnostic screening plots.\\
+Build & \texttt{./reproduce.sh} and \texttt{./paper/build.sh --update-pdf}: end-to-end regeneration and PDF refresh.\\
 \bottomrule
 \end{tabular}
 \end{table*}
 
-\begin{thebibliography}{8}
+\begin{thebibliography}{6}
 \bibitem{jaeger2004} H. Jaeger and H. Haas, ``Harnessing nonlinearity: Predicting chaotic systems and saving energy in wireless communication,'' \emph{Science}, vol. 304, no. 5667, pp. 78--80, 2004.
 \bibitem{lukosevicius2009} M. Luko\v{s}evi\v{c}ius and H. Jaeger, ``Reservoir computing approaches to recurrent neural network training,'' \emph{Computer Science Review}, vol. 3, no. 3, pp. 127--149, 2009.
 \bibitem{dambre2012} J. Dambre, D. Verstraeten, B. Schrauwen, and S. Massar, ``Information processing capacity of dynamical systems,'' \emph{Scientific Reports}, vol. 2, p. 514, 2012.
