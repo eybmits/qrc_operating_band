@@ -10,6 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from matplotlib.patches import Ellipse
 from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
 
@@ -41,6 +42,8 @@ PHASE_DARK = PHASE_CMAP(0.94)
 INK = "#1f2933"
 GRID = "#d9dee7"
 SOFT_GRID = "#eef1f5"
+RANK_VMIN = 0.05
+RANK_VMAX = 0.80
 
 KEYS = ["beta_pi", "lambda_pi", "gamma"]
 TASK_LABELS = {
@@ -80,27 +83,112 @@ def smooth_grid(x, y, z, xmax, ymax, nx=220, ny=180):
     return XI, YI, Zs
 
 
-def plot_rank_map(ax, d, title, xmax, ymax, selected=None, core=None, labelsize=6.5):
+def safe_contour(ax, XI, YI, Z, levels, **kwargs):
+    valid = [level for level in levels if float(np.nanmin(Z)) <= level <= float(np.nanmax(Z))]
+    if valid:
+        ax.contour(XI, YI, Z, levels=valid, **kwargs)
+
+
+def polish_phase_axis(ax, labelsize=6.5, show_ticks=True):
+    for spine in ax.spines.values():
+        spine.set_linewidth(0.55)
+        spine.set_color("#24313d")
+    ax.set_facecolor("#111827")
+    ax.tick_params(labelsize=labelsize, length=2.0, width=0.55, color="#24313d", pad=1.5)
+    if not show_ticks:
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+
+def plot_band_overlay(ax, core, selected=None, marker_scale=1.0):
+    if core is not None and len(core):
+        cx = float(core.beta_pi.mean())
+        cy = float(core.lambda_pi.mean())
+        width = max(0.085, float(core.beta_pi.max() - core.beta_pi.min()) + 0.075)
+        height = max(0.095, float(core.lambda_pi.max() - core.lambda_pi.min()) + 0.085)
+        halo = Ellipse(
+            (cx, cy),
+            width=width,
+            height=height,
+            facecolor=PHASE_GOLD,
+            edgecolor="white",
+            linewidth=0.45 * marker_scale,
+            alpha=0.20,
+            zorder=3,
+        )
+        ax.add_patch(halo)
+        ax.scatter(
+            core.beta_pi,
+            core.lambda_pi,
+            s=34 * marker_scale,
+            color=PHASE_GOLD,
+            edgecolor="white",
+            linewidth=0.55 * marker_scale,
+            alpha=0.97,
+            clip_on=False,
+            zorder=4,
+        )
+        ax.scatter(
+            core.beta_pi,
+            core.lambda_pi,
+            s=12 * marker_scale,
+            facecolor=PHASE_GOLD,
+            edgecolor=INK,
+            linewidth=0.25 * marker_scale,
+            clip_on=False,
+            zorder=5,
+        )
+    if selected is not None:
+        ax.scatter(
+            [selected["beta_pi"]],
+            [selected["lambda_pi"]],
+            marker="*",
+            s=74 * marker_scale,
+            color=PHASE_GOLD,
+            edgecolor="white",
+            linewidth=0.65 * marker_scale,
+            clip_on=False,
+            zorder=6,
+        )
+        ax.scatter(
+            [selected["beta_pi"]],
+            [selected["lambda_pi"]],
+            marker="*",
+            s=43 * marker_scale,
+            color=PHASE_GOLD,
+            edgecolor=INK,
+            linewidth=0.28 * marker_scale,
+            clip_on=False,
+            zorder=7,
+        )
+
+
+def plot_rank_map(ax, d, title, xmax, ymax, selected=None, core=None, labelsize=6.5, highlight=False, show_ticks=True):
     agg = d.groupby(["beta_pi", "lambda_pi"]).agg(mean_rank=("val_rank_pct", "mean")).reset_index()
     XI, YI, Zs = smooth_grid(agg.beta_pi.values, agg.lambda_pi.values, agg.mean_rank.values, xmax, ymax)
+    Zp = np.clip(Zs, RANK_VMIN, RANK_VMAX)
     im = ax.imshow(
-        Zs,
+        Zp,
         origin="lower",
         extent=[0, xmax, 0, ymax],
-        cmap="magma_r",
-        vmin=0.05,
-        vmax=0.8,
+        cmap=PHASE_CMAP,
+        vmin=RANK_VMIN,
+        vmax=RANK_VMAX,
         aspect="auto",
+        interpolation="bicubic",
+        resample=True,
     )
-    ax.contour(XI, YI, Zs, levels=[0.15, 0.25, 0.40], colors="white", linewidths=[0.55, 0.45, 0.35], alpha=0.78)
-    if core is not None and len(core):
-        ax.scatter(core.beta_pi, core.lambda_pi, s=14, color=PHASE_GOLD, edgecolor=INK, linewidth=0.25, zorder=4)
-    if selected is not None:
-        ax.scatter([selected["beta_pi"]], [selected["lambda_pi"]], marker="*", s=44, color=PHASE_GOLD, edgecolor="black", linewidth=0.35, zorder=5)
+    safe_contour(ax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.75], alpha=0.86)
+    safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.36, 0.28], alpha=0.58)
+    plot_band_overlay(ax, core, selected=selected, marker_scale=max(0.75, labelsize / 7.0))
     ax.set_title(title, fontsize=labelsize + 0.8, pad=2.5, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
-    ax.tick_params(labelsize=labelsize, length=2)
+    polish_phase_axis(ax, labelsize=labelsize, show_ticks=show_ticks)
+    if highlight:
+        for spine in ax.spines.values():
+            spine.set_color(PHASE_GOLD)
+            spine.set_linewidth(1.0)
     return im
 
 
@@ -191,9 +279,18 @@ for i, gamma in enumerate([0.0, 0.05, 0.12, 0.22, 0.30]):
     iax = ax.inset_axes([0.01 + i * 0.195, 0.07, 0.18, 0.78])
     d = q[np.isclose(q.gamma, gamma)]
     core = primary_slice if np.isclose(gamma, gamma_star) else None
-    plot_rank_map(iax, d, rf"$\gamma={gamma:.2f}$", xmax, ymax, selected=selected if np.isclose(gamma, gamma_star) else None, core=core, labelsize=4.9)
-    iax.set_xticks([])
-    iax.set_yticks([])
+    plot_rank_map(
+        iax,
+        d,
+        rf"$\gamma={gamma:.2f}$",
+        xmax,
+        ymax,
+        selected=selected if np.isclose(gamma, gamma_star) else None,
+        core=core,
+        labelsize=4.9,
+        highlight=np.isclose(gamma, gamma_star),
+        show_ticks=False,
+    )
 ax.text(0.5, 0.00, r"$\beta/\pi$  (horizontal), $\lambda/\pi$  (vertical)", transform=ax.transAxes, ha="center", fontsize=6.2, color=INK)
 
 ax = fig.add_subplot(gs[0, 1])
@@ -206,15 +303,29 @@ for i, variant in enumerate(ablation_variants):
     d = abl[abl.variant == variant]
     agg = d.groupby(["beta_pi", "lambda_pi"]).agg(mean_rank=("val_rank_pct", "mean")).reset_index()
     XI, YI, Zs = smooth_grid(agg.beta_pi.values, agg.lambda_pi.values, agg.mean_rank.values, xmax, ymax, nx=160, ny=130)
-    iax.imshow(Zs, origin="lower", extent=[0, xmax, 0, ymax], cmap="magma_r", vmin=0.05, vmax=0.8, aspect="auto")
-    iax.contour(XI, YI, Zs, levels=[0.20, 0.35], colors="white", linewidths=[0.4, 0.3], alpha=0.72)
-    iax.scatter(primary_slice.beta_pi, primary_slice.lambda_pi, s=12, facecolor="none", edgecolor=INK, linewidth=0.45, zorder=4)
+    Zp = np.clip(Zs, RANK_VMIN, RANK_VMAX)
+    iax.imshow(
+        Zp,
+        origin="lower",
+        extent=[0, xmax, 0, ymax],
+        cmap=PHASE_CMAP,
+        vmin=RANK_VMIN,
+        vmax=RANK_VMAX,
+        aspect="auto",
+        interpolation="bicubic",
+        resample=True,
+    )
+    safe_contour(iax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.42], alpha=0.82)
+    safe_contour(iax, XI, YI, Zp, [0.35], colors="white", linewidths=[0.28], alpha=0.62)
+    if variant == "base_amplitude_rxzz":
+        plot_band_overlay(iax, primary_slice, selected=selected, marker_scale=0.42)
+    else:
+        iax.scatter(primary_slice.beta_pi, primary_slice.lambda_pi, s=15, facecolor="none", edgecolor=PHASE_GOLD, linewidth=0.50, zorder=4)
+        iax.scatter(primary_slice.beta_pi, primary_slice.lambda_pi, s=6, facecolor="none", edgecolor=INK, linewidth=0.35, zorder=5)
     iax.set_title(variant_label(variant), fontsize=6.5, pad=1.5)
     iax.set_xlim(0, xmax)
     iax.set_ylim(0, ymax)
-    iax.set_xticks([])
-    iax.set_yticks([])
-    iax.tick_params(labelsize=5, length=1.5)
+    polish_phase_axis(iax, labelsize=5, show_ticks=False)
 
 ax = fig.add_subplot(gs[1, 0])
 transfer = pd.read_csv(DATA / "phase_map_task_seed_transfer_matrix.csv")
