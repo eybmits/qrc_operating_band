@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.patches import Ellipse
+from scipy.optimize import curve_fit
 from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
 
@@ -85,6 +86,47 @@ def safe_contour(ax, XI, YI, Z, levels, **kwargs):
     valid = sorted({level for level in levels if float(np.nanmin(Z)) <= level <= float(np.nanmax(Z))})
     if valid:
         ax.contour(XI, YI, Z, levels=valid, **kwargs)
+
+
+def retention_sigmoid(x, x0, k, a):
+    with np.errstate(over="ignore"):
+        return 100.0 / (1.0 + np.exp(-k * (x - x0))) ** a
+
+
+def smooth_retention_curve(x, y):
+    x = np.asarray(x, dtype=float)
+    y = np.maximum.accumulate(np.asarray(y, dtype=float))
+    dense = np.linspace(float(x.min()), float(x.max()), 700)
+    starts = [
+        (22.0, 0.16, 0.6),
+        (28.0, 0.18, 0.5),
+        (32.0, 0.12, 1.0),
+        (55.0, 0.14, 1.0),
+        (60.0, 0.18, 1.4),
+    ]
+    best = None
+    for p0 in starts:
+        try:
+            popt, _ = curve_fit(
+                retention_sigmoid,
+                x,
+                y,
+                p0=p0,
+                bounds=([0.0, 0.01, 0.2], [100.0, 1.0, 5.0]),
+                maxfev=20000,
+            )
+            err = float(np.sqrt(np.mean((retention_sigmoid(x, *popt) - y) ** 2)))
+            if best is None or err < best[0]:
+                best = (err, popt)
+        except (RuntimeError, ValueError):
+            continue
+    if best is None:
+        vals = PchipInterpolator(x, y)(dense)
+    else:
+        vals = retention_sigmoid(dense, *best[1])
+    vals = np.maximum.accumulate(np.clip(vals, 0.0, 100.0))
+    vals[-1] = 100.0
+    return dense, vals
 
 
 def polish_phase_axis(ax, labelsize=6.5, show_ticks=True):
@@ -420,14 +462,13 @@ axes[2].set_ylim(-0.65, len(sp) - 0.35)
 axes[2].set_title("(c) diagnostic rank correlation")
 axes[2].set_xlabel(r"Spearman $\rho_s$")
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
-screen_dense = np.linspace(float(screen_x.min()), float(screen_x.max()), 420)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
     screen_y = np.maximum.accumulate(screen[col].to_numpy(dtype=float))
     if col == "random":
         axes[3].plot(screen_x, screen_y, label=col, color=color, lw=1.35)
     else:
-        smooth_y = np.clip(PchipInterpolator(screen_x, screen_y)(screen_dense), 0.0, 100.0)
-        axes[3].plot(screen_dense, smooth_y, label=col, color=color, lw=1.7, solid_capstyle="round")
+        screen_dense, smooth_y = smooth_retention_curve(screen_x, screen_y)
+        axes[3].plot(screen_dense, smooth_y, label=col, color=color, lw=1.85, solid_capstyle="round")
 axes[3].set_title("(d) screening retention")
 axes[3].set_xlabel("budget (%)")
 axes[3].set_ylabel("retained (%)")
