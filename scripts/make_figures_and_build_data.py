@@ -25,8 +25,16 @@ plt.rcParams.update({
     'figure.dpi':150,
 })
 
-QRC_BLUE = '#1f78b4'
-ESN_ORANGE = '#f28e2b'
+PHASE_CMAP = plt.cm.magma_r
+PHASE_GOLD = PHASE_CMAP(0.08)
+PHASE_AMBER = PHASE_CMAP(0.18)
+PHASE_CORAL = PHASE_CMAP(0.32)
+PHASE_ROSE = PHASE_CMAP(0.46)
+PHASE_PLUM = PHASE_CMAP(0.66)
+PHASE_VIOLET = PHASE_CMAP(0.82)
+PHASE_DARK = PHASE_CMAP(0.94)
+QRC_BLUE = PHASE_ROSE
+ESN_ORANGE = PHASE_AMBER
 INK = '#1f2933'
 MUTED = '#6b7280'
 GRID = '#d9dee7'
@@ -211,7 +219,7 @@ fig,axes=plt.subplots(1,4,figsize=(14.0,3.35))
 order=['QRC grid shared','ESN16 shared','ESN100 shared']
 vals=[float(comp.set_index('method').loc[m,'mean_test_nmse']) for m in order]+[float(q96sel.test_nmse.mean())]
 labs=['QRC16\nshared','ESN16\nshared','ESN100\nshared','QRC96\nregime']
-cols=['#80b1d3','#fdb462','#fb6a4a','#2b8cbe']
+cols=[PHASE_ROSE, PHASE_AMBER, PHASE_CORAL, PHASE_GOLD]
 axes[0].bar(labs,vals,color=cols,edgecolor='black',linewidth=0.35)
 axes[0].set_title('(a) readout-dimension comparison',fontsize=10)
 axes[0].set_ylabel('holdout NMSE')
@@ -223,8 +231,8 @@ taskwise_pt=pd.read_csv(DATA/'qrc96_esn100_taskwise_per_task.csv').set_index('ta
 pt_q=taskwise_pt.qrc96_mean_nmse
 pt_e=taskwise_pt.esn100_mean_nmse
 x=np.arange(len(pt_q)); width=0.36
-axes[1].bar(x-width/2,pt_e.values,width,label='ESN100',color='#fb6a4a',edgecolor='black',linewidth=0.25)
-axes[1].bar(x+width/2,pt_q.values,width,label='QRC96',color='#2b8cbe',edgecolor='black',linewidth=0.25)
+axes[1].bar(x-width/2,pt_e.values,width,label='ESN100',color=PHASE_AMBER,edgecolor='black',linewidth=0.25)
+axes[1].bar(x+width/2,pt_q.values,width,label='QRC96',color=PHASE_ROSE,edgecolor='black',linewidth=0.25)
 axes[1].set_xticks(x,['MG','Lorenz','NARMA10','Sunspots'],rotation=25,ha='right',fontsize=8)
 axes[1].set_title('(b) task-wise plateau holdout',fontsize=10); axes[1].set_ylabel('holdout NMSE'); axes[1].set_ylim(0,0.24); axes[1].legend(frameon=False,fontsize=8)
 # (c) seed means
@@ -233,11 +241,11 @@ qseed=seed_pairs.set_index('seed').qrc_mean_nmse
 eseed=seed_pairs.set_index('seed').esn_mean_nmse
 axes[2].boxplot([eseed.values,qseed.values],tick_labels=['ESN100','QRC96'],patch_artist=True,boxprops={'facecolor':'#fdb462','alpha':0.7},medianprops={'color':'black'},widths=0.45)
 # manually recolor second
-for patch,col in zip(axes[2].artists, ['#fdb462','#2b8cbe']): patch.set_facecolor(col)
+for patch,col in zip(axes[2].artists, [PHASE_AMBER, PHASE_ROSE]): patch.set_facecolor(col)
 # artists not populated in mpl? overlay scatter
 for i,arr in enumerate([eseed.values,qseed.values],start=1):
     jitter=np.linspace(-0.07,0.07,len(arr))
-    axes[2].scatter(np.full(len(arr),i)+jitter,arr,s=20,alpha=0.7,c=['#fb6a4a','#2b8cbe'][i-1],edgecolor='none')
+    axes[2].scatter(np.full(len(arr),i)+jitter,arr,s=20,alpha=0.7,color=[PHASE_AMBER, PHASE_ROSE][i-1],edgecolor='none')
 axes[2].set_title('(c) seed-level means',fontsize=10); axes[2].set_ylabel('mean holdout NMSE'); axes[2].set_ylim(0.055,0.115); axes[2].tick_params(labelsize=8)
 # (d) controls
 v=data_controls.value.values
@@ -270,25 +278,25 @@ else:
     em=None; ec=-0.61
 fig,axes=plt.subplots(1,4,figsize=(14.0,3.25))
 zero=qmc[qmc.MC==0]; nz=qmc[qmc.MC>0]
-axes[0].scatter(nz.MC,nz.mean_val_rank,s=8,alpha=.28,c='#2b8cbe',edgecolor='none',label='MC>0')
-axes[0].scatter(zero.MC,zero.mean_val_rank,s=9,alpha=.55,c='#d95f0e',edgecolor='none',label='MC=0')
+axes[0].scatter(nz.MC,nz.mean_val_rank,s=8,alpha=.28,color=PHASE_ROSE,edgecolor='none',label='MC>0')
+axes[0].scatter(zero.MC,zero.mean_val_rank,s=9,alpha=.55,color=PHASE_AMBER,edgecolor='none',label='MC=0')
 z=np.polyfit(nz.MC,nz.mean_val_rank,1); xs=np.linspace(nz.MC.min(),nz.MC.max(),200); axes[0].plot(xs,z[0]*xs+z[1],c='black',lw=1.0)
 axes[0].text(.04,.89,fr'$\rho_s={qc:.2f}$',transform=axes[0].transAxes,fontsize=9)
 axes[0].text(.04,.08,'MC=0 is real:\nno input or collapsed memory',transform=axes[0].transAxes,fontsize=7)
 axes[0].legend(frameon=False,fontsize=7,loc='upper right')
 axes[0].set_title('(a) QRC raw MC',fontsize=10); axes[0].set_xlabel('memory capacity'); axes[0].set_ylabel('validation rank'); axes[0].set_ylim(0,1.02)
-axes[1].scatter(qmc.logMC,qmc.mean_val_rank,s=8,alpha=.30,c='#2b8cbe',edgecolor='none')
+axes[1].scatter(qmc.logMC,qmc.mean_val_rank,s=8,alpha=.30,color=PHASE_ROSE,edgecolor='none')
 z=np.polyfit(qmc.logMC,qmc.mean_val_rank,1); xs=np.linspace(qmc.logMC.min(),qmc.logMC.max(),200); axes[1].plot(xs,z[0]*xs+z[1],c='black',lw=1.0)
 axes[1].text(.04,.89,fr'$\rho_s(MC>0)={qcnz:.2f}$',transform=axes[1].transAxes,fontsize=8)
 axes[1].set_title('(b) log-scaled QRC',fontsize=10); axes[1].set_xlabel(r'$\log(1+\mathrm{MC})$'); axes[1].set_ylabel('validation rank'); axes[1].set_ylim(0,1.02)
 if em is not None:
-    axes[2].scatter(em.MC,em.mean_val_rank,s=16,alpha=.45,c='#ff7f0e',edgecolor='none')
+    axes[2].scatter(em.MC,em.mean_val_rank,s=16,alpha=.45,color=PHASE_AMBER,edgecolor='none')
     z=np.polyfit(em.MC,em.mean_val_rank,1); xs=np.linspace(em.MC.min(),em.MC.max(),100); axes[2].plot(xs,z[0]*xs+z[1],c='black',lw=1.0)
 else:
     axes[2].axis('off')
 axes[2].text(.04,.89,fr'$\rho_s={ec:.2f}$',transform=axes[2].transAxes,fontsize=9)
 axes[2].set_title('(c) ESN MC screen',fontsize=10); axes[2].set_xlabel('memory capacity'); axes[2].set_ylabel('validation rank'); axes[2].set_ylim(0,1.02)
-axes[3].bar(['QRC','ESN'],[qc,ec],color=['#2b8cbe','#ff7f0e'],edgecolor='black',linewidth=.25)
+axes[3].bar(['QRC','ESN'],[qc,ec],color=[PHASE_ROSE, PHASE_AMBER],edgecolor='black',linewidth=.25)
 axes[3].axhline(0,color='black',lw=.8); axes[3].set_ylim(-1,0.05)
 axes[3].set_title('(d) reservoir-level trend',fontsize=10); axes[3].set_ylabel(r'Spearman $\rho_s$')
 for i,val in enumerate([qc,ec]): axes[3].text(i,val-.05,f'{val:.2f}',ha='center',va='top',fontsize=9)
@@ -306,11 +314,11 @@ axes = [fig.add_subplot(gs[i, j]) for i in range(2) for j in range(2)]
 ax = axes[0]
 seed_pairs = pd.read_csv(DATA / 'qrc96_esn100_seed_pairs.csv').sort_values('seed')
 for _, row in seed_pairs.iterrows():
-    ax.plot([0, 1], [row.esn_mean_nmse, row.qrc_mean_nmse], color='#b9c2cf', lw=0.75, alpha=0.75, zorder=1)
-    ax.scatter([0, 1], [row.esn_mean_nmse, row.qrc_mean_nmse], s=9, color=['#f7b267', '#76a9cf'], edgecolor='white', linewidth=0.25, zorder=2)
+    ax.plot([0, 1], [row.esn_mean_nmse, row.qrc_mean_nmse], color=PHASE_CMAP(0.74), lw=0.75, alpha=0.58, zorder=1)
+    ax.scatter([0, 1], [row.esn_mean_nmse, row.qrc_mean_nmse], s=10, color=[PHASE_AMBER, PHASE_ROSE], edgecolor='white', linewidth=0.25, zorder=2)
 mean_esn = float(seed_pairs.esn_mean_nmse.mean())
 mean_qrc = float(seed_pairs.qrc_mean_nmse.mean())
-ax.plot([0, 1], [mean_esn, mean_qrc], color=INK, lw=2.0, zorder=4)
+ax.plot([0, 1], [mean_esn, mean_qrc], color=PHASE_DARK, lw=2.0, zorder=4)
 ax.scatter([0, 1], [mean_esn, mean_qrc], s=38, color=[ESN_ORANGE, QRC_BLUE], edgecolor='white', linewidth=0.7, zorder=5)
 for x0, val, label in [(0, mean_esn, '0.090'), (1, mean_qrc, '0.077')]:
     ax.text(x0, val + 0.0042, label, ha='center', va='bottom', fontsize=7.0, color=INK)
@@ -323,7 +331,7 @@ ax.text(
     va='top',
     fontsize=6.3,
     color=INK,
-    bbox=dict(boxstyle='round,pad=0.25', facecolor='#f8fafc', edgecolor='#d7dde8', linewidth=0.4),
+    bbox=dict(boxstyle='round,pad=0.25', facecolor=PHASE_CMAP(0.02), edgecolor=PHASE_CMAP(0.58), linewidth=0.35, alpha=0.18),
 )
 ax.set_xlim(-0.22, 1.22)
 ax.set_ylim(0.058, 0.108)
@@ -343,16 +351,19 @@ ypos = np.array([1, 0])
 for y, task, label in zip(ypos, tasks_nf, labels_nf):
     vals = tw_pairs[tw_pairs.task == task].delta_esn_minus_qrc.to_numpy(dtype=float)
     jitter = np.linspace(-0.13, 0.13, len(vals))
-    colors = [QRC_BLUE if v > 0 else '#c2410c' for v in vals]
+    colors = [
+        PHASE_CMAP(0.44 - 0.36 * np.clip(v / 0.12, 0, 1)) if v > 0 else PHASE_VIOLET
+        for v in vals
+    ]
     ax.scatter(vals, y + jitter, s=22, color=colors, edgecolor='white', linewidth=0.35, zorder=3)
     mean = float(vals.mean())
     ci = taskwise_stats['by_task'][task]['delta']
-    ax.plot([ci['ci95_low'], ci['ci95_high']], [y, y], color=INK, lw=1.25, zorder=2)
-    ax.scatter([mean], [y], marker='D', s=34, color='#ffb703', edgecolor=INK, linewidth=0.45, zorder=4)
+    ax.plot([ci['ci95_low'], ci['ci95_high']], [y, y], color=PHASE_DARK, lw=1.25, zorder=2)
+    ax.scatter([mean], [y], marker='D', s=34, color=PHASE_GOLD, edgecolor=INK, linewidth=0.45, zorder=4)
     wins = taskwise_stats['by_task'][task]['tests']['wins']
     ax.text(mean + 0.008, y + 0.17, f'{mean:.3f}, {wins}/10', fontsize=6.6, color=INK, ha='left', va='center')
 ax.axvline(0, color=INK, lw=0.8)
-ax.axvspan(0, 0.125, color=QRC_BLUE, alpha=0.045, zorder=0)
+ax.axvspan(0, 0.125, color=PHASE_GOLD, alpha=0.075, zorder=0)
 ax.set_yticks(ypos, labels_nf)
 ax.set_xlim(-0.03, 0.125)
 ax.set_xlabel(r'$\Delta$ holdout NMSE (ESN100 - QRC96)', fontsize=7.4)
@@ -367,10 +378,11 @@ ctrl = data_controls.copy()
 ctrl['display'] = ['QRC96', 'Rx-ZZ-Rx', 'QRC16', 'Rx only', 'no mix', r'$\gamma=0$', 'dephase']
 ctrl = ctrl.sort_values('value', ascending=False).reset_index(drop=True)
 y = np.arange(len(ctrl))
-ctrl_cols = ['#8d99ae', '#d1495b', '#ef8354', '#f6c177', '#b39ddb', '#7fb3d5', QRC_BLUE]
-ax.hlines(y, 0.05, ctrl.value, color='#cbd5e1', linewidth=1.2, zorder=1)
-ax.scatter(ctrl.value, y, s=42, color=ctrl_cols[: len(ctrl)], edgecolor='white', linewidth=0.55, zorder=3)
-ax.axvline(float(q96sel.test_nmse.mean()), color=QRC_BLUE, lw=1.0, ls='--', alpha=0.85)
+ctrl_norm = Normalize(vmin=np.log10(ctrl.value.min()), vmax=np.log10(ctrl.value.max()))
+ctrl_cols = [PHASE_CMAP(ctrl_norm(np.log10(v))) for v in ctrl.value]
+ax.hlines(y, 0.05, ctrl.value, color=PHASE_CMAP(0.80), linewidth=1.2, alpha=0.28, zorder=1)
+ax.scatter(ctrl.value, y, s=42, color=ctrl_cols[: len(ctrl)], edgecolor=INK, linewidth=0.35, zorder=3)
+ax.axvline(float(q96sel.test_nmse.mean()), color=PHASE_GOLD, lw=1.05, ls='--', alpha=0.90)
 ax.set_xscale('log')
 ax.set_xlim(0.045, 1.6)
 ax.set_yticks(y, ctrl.display)
@@ -391,7 +403,7 @@ diag = diag.set_index('metric').reindex(['MC', 'IPCmem', 'IPCtot', 'IPCnonlin', 
 diag['display'] = ['MC', r'IPC$_m$', r'IPC$_t$', r'IPC$_n$', r'$V_f$', r'$r_e$']
 diag_values = diag['spearman_vs_val_rank'].to_numpy(dtype=float)
 y = np.arange(len(diag))
-colors = [QRC_BLUE if v < 0 else '#d62728' for v in diag_values]
+colors = [PHASE_CMAP(0.18 + 0.24 * (1 - min(abs(v), 1.0))) if v < 0 else PHASE_VIOLET for v in diag_values]
 ax.barh(y, diag_values, color=colors, edgecolor='white', linewidth=0.7, height=0.66)
 ax.axvline(0, color=INK, linewidth=0.75)
 ax.set_xlim(-1.0, 0.25)
@@ -401,7 +413,7 @@ ax.set_xlabel(r'Spearman $\rho_s$ vs. validation rank', fontsize=7.4)
 ax.set_title('(d) Memory diagnostics transfer', fontsize=8.2, color=INK, pad=4)
 for yi, val in zip(y, diag_values):
     if val < 0:
-        ax.text(-0.035, yi, f'{val:.2f}', ha='right', va='center', fontsize=6.4, color='white')
+        ax.text(-0.035, yi, f'{val:.2f}', ha='right', va='center', fontsize=6.4, color=INK)
     else:
         ax.text(val + 0.025, yi, f'{val:.2f}', ha='left', va='center', fontsize=6.4, color=INK)
 ax.grid(axis='x', color=GRID, linewidth=0.45, alpha=0.75)
@@ -441,5 +453,11 @@ summary={
  'qrc96_taskwise_sunspots_wins': int(taskwise_stats['by_task']['sunspots_annual']['tests']['wins']),
  'qrc96_taskwise_non_floor_claim_allowed': bool(taskwise_stats['gates']['non_floor_claim_allowed']),
 }
-(DATA/'final_summary_numbers.json').write_text(json.dumps(summary,indent=2))
+summary_path = DATA / 'final_summary_numbers.json'
+if summary_path.exists():
+    existing_summary = json.loads(summary_path.read_text())
+    for key, value in existing_summary.items():
+        if key.startswith('current_intrinsic_') and key not in summary:
+            summary[key] = value
+summary_path.write_text(json.dumps(summary,indent=2) + '\n')
 print(json.dumps(summary,indent=2))
