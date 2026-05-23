@@ -366,12 +366,31 @@ axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
 axes[1].set_title("(b) log memory")
 axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$")
 axes[1].set_ylabel("validation rank")
-sp_order = ["MC", "IPCmem", "IPCtot", "IPCnonlin", "Vfeat", "reff"]
+sp_order = ["IPCtot", "MC", "IPCmem", "IPCnonlin", "Vfeat", "reff"]
+sp_labels = [r"IPC$_t$", "MC", r"IPC$_m$", r"IPC$_n$", r"$V_f$", r"$r_e$"]
 sp = spearman.set_index("metric").reindex(sp_order)
-axes[2].barh(np.arange(len(sp)), sp.spearman_vs_val_rank, color=[PHASE_CORAL if v < 0 else PHASE_VIOLET for v in sp.spearman_vs_val_rank])
-axes[2].axvline(0, color="black", lw=0.8)
-axes[2].set_yticks(np.arange(len(sp)), ["MC", r"IPC$_m$", r"IPC$_t$", r"IPC$_n$", r"$V_f$", r"$r_e$"])
-axes[2].invert_yaxis()
+sp_y = np.arange(len(sp))[::-1]
+sp_colors = [PHASE_GOLD, PHASE_ROSE, PHASE_CORAL, PHASE_AMBER, PHASE_VIOLET, PHASE_VIOLET]
+axes[2].axvspan(-1.0, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
+axes[2].axvspan(0.0, 0.25, color=PHASE_VIOLET, alpha=0.075, lw=0)
+axes[2].axvline(0, color=INK, lw=0.9, alpha=0.92)
+for yi, val, color in zip(sp_y, sp.spearman_vs_val_rank.to_numpy(dtype=float), sp_colors):
+    axes[2].hlines(yi, min(0.0, val), max(0.0, val), color=color, lw=3.2, alpha=0.68, zorder=2)
+    axes[2].scatter([val], [yi], s=50, color=color, edgecolor="white", linewidth=0.75, zorder=3)
+    x_text = val + 0.045 if val < 0 else val + 0.018
+    axes[2].text(
+        x_text,
+        yi,
+        f"{val:.2f}",
+        ha="left",
+        va="center",
+        fontsize=6.7,
+        color=INK,
+        bbox=dict(facecolor="white", edgecolor="none", alpha=0.72, pad=0.35),
+    )
+axes[2].set_yticks(sp_y, sp_labels)
+axes[2].set_xlim(-1.0, 0.24)
+axes[2].set_ylim(-0.65, len(sp) - 0.35)
 axes[2].set_title("(c) diagnostic rank correlation")
 axes[2].set_xlabel(r"Spearman $\rho_s$")
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
