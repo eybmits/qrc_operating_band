@@ -24,6 +24,7 @@ This runs:
 python -m compileall -q scripts
 python scripts/make_figures_and_build_data.py
 python scripts/make_qrc_v6_with_real_diagnostics.py
+./paper/build.sh
 ```
 
 Expected outputs include:
@@ -31,10 +32,17 @@ Expected outputs include:
 - `data/final_summary_numbers.json`
 - `data/screening_retention_recomputed_intrinsic_diagnostics.csv`
 - `data/qrc_real_current_diagnostic_spearman_named.csv`
-- `gfx_reference/fig1_operating_regime_fixed_gamma.{png,pdf}`
-- `gfx_reference/fig2_regime_beats_esn_controls.{png,pdf}`
-- `gfx_reference/fig3_memory_capacity_screens.{png,pdf}`
-- `gfx_reference/fig3d_screening_retention_real_intrinsic.{png,pdf}`
+- `paper/gfx/fig1_operating_regime_fixed_gamma.{png,pdf}`
+- `paper/gfx/fig2_regime_beats_esn_controls.{png,pdf}`
+- `paper/gfx/fig3_memory_capacity_screens.{png,pdf}`
+- `paper/gfx/fig3d_screening_retention_real_intrinsic.{png,pdf}`
+- `paper/build/qrc_phase_diagram.pdf`
+
+Use this command to refresh the tracked PDF copy after reviewing a clean build:
+
+```bash
+./paper/build.sh --update-pdf
+```
 
 ## Full Diagnostic Recompute
 

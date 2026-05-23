@@ -19,6 +19,8 @@
 - `screening_retention_recomputed_intrinsic_diagnostics.csv`: retained-top-decile curves for memory and intrinsic-capacity metrics.
 - `diag_parts/*.csv`: chunk outputs that reproduce the diagnostic table.
 
+The older `qrc_memory_capacity_by_seed_theta.csv` memory-capacity screen has `922 / 2450` zero-MC points. The current intrinsic diagnostic table used by the paper has `792 / 2450` zero-MC points; both values are recorded in `data/final_summary_numbers.json` under separate keys.
+
 ## Reference Figures
 
-The `gfx_reference/` directory contains PNG and PDF versions of the rebuilt figure outputs. They are tracked because they are small enough for normal Git use and serve as visual reference artifacts for the saved data.
+The `paper/gfx/` directory contains PNG and PDF versions of the rebuilt figure outputs. They are tracked because they are small enough for normal Git use and serve as visual reference artifacts for the saved data.

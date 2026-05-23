@@ -7,7 +7,9 @@ Portability changes:
 - replaced hard-coded `/mnt/data/...` paths with repository-relative paths;
 - kept the QRC simulator as `scripts/qrc_stateful_minimal_suite.py` because diagnostic recomputation imports it directly;
 - changed the simulator default output from `/mnt/data/qrc_stateful_run` to `outputs/qrc_stateful_run`;
-- kept generated reference figures under `gfx_reference/`;
+- renamed the paper source from `main.tex` to `paper/qrc_phase_diagram.tex`;
+- moved generated reference figures to `paper/gfx/`;
+- avoided duplicating the paper ZIP's `data/` directory because the root `data/` directory is canonical;
 - added `reproduce.sh` as the default local validation entry point.
 
-The package remains code/data only. Manuscript LaTeX/PDF files were not present in `qrc_final_code_package.zip`.
+The initial code package was code/data only. The companion paper package is now integrated under `paper/`.

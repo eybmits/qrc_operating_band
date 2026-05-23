@@ -12,7 +12,7 @@ from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-GFX = ROOT / "gfx_reference"
+GFX = ROOT / "paper" / "gfx"
 GFX.mkdir(parents=True, exist_ok=True)
 
 plt.rcParams.update({

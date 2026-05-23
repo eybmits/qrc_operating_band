@@ -1,0 +1,143 @@
+\documentclass[conference]{IEEEtran}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\makeatletter
+\setlength{\@fptop}{0pt}
+\setlength{\@fpsep}{8pt plus 1fil}
+\setlength{\@fpbot}{0pt plus 1fil}
+\makeatother
+\newcommand{\MC}{\mathrm{MC}}
+\newcommand{\NMSE}{\mathrm{NMSE}}
+\begin{document}
+\title{Memory-Defined Operating Regimes for Dissipative Quantum Reservoirs: Transfer, Prediction, and an ESN Baseline Win}
+\author{Anonymous QCE Submission}
+\maketitle
+
+\begin{abstract}
+Reservoir computing trains only a simple readout on top of a fixed dynamical system, making it attractive for physical implementations. For quantum reservoirs, the open question is which physical resource makes the fixed dynamics useful rather than merely expressive. This work identifies a memory-defined operating regime in a stateful dissipative gate-model quantum reservoir. The regime balances gentle input perturbation, recurrent mixing, and controlled damping so that the reservoir retains useful history while exposing nonlinear features to the readout. Memory capacity predicts this regime and also acts as a diagnostic for classical Echo-State Networks, making it a reservoir-level screening signal rather than a quantum-specific score. Targeting the regime and then enriching the fixed quantum readout lifts the quantum reservoir above a strong classical Echo-State baseline under a comparable feature budget; leaving the regime removes the gain. The claim is limited to simulated benchmarks and does not assert quantum advantage, hardware transfer, or finite-measurement robustness.
+\end{abstract}
+
+\begin{IEEEkeywords}
+quantum reservoir computing, dissipative dynamics, memory capacity, echo-state networks, operating regimes, time-series prediction
+\end{IEEEkeywords}
+
+\section{Introduction}
+Reservoir computing turns temporal learning into a linear readout problem: a fixed dynamical system transforms the recent input history into features, and only the final readout is trained \cite{jaeger2004,lukosevicius2009}. Classical reservoir theory already makes the relevant lesson clear. Useful recurrent systems are not maximally variable systems; they balance fading memory, nonlinear transformation, and contractive stability \cite{dambre2012,tanaka2019,nakajima2020,grigoryeva2018}. Gate-model quantum reservoirs add physical axes that do not appear as ordinary classical hyperparameters: coherent two-qubit mixing, measurement-limited observables, and nonunitary channels \cite{fujii2017,mujal2023,kubota2023,sannia2024}.
+
+The open question is therefore mechanistic. A quantum reservoir becomes useful only when its physical resources create a state that remembers enough history, forgets old information controllably, and exposes nonlinear functions of the history to a trainable readout. A high-dimensional quantum state alone does not solve this problem. Excessive drive overwrites memory, missing damping prevents useful fading memory, and missing recurrent mixing leaves the readout with weak temporal features.
+
+The central assertion is that dissipative quantum reservoirs possess a memory-defined operating regime. This regime is not a plotting convention and not a post-hoc description of a best coordinate. It is a causal region in the resource space of input strength, recurrent coupling, and damping. Inside the region, memory capacity predicts good validation rank, a richer fixed quantum readout beats a strong Echo-State Network (ESN) baseline under a comparable feature budget, and minimal ablations destroy the gain. Outside the region, readout enrichment alone does not rescue the reservoir.
+
+The evidence has three parts. First, the regime is a transferable zone rather than a universal point: a strict all-seed intersection is too strong, but a connected frequency-level core persists across tasks and reservoir seeds. Second, memory capacity provides a reservoir-level compass that points toward the useful regime in both quantum reservoirs and ESNs. Third, targeted operation inside the regime lifts a fixed quantum readout above a strong ESN baseline, while removing damping or mixing collapses performance. The scope remains intentionally bounded to simulated benchmarks with comparable feature budgets; finite-shot costs, calibration noise, hardware transfer, and full resource accounting remain outside the claim.
+
+\section{Methodology}
+A stateful dissipative quantum reservoir carries its density matrix from one time step to the next. For scalar input $u_t$, input injection perturbs the previous reservoir state rather than resetting it:
+\begin{equation}
+  \rho_{t,0}=U_{\mathrm{in}}(u_t)\rho_{t-1,L}U_{\mathrm{in}}^{\dagger}(u_t),\qquad
+  U_{\mathrm{in}}(u_t)=\bigotimes_i R_y(\beta u_t).
+\end{equation}
+Each virtual layer applies a frozen local mixer, a recurrent ZZ ring, and product amplitude damping,
+\begin{equation}
+\begin{aligned}
+\rho_{t,\ell}
+&=\mathcal{D}_{\gamma}^{\otimes n}\!\left[
+U_\lambda U_{\mathrm{mix}}\rho_{t,\ell-1}
+U_{\mathrm{mix}}^{\dagger}U_\lambda^{\dagger}\right],\\
+U_\lambda
+&=\prod_{(i,j)\in E_{\mathrm{ring}}}e^{-i\lambda Z_iZ_j}.
+\end{aligned}
+\end{equation}
+The baseline model uses four qubits, two virtual layers, a ring topology, frozen local $R_x$ rotations for each reservoir seed, and amplitude damping after each layer. Only the ridge readout is trained. The baseline QRC readout concatenates local $Z$ expectations and ring-pair $ZZ$ expectations after both virtual layers, giving $16$ features. The enriched QRC readout keeps the same stateful dissipative core and measures all local Pauli expectations plus all ring-pair two-body Pauli correlations after both layers, giving $96$ features. The quantum gates remain frozen in both cases.
+
+The operating regime is defined over the resource coordinate
+\begin{equation}
+    \theta=(\beta,\lambda,\gamma),
+\end{equation}
+where $\beta$ controls input perturbation, $\lambda$ controls recurrent ZZ mixing, and $\gamma$ controls nonunital damping. For task $j$ and seed $s$, let $r_{j,s}(\theta)$ be the validation percentile rank of $\theta$, with lower rank denoting lower validation error. A frequency-level operating regime is
+\begin{equation}
+ B_{p,q}=\left\{\theta:\Pr_{j,s}\big[r_{j,s}(\theta)\le p\big]\ge q\right\}.
+\end{equation}
+This definition separates a transferable regime from a universal optimum. A strict intersection requires all task-seed replicates to agree; a frequency-level regime requires a stable fraction of them to agree.
+
+Memory capacity supplies the predictive diagnostic. It is computed by training linear reconstructions of delayed inputs from reservoir features and summing the held-out reconstruction $R^2$ values,
+\begin{equation}
+\MC=\sum_{d=1}^{D}R^2\left(u_{t-d},\hat u_{t-d}(x_t)\right).
+\end{equation}
+High memory capacity does not guarantee low task error, but it rejects collapsed reservoirs before expensive task-specific sweeps. The same diagnostic is computed for ESN candidates to test whether memory capacity is a reservoir-level signal rather than a QRC-specific score.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{gfx/fig1_operating_regime_fixed_gamma.pdf}
+\caption{Memory-defined operating regime from the actual ten-seed QRC grid. Each panel shows a fixed $\gamma=0.12$ slice; no best-over-$\gamma$ switching is used in the display. The band statistics are computed in the full three-dimensional grid. Blue markers denote high-frequency top-20\% support points in the displayed slice. The star marks the $(\beta,\lambda)$ projection of the selected QRC96 regime point. The useful region remains concentrated at small input strength and nonmaximal recurrent coupling across leave-one-task-out views.}
+\label{fig:regime}
+\end{figure*}
+
+\section{Experimental Setup}
+The benchmark suite contains Mackey--Glass, NARMA10, Lorenz, and annual Sunspots. All tasks use chronological train, validation, and holdout splits. Ridge regularization is selected on validation from $\{10^{-8},\ldots,10^{3}\}$, and all reported performance numbers are holdout NMSE. The grid contains seven input-strength values, seven coupling values, and five damping values:
+\begin{align*}
+\beta/\pi &\in \{0,0.02,0.04,0.07,0.10,0.22,0.50\},\\
+\lambda/\pi &\in \{0,0.05,0.10,0.12,0.16,0.28,0.42\},\\
+\gamma &\in \{0,0.05,0.12,0.22,0.30\}.
+\end{align*}
+Reservoir seeds are $42$--$51$, giving $40$ task-seed replicates.
+
+The ESN baselines use the identical tasks, splits, seeds, ridge grid, and shared-validation selection protocol. ESN16 matches the QRC16 feature dimension. ESN100 is the strong classical baseline for the enriched QRC96 comparison. QRC96 has $96$ expectation-value features and ESN100 has $100$ recurrent state features, so the comparison is feature-budget comparable. It is not a full resource-accounting comparison because QRC96 also requires additional measurement bases, finite shots are not modeled, and calibration overhead is absent.
+
+Shared-validation selection is deliberately conservative. A single hyperparameter setting is selected by mean validation NMSE across tasks and seeds, and that setting is evaluated on holdout. Task-seed upper bounds are not used for the main ESN win because they allow a separate hyperparameter choice for each replicate and therefore measure an optimistic selector rather than a deployable shared model.
+
+\section{Evaluation}
+\subsection{The regime is transferable, but not a universal point}
+The strict all-seed top-20\% intersection is empty. This falsifies the strongest possible universality statement and identifies the correct object: a frequency-level operating regime. The $B_{20,0.7}$ core contains four connected grid points, and $B_{20,0.6}$ contains fourteen points. Leave-one-task-out transfer gives a mean held-out validation rank of $0.240$ with bootstrap confidence interval $[0.218,0.271]$. The regime is therefore not a task-specific point optimum. It is a transferable top-quartile zone centered on small input strength, controlled nonzero damping, and nonmaximal recurrent coupling.
+
+Fig.~\ref{fig:regime} displays the regime at a fixed damping slice. This choice removes a visualization artifact produced by best-over-damping projections, where different damping slices can be spliced into a single two-dimensional surface. The displayed panels preserve the same qualitative structure without such switching: the low-rank region is broad in coupling, sharply avoids excessive input strength, and remains visible under leave-one-task-out conditioning.
+
+\subsection{Targeting the regime beats a strong ESN baseline}
+The baseline QRC16 does not beat the classical baselines. Its shared-validation holdout NMSE is $0.120$, compared with $0.112$ for ESN16 and $0.090$ for ESN100. The operating regime nevertheless supplies a useful search prior. The enriched QRC96 readout is evaluated inside the low-input, nonzero-damping core rather than over a blind architecture search. The selected point is $(\beta/\pi,\lambda/\pi,\gamma)=(0.010,0.050,0.080)$, with mean validation NMSE $0.082$ and mean holdout NMSE $0.073$.
+
+This value beats the shared-validation ESN100 baseline at $0.090$ under the same tasks, seeds, splits, and validation protocol. The gain is concentrated in NARMA10, where the QRC96 point reduces the ESN100 error while maintaining near-zero holdout error on Mackey--Glass and Lorenz. Seed-level means remain below the ESN100 distribution across seeds $42$--$51$. Fig.~\ref{fig:evidence} summarizes the comparison, the per-task contributions, seed-level stability, and minimal controls.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{gfx/fig2_regime_beats_esn_controls.pdf}
+\caption{Performance and mechanism controls. (a) QRC16 loses to both ESN baselines, while the memory-regime-targeted QRC96 readout beats ESN100 under shared-validation selection. (b) The QRC96 win is mainly carried by NARMA10; both models solve Mackey--Glass and Lorenz nearly perfectly. (c) Seed-level means remain lower for QRC96 than for ESN100. (d) Removing the memory-preserving mechanism collapses performance: richer readout access helps only after recurrent mixing and nonzero damping establish usable memory.}
+\label{fig:evidence}
+\end{figure*}
+
+\subsection{Ablations locate the cause of the win}
+The enriched readout is a gain amplifier, not the root cause. The $R_x$--ZZ--$R_x$ variant reaches $0.168$, and the baseline dissipative QRC16 core reaches $0.187$. Removing recurrent mixing raises error to $0.976$. Setting damping to zero gives $1.025$, and dephasing gives $1.043$. These controls destroy the advantage by removing the memory-preserving regime. The improved QRC96 readout succeeds because it extracts more observables from a state that already sits in the correct dynamical regime.
+
+The resource interpretation follows directly. Input strength perturbs the carried state; excessive input drive overwrites history, and zero input creates collapsed memory. Damping creates controlled forgetting; zero damping fails to produce the same fading-memory behavior. Recurrent ZZ coupling mixes stored history across qubits and remains task dependent rather than monotone. The useful design rule is therefore causal: establish the memory-preserving dissipative regime first, then enrich readout access inside it.
+
+\subsection{Memory capacity predicts the regime}
+Memory capacity is strongly linked to validation rank. Across QRC grid points and seeds, Spearman correlation between memory capacity and mean validation rank is $\rho_s=-0.85$. The mass at $\MC=0$ is real: $792$ of $2450$ diagnostic points have zero memory capacity, mainly from zero-input or collapsed-memory settings. The same diagnostic also works for ESNs, with $\rho_s=-0.57$ on the recomputed ESN candidate set.
+
+The additional diagnostics are recomputed from the current QRC feature streams rather than imported from an earlier dense sweep. $\mathrm{IPC}_{\mathrm{mem}}$ reaches $\rho_s=-0.84$, $\mathrm{IPC}_{\mathrm{tot}}$ reaches $\rho_s=-0.90$, and $\mathrm{IPC}_{\mathrm{nonlin}}$ reaches $\rho_s=-0.80$. By contrast, feature variation and effective rank are weakly positive with validation rank, $\rho_s=0.16$ and $\rho_s=0.15$, so they retain poor reservoirs rather than identifying the useful memory regime.
+
+The screening-retention view makes the practical value explicit. If only $20\%$ of QRC candidates are kept, ranking by $\mathrm{IPC}_{\mathrm{tot}}$ retains 58\% of the true top-decile settings, ranking by $\MC$ retains 53\%, and ranking by $\mathrm{IPC}_{\mathrm{mem}}$ retains 50\%. The same budget retains $0\%$ under $V_{\mathrm{feat}}$ and $r_{\mathrm{eff}}$, compared with $20\%$ under random retention. Fig.~\ref{fig:mc} therefore separates usable memory from raw feature diversity: memory-based diagnostics point toward the operating regime, while diversity-only diagnostics do not.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{gfx/fig3_memory_capacity_screens.pdf}
+\caption{Recomputed intrinsic diagnostics and screening efficiency. (a) Raw QRC memory-capacity screen with zero-memory configurations marked separately. (b) ESN candidates show the same negative memory-capacity--rank relationship. (c) Spearman correlations from the current QRC diagnostic rerun: memory and IPC diagnostics are strongly negative with validation rank, while feature variation and effective rank are weakly positive. (d) Screening retention computed from the same current diagnostics: $\mathrm{IPC}_{\mathrm{mem}}$, $\MC$, and $\mathrm{IPC}_{\mathrm{tot}}$ retain top performers faster than random selection, while $V_{\mathrm{feat}}$ and $r_{\mathrm{eff}}$ retain them late.}
+\label{fig:mc}
+\end{figure*}
+
+\section{Conclusion}
+Dissipative quantum reservoirs become useful when their physical resources form a memory-preserving operating regime. Gentle input perturbation, controlled damping, and recurrent mixing create a state that retains useful history and exposes nonlinear features to a fixed readout. Memory capacity identifies this regime before exhaustive task sweeps, and the same diagnostic applies to classical reservoirs. Within the simulated benchmark, targeting the regime and then enriching the fixed quantum readout lifts the quantum reservoir above a strong Echo-State baseline under a comparable feature budget; leaving the regime removes the gain. The result is not a quantum-advantage or hardware-transfer claim. Natural next tests include finite measurements, calibration noise, alternative topologies, and measurement-cost accounting.
+
+\begin{thebibliography}{10}
+\bibitem{jaeger2004} H. Jaeger and H. Haas, ``Harnessing nonlinearity: Predicting chaotic systems and saving energy in wireless communication,'' \emph{Science}, vol. 304, no. 5667, pp. 78--80, 2004.
+\bibitem{lukosevicius2009} M. Luko\v{s}evi\v{c}ius and H. Jaeger, ``Reservoir computing approaches to recurrent neural network training,'' \emph{Computer Science Review}, vol. 3, no. 3, pp. 127--149, 2009.
+\bibitem{dambre2012} J. Dambre, D. Verstraeten, B. Schrauwen, and S. Massar, ``Information processing capacity of dynamical systems,'' \emph{Scientific Reports}, vol. 2, p. 514, 2012.
+\bibitem{tanaka2019} G. Tanaka \emph{et al.}, ``Recent advances in physical reservoir computing: A review,'' \emph{Neural Networks}, vol. 115, pp. 100--123, 2019.
+\bibitem{nakajima2020} K. Nakajima, ``Physical reservoir computing--an introductory perspective,'' \emph{Japanese Journal of Applied Physics}, vol. 59, p. 060501, 2020.
+\bibitem{grigoryeva2018} L. Grigoryeva and J.-P. Ortega, ``Echo state networks are universal,'' \emph{Neural Networks}, vol. 108, pp. 495--508, 2018.
+\bibitem{fujii2017} K. Fujii and K. Nakajima, ``Harnessing disordered-ensemble quantum dynamics for machine learning,'' \emph{Physical Review Applied}, vol. 8, p. 024030, 2017.
+\bibitem{mujal2023} P. Mujal, R. Mart\'{i}nez-Pe\~{n}a, G. L. Giorgi, M. C. Soriano, and R. Zambrini, ``Time-series quantum reservoir computing with weak and projective measurements,'' \emph{npj Quantum Information}, vol. 9, p. 16, 2023.
+\bibitem{kubota2023} T. Kubota \emph{et al.}, ``Temporal information processing induced by quantum noise,'' \emph{Physical Review Research}, vol. 5, p. 023057, 2023.
+\bibitem{sannia2024} A. Sannia, R. Mart\'{i}nez-Pe\~{n}a, M. C. Soriano, G. L. Giorgi, and R. Zambrini, ``Dissipation as a resource for quantum reservoir computing,'' \emph{Quantum}, vol. 8, p. 1291, 2024.
+\end{thebibliography}
+\end{document}

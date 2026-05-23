@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+import json
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -9,7 +10,7 @@ from scipy.stats import spearmanr
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data"
-GFX = ROOT / "gfx_reference"
+GFX = ROOT / "paper" / "gfx"
 GFX.mkdir(parents=True, exist_ok=True)
 
 required = [
@@ -108,7 +109,7 @@ ax2.set_title('(d) screening retention',fontweight='bold'); ax2.set_xlabel('kept
 ax2.set_xlim(0,100); ax2.set_ylim(0,102); ax2.set_xticks([0,20,40,60,80,100]); ax2.set_yticks([0,20,40,60,80,100]); ax2.grid(True,alpha=.22); ax2.legend(frameon=True,loc='lower right',facecolor='white',framealpha=.96)
 fig2.tight_layout(); fig2.savefig(GFX/'fig3d_screening_retention_real_intrinsic.png',dpi=360,bbox_inches='tight'); fig2.savefig(GFX/'fig3d_screening_retention_real_intrinsic.pdf',bbox_inches='tight'); plt.close(fig2)
 
-tex_path = ROOT / "main.tex"
+tex_path = ROOT / "paper" / "qrc_phase_diagram.tex"
 zero_count = int((diag.MC == 0).sum())
 total_count = int(len(diag))
 new_block = (
@@ -139,6 +140,19 @@ if tex_path.exists():
         tex_path.write_text(tex)
         print("Updated manuscript text at", tex_path)
 else:
-    print("No main.tex found; updated data tables and figures only.")
+    print("No paper source found; updated data tables and figures only.")
+summary_path = DATA / "final_summary_numbers.json"
+if summary_path.exists():
+    summary = json.loads(summary_path.read_text())
+else:
+    summary = {}
+summary.update({
+    "current_intrinsic_mc_spearman": raw_rho,
+    "current_intrinsic_esn_mc_spearman": esn_rho,
+    "current_intrinsic_mc_zero_count": zero_count,
+    "current_intrinsic_mc_total": total_count,
+    "current_intrinsic_mc_zero_fraction": zero_count / total_count if total_count else None,
+})
+summary_path.write_text(json.dumps(summary, indent=2) + "\n")
 print(pd.DataFrame({'metric':metric_cols,'spearman':[corr[m] for m in metric_cols]}).to_string(index=False))
 print(curve_df.head().to_string(index=False))
