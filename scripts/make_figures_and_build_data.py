@@ -353,18 +353,33 @@ diag = pd.read_csv(DATA / "qrc_real_current_intrinsic_diagnostics_with_perf.csv"
 diag["logMC"] = np.log1p(diag["MC"])
 spearman = pd.read_csv(DATA / "qrc_real_current_diagnostic_spearman_named.csv")
 fig, axes = plt.subplots(1, 4, figsize=(14.0, 3.1))
-nz = diag[diag.MC > 0]
-axes[0].scatter(nz.MC, nz.mean_val_rank, s=8, alpha=0.27, color=PHASE_ROSE, edgecolor="none")
-if len(nz):
-    z = np.polyfit(nz.MC, nz.mean_val_rank, 1)
-    xs = np.linspace(nz.MC.min(), nz.MC.max(), 200)
+dead_mc_threshold = 0.1
+dead_mc = diag[diag.MC <= dead_mc_threshold]
+active_mc = diag[diag.MC > dead_mc_threshold]
+dead_pct = 100.0 * len(dead_mc) / len(diag)
+dead_rank = float(dead_mc.mean_val_rank.mean())
+axes[0].scatter(active_mc.MC, active_mc.mean_val_rank, s=8, alpha=0.27, color=PHASE_ROSE, edgecolor="none")
+if len(active_mc):
+    z = np.polyfit(active_mc.MC, active_mc.mean_val_rank, 1)
+    xs = np.linspace(active_mc.MC.min(), active_mc.MC.max(), 200)
     axes[0].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
+axes[0].text(
+    0.04,
+    0.93,
+    rf"$\mathrm{{MC}}\leq {dead_mc_threshold:.1f}$: {dead_pct:.0f}\%" + "\n" + rf"mean rank {dead_rank:.2f}",
+    transform=axes[0].transAxes,
+    ha="left",
+    va="top",
+    fontsize=6.2,
+    color=INK,
+    bbox=dict(facecolor="white", edgecolor=PHASE_CORAL, linewidth=0.35, alpha=0.82, pad=1.5),
+)
 axes[0].set_title("(a) memory capacity")
 axes[0].set_xlabel("MC")
 axes[0].set_ylabel("validation rank")
-axes[1].scatter(diag.logMC, diag.mean_val_rank, s=8, alpha=0.28, color=PHASE_ROSE, edgecolor="none")
-z = np.polyfit(diag.logMC, diag.mean_val_rank, 1)
-xs = np.linspace(diag.logMC.min(), diag.logMC.max(), 200)
+axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=8, alpha=0.28, color=PHASE_ROSE, edgecolor="none")
+z = np.polyfit(active_mc.logMC, active_mc.mean_val_rank, 1)
+xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 200)
 axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
 axes[1].set_title("(b) log memory")
 axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$")
