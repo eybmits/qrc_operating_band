@@ -279,6 +279,7 @@ ax.set_xlabel(r"$\beta/\pi$", fontsize=6.4)
 ax.set_ylabel(r"$\lambda/\pi$", fontsize=6.4)
 ax.set_xlim(0, xmax)
 ax.set_ylim(0, ymax)
+ax.set_box_aspect(1)
 polish_phase_axis(ax, labelsize=5.8)
 ax.text(
     0.04,
@@ -337,6 +338,7 @@ for i, (variant, title) in enumerate(delta_variants, start=1):
     ax.set_ylabel("")
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
+    ax.set_box_aspect(1)
     polish_phase_axis(ax, labelsize=5.8)
 cbar = fig.colorbar(delta_im, ax=delta_axes, fraction=0.024, pad=0.012)
 cbar.outline.set_visible(False)
