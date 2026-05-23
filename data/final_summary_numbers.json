@@ -1,0 +1,15 @@
+{
+  "qrc96_shared_mean_test": 0.07268684590654748,
+  "qrc96_shared_mean_val": 0.08183235194948038,
+  "qrc96_seed_std": 0.00822789834423382,
+  "esn100_shared_mean_test": 0.09033359418003997,
+  "esn100_seed_std": 0.007952224506999199,
+  "qrc_mc_spearman": -0.8528302709370734,
+  "qrc_mc_spearman_nonzero": -0.5931686479509333,
+  "esn_mc_spearman": -0.5742222854793367,
+  "mc_zero_count": 922,
+  "mc_total": 2450,
+  "mc_zero_fraction": 0.3763265306122449,
+  "lambda_max_plotted": 0.42,
+  "gamma_slice": 0.12
+}

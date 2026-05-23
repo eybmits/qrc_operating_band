@@ -1,0 +1,7 @@
+method,selection,features,mean_val_nmse,mean_test_nmse,notes
+QRC band core,"frequency-band representative B20,q=.7",16,0.1836083196628353,0.18715440752151288,"beta/pi=0.07, lambda/pi=0.10, gamma=0.12"
+QRC shared best,"one grid point by mean validation NMSE",16,0.12349687034919828,0.11963945113673938,"beta/pi=0.02, lambda/pi=0.05, gamma=0.12"
+QRC task-seed upper,"one QRC grid point per task-seed by validation",16,0.09842114458269893,0.11842513422060388,selector-matched upper bound
+ESN16 shared best,"one hyperparameter setting by mean validation NMSE",16,0.11524122613868429,0.1118049136179415,"sr=0.9, in=0.1, leak=0.7"
+ESN16 task-seed upper,"one ESN16 hyperparameter per task-seed by validation",16,0.10386292387438859,0.12169861727278142,selector-matched upper bound
+ESN100 shared best,"one hyperparameter setting by mean validation NMSE",100,0.08663013729549146,0.09033359418003997,"sr=0.9, in=0.1, leak=1.0"
