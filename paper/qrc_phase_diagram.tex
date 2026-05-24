@@ -2,6 +2,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{xcolor}
 \usepackage[hidelinks]{hyperref}
 \usepackage{orcidlink}
 \usepackage{microtype}
@@ -12,6 +13,7 @@
 \renewcommand{\arraystretch}{1.04}
 \newcommand{\MC}{\mathrm{MC}}
 \newcommand{\NMSE}{\mathrm{NMSE}}
+\definecolor{repoLinkBlue}{RGB}{0,92,184}
 \input{generated/phase_map_numbers.tex}
 \begin{document}
 \title{Where a Quantum Reservoir Works: A Transferable, Memory-Preserving Operating Band}
@@ -154,7 +156,7 @@ The lesson is deflationary in the most productive sense. The resource that makes
 
 What remains is the harder half. These results are established in simulation, on a small family of architectures, with measurement treated as free; finite sampling, calibration drift, device noise, and the true cost of reading out many observables all lie outside the present claim. The natural next step is not a larger benchmark but a more honest one---to ask whether the same memory-defined regime persists once the reservoir must be measured, calibrated, and run on hardware that does not forget on command. We expect it to, and we have given the map for finding out.
 
-\textbf{Code and data availability.} Code, checked-in CSV/JSON artifacts, generated figures, and the reproduction script are available in the \href{https://github.com/eybmits/qrc_phase_diagram}{project repository}.
+\textbf{Code and data availability.} Code, checked-in CSV/JSON artifacts, generated figures, and the reproduction script are available in the \href{https://github.com/eybmits/qrc_phase_diagram}{\textcolor{repoLinkBlue}{project repository}}.
 
 \section*{Reproducibility Appendix}
 \textbf{Frozen reservoir and simulator.} Exact density matrices start at $\rho_0=|0\cdots0\rangle\langle0\cdots0|$ and are carried between time steps. For seed $s$, \texttt{default\_rng(s)} draws $\theta_i\sim U[0,2\pi)$ once; $U_{\rm mix}=\bigotimes_i R_x(\theta_i)$ is reused at every step and layer, with exact seeds 42--61 stored in \texttt{data/frozen\_rx\_angles.csv}. Layers apply $U_\lambda U_{\rm mix}$ on ring edges followed by exact local amplitude damping; no finite-shot sampling is modeled. The readout is exact $Z_i$ and ring-pair $Z_iZ_j$ expectations after two layers, with an unpenalized-intercept ridge readout.
