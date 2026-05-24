@@ -123,7 +123,7 @@ Chunk outputs are written under `data/diag_parts/`.
 All scripts, checked-in CSV/JSON inputs, generated TeX number macros, figure
 artifacts, and the built PDF are part of this repository:
 
-<https://github.com/eybmits/qrc_phase_diagram>
+[project repository](https://github.com/eybmits/qrc_phase_diagram)
 
 ## Simulator Smoke Test
 

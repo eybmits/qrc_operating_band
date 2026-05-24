@@ -2,7 +2,7 @@
 
 This repository contains the cleaned code, data, figures, and paper source for the QRC operating-regime / phase-diagram experiments. The current paper is QRC-only: the main claim is a reproducible phase-map operating regime, not a comparison against a classical baseline.
 
-Code and data availability: <https://github.com/eybmits/qrc_phase_diagram>
+Code and data availability: [project repository](https://github.com/eybmits/qrc_phase_diagram)
 
 ## Contents
 
