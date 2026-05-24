@@ -435,11 +435,9 @@ axes[0].text(
     color=INK,
     bbox=dict(facecolor="white", edgecolor=PHASE_CORAL, linewidth=0.38, alpha=0.86, pad=1.3),
 )
-axes[0].text((mc_lens_low + mc_lens_high) / 2.0, 0.10, "lens\nregion", ha="center", va="bottom", fontsize=5.8, color=INK, alpha=0.72)
 axes[0].set_title("(a) memory capacity", fontsize=8.8, pad=3)
 axes[0].set_xlabel("MC", fontsize=7.8)
 axes[0].set_ylabel("validation rank", fontsize=7.8)
-axes[1].axvspan(log_lens_low, log_lens_high, color=PHASE_GOLD, alpha=0.15, lw=0, zorder=0)
 axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=6.5, alpha=0.24, color=PHASE_ROSE, edgecolor="none")
 z = np.polyfit(active_mc.logMC, active_mc.mean_val_rank, 1)
 xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 200)
@@ -459,7 +457,7 @@ axes[2].axvline(0, color=INK, lw=0.75, alpha=0.90)
 for yi, label, val, color in zip(sp_y, sp_labels, sp.spearman_vs_val_rank.to_numpy(dtype=float), sp_colors):
     axes[2].hlines(yi, min(0.0, val), max(0.0, val), color=color, lw=2.0, alpha=0.68, zorder=2)
     axes[2].scatter([val], [yi], s=24, color=color, edgecolor="white", linewidth=0.5, zorder=3)
-    x_text = val + 0.055 if val < 0 else val - 0.035
+    x_text = val + 0.055 if val < 0 else max(0.045, val - 0.090)
     ha = "left" if val < 0 else "right"
     axes[2].text(
         x_text,
@@ -490,7 +488,14 @@ axes[3].set_xlabel("budget (%)", fontsize=7.8)
 axes[3].set_ylabel("retained (%)", fontsize=7.8)
 axes[3].set_xlim(5, 100)
 axes[3].set_ylim(-4, 104)
-axes[3].legend(frameon=False, fontsize=6.9, loc="lower right", handlelength=1.6)
+axes[3].legend(
+    frameon=False,
+    fontsize=6.9,
+    loc="lower right",
+    bbox_to_anchor=(1.045, 0.025),
+    handlelength=1.6,
+    borderaxespad=0.0,
+)
 for i, ax in enumerate(axes):
     if i == 2:
         ax.xaxis.grid(True, color=GRID, linewidth=0.40, alpha=0.55)
@@ -502,15 +507,15 @@ for i, ax in enumerate(axes):
 fig.tight_layout(w_pad=0.95)
 fig.canvas.draw()
 connector = ConnectionPatch(
-    xyA=(mc_lens_high, 0.70),
-    xyB=(log_lens_low, 0.70),
-    coordsA="data",
-    coordsB="data",
+    xyA=(0.96, 0.78),
+    xyB=(0.04, 0.78),
+    coordsA="axes fraction",
+    coordsB="axes fraction",
     axesA=axes[0],
     axesB=axes[1],
     arrowstyle="-|>",
     mutation_scale=9,
-    connectionstyle="arc3,rad=0.24",
+    connectionstyle="arc3,rad=0.05",
     color=PHASE_GOLD,
     linewidth=0.9,
     alpha=0.82,
