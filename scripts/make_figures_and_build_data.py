@@ -291,7 +291,7 @@ for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
     ax.set_xticks(ticks)
     ax.set_xticklabels([f"{tick:g}" for tick in ticks])
 axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
-fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.84, wspace=0.04)
+fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.84, wspace=0.06)
 fig.canvas.draw()
 right_box = axes[-1].get_position()
 cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.height])
