@@ -32,13 +32,16 @@ Classical reservoir theory has long since refused the obvious answer. Usefulness
 We take this seriously as an organizing principle rather than a caveat. For a stateful dissipative gate-model reservoir, we treat the space of these three resources as the proper setting in which to ask when the reservoir works, and we map it. The picture that emerges is not a single tuned operating point but a connected region---gentle input, nonmaximal coupling, controlled damping---in which good performance concentrates and from which it does not stray arbitrarily across tasks. The contribution of this paper is that region itself: its existence, its transfer across tasks and reservoir initializations, the mechanisms that sustain it, and a memory-based diagnostic that locates it before any task-specific search.
 
 \section{Protocol}
-The reservoir carries a density matrix from one input time step to the next. For scalar input $u_t$,
+\textbf{Reservoir.} The reservoir is a fixed quantum system that processes a scalar time series one step at a time, carrying its state forward as memory. Concretely, the state is a density matrix that is never reset between steps: each new input perturbs the state left behind by the previous step, so recent history accumulates in the system rather than being overwritten. The input enters as a small rotation whose angle is set by the current value,
 \begin{equation}
-\rho_{t,0}=U_{\mathrm{in}}(u_t)\rho_{t-1,L}U_{\mathrm{in}}^\dagger(u_t),
+\rho_{t,0}
+=U_{\mathrm{in}}(u_t)\rho_{t-1,L}U_{\mathrm{in}}^\dagger(u_t),
 \qquad
 U_{\mathrm{in}}(u_t)=\bigotimes_i R_y(\beta u_t).
 \end{equation}
-Each virtual layer applies frozen local rotations, a ZZ ring, and a product noise channel:
+The input strength $\beta$ controls how strongly each step disturbs the carried state.
+
+The perturbed state then evolves through a small number of identical layers. Each layer does three things in turn: it mixes each qubit locally with a frozen rotation, couples neighbors around a ring, and lets the qubits dissipate through a noise channel,
 \begin{equation}
 \begin{aligned}
 \rho_{t,\ell}
@@ -49,13 +52,15 @@ U_\lambda
 &=\prod_{(i,j)\in E_{\rm ring}}e^{-i\lambda Z_iZ_j}.
 \end{aligned}
 \end{equation}
-The main phase maps use $n=4$, two layers, ring topology, uniform input, amplitude damping, the $Z+ZZ$ QRC16 readout, and ridge-only training. Hyperparameters are never selected by holdout data.
+The coupling strength $\lambda$ sets how much stored history is mixed across qubits, and the damping rate $\gamma$ sets how quickly the system forgets. These three quantities---$\beta$, $\lambda$, and $\gamma$---are the only controls we vary; every gate is otherwise frozen, and only a linear readout is trained on the measured outputs. Each control corresponds to one ingredient required by reservoir theory: $\beta$ governs how new information competes with old memory, $\lambda$ generates nonlinear mixing of past inputs, and $\gamma$ provides the controlled forgetting on which fading memory depends. The space $\theta=(\beta,\lambda,\gamma)$ is therefore not an arbitrary grid of knobs but the natural coordinate system in which to ask whether the reservoir is useful.
 
-For task $j$ and seed $s$, let $r_{j,s}(\theta)$ be the validation percentile rank of $\theta=(\beta,\lambda,\gamma)$, with lower rank better. A transferable operating band is
+\textbf{Configuration.} Unless stated otherwise, the reservoir uses four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout built from single-qubit $Z$ and ring-pair $ZZ$ expectation values. Training is ridge regression on these features alone. Hyperparameters are selected on validation data only; holdout data never participate in defining the operating region.
+
+\textbf{Operating band.} To locate the useful region we rank, rather than threshold, performance. For each task $j$ and reservoir seed $s$, a setting $\theta$ receives a validation percentile rank $r_{j,s}(\theta)$, with lower rank meaning better validation error. We then define the operating band as the set of settings that land in the top fraction $p$ for at least a fraction $q$ of all task-seed pairs,
 \begin{equation}
 B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
-This frequency-level definition is deliberately weaker than a universal optimum. It asks whether a region repeatedly behaves well, not whether the same coordinate wins every task.
+This is deliberately a frequency-level definition, weaker than demanding a single universal optimum. It does not ask whether one coordinate wins every task; it asks whether a region behaves well repeatedly---across tasks and across initializations. That distinction is what separates a transferable operating regime from a point that merely happened to win once.
 
 \begin{table*}[t!]
 \centering
