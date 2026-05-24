@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.patches import ConnectionPatch, Ellipse
+from matplotlib.patches import Ellipse
 from scipy.optimize import curve_fit
 from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
@@ -281,17 +281,20 @@ cbar.set_label("rank percentile", fontsize=8.5, labelpad=4)
 cbar.ax.tick_params(labelsize=7.5, length=2.0, width=0.55)
 savefig_dual(fig, "fig1_operating_regime_fixed_gamma")
 
-fig, axes = plt.subplots(1, 5, figsize=(7.25, 1.84), sharex=True, sharey=True)
-for ax, (title, tasks) in zip(axes, panels):
+fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
+for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
     d = qg[qg.task.isin(tasks)].copy()
     core = core_points_at_slice(d)
     im = plot_rank_map(ax, d, title, xmax, ymax, selected=selected, core=core, labelsize=6)
     ax.set_xlabel(r"$\beta/\pi$", fontsize=7)
+    ticks = [0.0, 0.25] if idx < len(axes) - 1 else [0.0, 0.25, 0.5]
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([f"{tick:g}" for tick in ticks])
 axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
-fig.subplots_adjust(left=0.047, right=0.940, bottom=0.21, top=0.82, wspace=0.20)
+fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.84, wspace=0.04)
 fig.canvas.draw()
 right_box = axes[-1].get_position()
-cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0075, right_box.height])
+cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.height])
 cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
@@ -410,56 +413,30 @@ screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostic
 diag = pd.read_csv(DATA / "qrc_real_current_intrinsic_diagnostics_with_perf.csv")
 diag["logMC"] = np.log1p(diag["MC"])
 spearman = pd.read_csv(DATA / "qrc_real_current_diagnostic_spearman_named.csv")
-fig, axes = plt.subplots(1, 4, figsize=(7.25, 2.10))
+fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.18))
 dead_mc_threshold = 0.1
-dead_mc = diag[diag.MC <= dead_mc_threshold]
 active_mc = diag[diag.MC > dead_mc_threshold]
-dead_pct = 100.0 * len(dead_mc) / len(diag)
-dead_rank = float(dead_mc.mean_val_rank.mean())
-mc_lens_low, mc_lens_high = 0.6, 2.2
-log_lens_low, log_lens_high = np.log1p([mc_lens_low, mc_lens_high])
-axes[0].axvspan(mc_lens_low, mc_lens_high, color=PHASE_GOLD, alpha=0.15, lw=0, zorder=0)
-axes[0].scatter(active_mc.MC, active_mc.mean_val_rank, s=6.5, alpha=0.24, color=PHASE_ROSE, edgecolor="none")
-if len(active_mc):
-    z = np.polyfit(active_mc.MC, active_mc.mean_val_rank, 1)
-    xs = np.linspace(active_mc.MC.min(), active_mc.MC.max(), 200)
-    axes[0].plot(xs, z[0] * xs + z[1], color="black", lw=0.9)
-axes[0].text(
-    0.96,
-    0.93,
-    f"MC <= {dead_mc_threshold:.1f}: {dead_pct:.0f}%" + "\n" + f"mean rank {dead_rank:.2f}",
-    transform=axes[0].transAxes,
-    ha="right",
-    va="top",
-    fontsize=5.9,
-    color=INK,
-    bbox=dict(facecolor="white", edgecolor=PHASE_CORAL, linewidth=0.38, alpha=0.86, pad=1.3),
-)
-axes[0].set_title("(a) memory capacity", fontsize=8.8, pad=3)
-axes[0].set_xlabel("MC", fontsize=7.8)
-axes[0].set_ylabel("validation rank", fontsize=7.8)
-axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=6.5, alpha=0.24, color=PHASE_ROSE, edgecolor="none")
+axes[0].scatter(active_mc.logMC, active_mc.mean_val_rank, s=8.0, alpha=0.26, color=PHASE_ROSE, edgecolor="none")
 z = np.polyfit(active_mc.logMC, active_mc.mean_val_rank, 1)
-xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 200)
-axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=0.9)
-axes[1].text(0.07, 0.08, "expanded\nview", transform=axes[1].transAxes, ha="left", va="bottom", fontsize=5.8, color=INK, alpha=0.72)
-axes[1].set_title("(b) log-memory lens", fontsize=8.8, pad=3)
-axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=7.8)
-axes[1].set_ylabel("")
+xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 220)
+axes[0].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
+axes[0].set_title("(a) log memory", fontsize=8.8, pad=3)
+axes[0].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=7.8)
+axes[0].set_ylabel("validation rank", fontsize=7.8)
 sp_order = ["IPCtot", "MC", "IPCmem", "IPCnonlin", "Vfeat", "reff"]
 sp_labels = [r"IPC$_t$", "MC", r"IPC$_m$", r"IPC$_n$", r"$V_f$", r"$r_e$"]
 sp = spearman.set_index("metric").reindex(sp_order)
 sp_y = np.arange(len(sp))[::-1]
 sp_colors = [PHASE_GOLD, PHASE_ROSE, PHASE_CORAL, PHASE_AMBER, PHASE_VIOLET, PHASE_VIOLET]
-axes[2].axvspan(-1.0, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
-axes[2].axvspan(0.0, 0.25, color=PHASE_VIOLET, alpha=0.075, lw=0)
-axes[2].axvline(0, color=INK, lw=0.75, alpha=0.90)
+axes[1].axvspan(-1.0, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
+axes[1].axvspan(0.0, 0.25, color=PHASE_VIOLET, alpha=0.075, lw=0)
+axes[1].axvline(0, color=INK, lw=0.75, alpha=0.90)
 for yi, label, val, color in zip(sp_y, sp_labels, sp.spearman_vs_val_rank.to_numpy(dtype=float), sp_colors):
-    axes[2].hlines(yi, min(0.0, val), max(0.0, val), color=color, lw=2.0, alpha=0.68, zorder=2)
-    axes[2].scatter([val], [yi], s=24, color=color, edgecolor="white", linewidth=0.5, zorder=3)
-    x_text = val + 0.055 if val < 0 else max(0.045, val - 0.090)
+    axes[1].hlines(yi, min(0.0, val), max(0.0, val), color=color, lw=2.0, alpha=0.68, zorder=2)
+    axes[1].scatter([val], [yi], s=24, color=color, edgecolor="white", linewidth=0.5, zorder=3)
+    x_text = val + 0.055 if val < 0 else 0.045
     ha = "left" if val < 0 else "right"
-    axes[2].text(
+    axes[1].text(
         x_text,
         yi,
         f"{val:.2f}",
@@ -469,26 +446,26 @@ for yi, label, val, color in zip(sp_y, sp_labels, sp.spearman_vs_val_rank.to_num
         color=INK,
         bbox=dict(facecolor="white", edgecolor="none", alpha=0.66, pad=0.2),
     )
-axes[2].set_yticks(sp_y, sp_labels)
-axes[2].set_xlim(-1.0, 0.24)
-axes[2].set_xticks([-1.0, -0.5, 0.0])
-axes[2].set_ylim(-0.65, len(sp) - 0.35)
-axes[2].set_title("(c) diagnostic rank", fontsize=8.8, pad=3)
-axes[2].set_xlabel(r"Spearman $\rho_s$", fontsize=7.8)
+axes[1].set_yticks(sp_y, sp_labels)
+axes[1].set_xlim(-1.0, 0.24)
+axes[1].set_xticks([-1.0, -0.5, 0.0])
+axes[1].set_ylim(-0.65, len(sp) - 0.35)
+axes[1].set_title("(b) diagnostic rank", fontsize=8.8, pad=3)
+axes[1].set_xlabel(r"Spearman $\rho_s$", fontsize=7.8)
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
     screen_y = np.maximum.accumulate(screen[col].to_numpy(dtype=float))
     if col == "random":
-        axes[3].plot(screen_x, screen_y, label=col, color=color, lw=1.15)
+        axes[2].plot(screen_x, screen_y, label=col, color=color, lw=1.15)
     else:
         screen_dense, smooth_y = smooth_retention_curve(screen_x, screen_y)
-        axes[3].plot(screen_dense, smooth_y, label=col, color=color, lw=1.65, solid_capstyle="round")
-axes[3].set_title("(d) screening retention", fontsize=8.8, pad=3)
-axes[3].set_xlabel("budget (%)", fontsize=7.8)
-axes[3].set_ylabel("retained (%)", fontsize=7.8)
-axes[3].set_xlim(5, 100)
-axes[3].set_ylim(-4, 104)
-axes[3].legend(
+        axes[2].plot(screen_dense, smooth_y, label=col, color=color, lw=1.65, solid_capstyle="round")
+axes[2].set_title("(c) screening retention", fontsize=8.8, pad=3)
+axes[2].set_xlabel("budget (%)", fontsize=7.8)
+axes[2].set_ylabel("retained (%)", fontsize=7.8)
+axes[2].set_xlim(5, 100)
+axes[2].set_ylim(-4, 104)
+axes[2].legend(
     frameon=False,
     fontsize=6.9,
     loc="lower right",
@@ -497,7 +474,7 @@ axes[3].legend(
     borderaxespad=0.0,
 )
 for i, ax in enumerate(axes):
-    if i == 2:
+    if i == 1:
         ax.xaxis.grid(True, color=GRID, linewidth=0.40, alpha=0.55)
         ax.yaxis.grid(False)
     else:
@@ -505,23 +482,6 @@ for i, ax in enumerate(axes):
     ax.spines[["top", "right"]].set_visible(False)
     ax.tick_params(labelsize=6.8, length=2.0, width=0.55, pad=1.5)
 fig.tight_layout(w_pad=0.95)
-fig.canvas.draw()
-connector = ConnectionPatch(
-    xyA=(0.96, 0.78),
-    xyB=(0.04, 0.78),
-    coordsA="axes fraction",
-    coordsB="axes fraction",
-    axesA=axes[0],
-    axesB=axes[1],
-    arrowstyle="-|>",
-    mutation_scale=9,
-    connectionstyle="arc3,rad=0.05",
-    color=PHASE_GOLD,
-    linewidth=0.9,
-    alpha=0.82,
-    clip_on=False,
-)
-fig.add_artist(connector)
 savefig_dual(fig, "fig3_memory_capacity_screens")
 
 summary = {
