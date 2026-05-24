@@ -439,22 +439,35 @@ sp_labels = [r"IPC$_t$", "MC", r"IPC$_m$", r"IPC$_n$", r"$V_f$", r"$r_e$"]
 sp = spearman.set_index("metric").reindex(sp_order)
 sp_y = np.arange(len(sp))[::-1]
 sp_colors = [PHASE_GOLD, PHASE_ROSE, PHASE_CORAL, PHASE_AMBER, PHASE_VIOLET, PHASE_VIOLET]
-axes[2].axvspan(-1.0, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
-axes[2].axvspan(0.0, 0.25, color=PHASE_VIOLET, alpha=0.075, lw=0)
-axes[2].axvline(0, color=INK, lw=0.9, alpha=0.92)
+axes[2].set_facecolor("#fbf8fb")
+axes[2].axvspan(-1.0, -0.65, color=PHASE_GOLD, alpha=0.10, lw=0)
+axes[2].axvspan(-0.65, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
+axes[2].axvspan(0.0, 0.24, color=PHASE_VIOLET, alpha=0.08, lw=0)
+axes[2].axvline(0, color=INK, lw=0.8, alpha=0.86, zorder=1)
+axes[2].text(-0.83, len(sp) - 0.17, "memory / IPC", ha="center", va="top", fontsize=6.4, color=INK, alpha=0.78)
+axes[2].text(0.12, len(sp) - 0.17, "diversity", ha="center", va="top", fontsize=6.4, color=INK, alpha=0.70)
 for yi, val, color in zip(sp_y, sp.spearman_vs_val_rank.to_numpy(dtype=float), sp_colors):
-    axes[2].hlines(yi, min(0.0, val), max(0.0, val), color=color, lw=3.2, alpha=0.68, zorder=2)
-    axes[2].scatter([val], [yi], s=50, color=color, edgecolor="white", linewidth=0.75, zorder=3)
-    x_text = val + 0.045 if val < 0 else val + 0.018
+    axes[2].hlines(yi, -0.98, 0.22, color="#e6ebf2", lw=0.7, alpha=0.95, zorder=0)
+    axes[2].scatter(
+        [val],
+        [yi],
+        s=98 + 92 * abs(val),
+        color=color,
+        edgecolor="white",
+        linewidth=0.85,
+        zorder=3,
+    )
+    x_text = val + 0.055 if val < 0 else val - 0.055
+    ha = "left" if val < 0 else "right"
     axes[2].text(
         x_text,
         yi,
         f"{val:.2f}",
-        ha="left",
+        ha=ha,
         va="center",
-        fontsize=6.7,
+        fontsize=6.5,
         color=INK,
-        bbox=dict(facecolor="white", edgecolor="none", alpha=0.72, pad=0.35),
+        bbox=dict(facecolor="white", edgecolor="none", alpha=0.78, pad=0.35),
     )
 axes[2].set_yticks(sp_y, sp_labels)
 axes[2].set_xlim(-1.0, 0.24)
@@ -473,8 +486,12 @@ axes[3].set_title("(d) screening retention")
 axes[3].set_xlabel("budget (%)")
 axes[3].set_ylabel("retained (%)")
 axes[3].legend(frameon=False, fontsize=7)
-for ax in axes:
-    ax.grid(color=GRID, linewidth=0.45, alpha=0.7)
+for i, ax in enumerate(axes):
+    if i == 2:
+        ax.xaxis.grid(True, color=GRID, linewidth=0.45, alpha=0.45)
+        ax.yaxis.grid(False)
+    else:
+        ax.grid(color=GRID, linewidth=0.45, alpha=0.7)
     ax.spines[["top", "right"]].set_visible(False)
     ax.tick_params(labelsize=8)
 fig.tight_layout(w_pad=1.5)
