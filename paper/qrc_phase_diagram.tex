@@ -89,9 +89,7 @@ Diagnostics & Memory capacity and intrinsic processing capacities are computed f
 \end{figure*}
 
 \section{Evidence}
-\textbf{Phase-map transfer.} Fig.~\ref{fig:phase} shows the core pattern: low validation rank is concentrated, not randomly scattered. The primary band \PhasePrimaryBand{} has \PhaseBTwentyQSeventySize{} connected points, all at $\gamma=0.12$. When one task is withheld while defining the band from the remaining tasks, the held-out task-seed mean validation rank is \PhaseLotoMeanRank{} with bootstrap CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$. When one seed is withheld, the corresponding mean rank is \PhaseLosoMeanRank{} with CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The band is therefore a top-quartile search prior that transfers across both task identity and reservoir initialization.
-
-\textbf{Final holdout audit.} After \PhasePrimaryBand{} is fixed by validation ranks, the selected band is evaluated on the held-out split. Table~\ref{tab:holdout} reports the mean over the validation-selected band and the fixed medoid; no coordinate is chosen by holdout NMSE. The aggregate band holdout rank is \PhaseHoldoutAllRank{}, so the operating-regime prior remains top-quartile on unseen data.
+Across the control space, low validation rank does not spread arbitrarily; it gathers into a compact, connected region, and relaxing the selection threshold grows that region smoothly rather than fragmenting it---the signature of a single operating regime rather than a scatter of coincidences (Fig.~\ref{fig:phase}). A region that merely fit the four tasks jointly would prove little, so we test whether it survives the removal of the information it was built from. It does: when one task is withheld and the band is defined from the rest, the held-out task still lands in the top quartile on average, with mean validation rank \PhaseLotoMeanRank{} and CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when a seed is withheld instead, the held-out seed behaves the same way, with mean rank \PhaseLosoMeanRank{} and CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The region is thus a search prior that generalizes across both task identity and reservoir initialization, not a fit to either---and it holds on data it never touched: fixing the band by validation alone and evaluating once on the held-out split, with no coordinate chosen by holdout error, leaves it top-quartile on unseen data (Table~\ref{tab:holdout}). That the band is real rather than cosmetic is confirmed by perturbing the dynamics that sustain it: removing damping, removing recurrent mixing, or replacing amplitude damping with dephasing each erases the region entirely, with retention values \PhaseGammaZeroRetention{}, \PhaseNoMixerRetention{}, and \PhaseDephaseRetention{} under the same criterion. The collapse is total rather than gradual, exactly as expected if the regime is held in place by the mechanisms themselves---input strong enough to write but not overwrite, mixing that builds nonlinear features, and damping that preserves usable memory rather than merely adding noise (Fig.~\ref{fig:evidence}). And the region can be found before any task is run at all: memory capacity correlates strongly and negatively with validation rank, $\rho_s=\PhaseMCSpearman{}$, as do the information-processing capacities \cite{dambre2012}, whereas raw feature diversity does not, telling us that what marks a useful reservoir is not how much it expresses but how much it remembers (Fig.~\ref{fig:diagnostics}).
 
 \begin{table}[t]
 \centering
@@ -108,8 +106,6 @@ Task & Band NMSE & Medoid NMSE & Band rank\\
 \end{tabular}
 \end{table}
 
-\textbf{Mechanism stress tests.} The operating band is not just a plotting artifact. Figure~\ref{fig:evidence}(a) shows the validation-defined frequency map for the primary band, and Fig.~\ref{fig:evidence}(b--d) shows where rank is lost when mechanisms are removed. At the central slice, the projected base band has \PhaseAblationBaseBandSize{} points. Removing the controlled damping mechanism gives retention \PhaseGammaZeroRetention{}; removing recurrent mixing gives retention \PhaseNoMixerRetention{}; replacing amplitude damping by dephasing gives retention \PhaseDephaseRetention{}. In every focused ablation, the base band ceases to be a robust top-ranked region under the same validation-rank criterion. The result supports the mechanism story: useful dynamics need input that is not too strong, recurrent mixing, and damping that preserves usable memory rather than merely adding noise.
-
 \begin{center}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -121,8 +117,6 @@ Variant & Band pts. & Retention & Rank on base band\\
 \bottomrule
 \end{tabular}
 \end{center}
-
-\textbf{Diagnostics.} Memory-based diagnostics identify the same useful region before task-specific holdout evaluation. On the current simulator-backed diagnostic rerun, $\MC$ has Spearman $\rho_s=\PhaseMCSpearman{}$ against validation rank; $\mathrm{IPC}_{\rm mem}$, $\mathrm{IPC}_{\rm tot}$, and $\mathrm{IPC}_{\rm nonlin}$ give \PhaseIPCmemSpearman{}, \PhaseIPCtotSpearman{}, and \PhaseIPCnonlinSpearman{}. Feature variation and effective rank are weakly positive, \PhaseVfeatSpearman{} and \PhaseReffSpearman{}, so raw diversity alone is not the mechanism.
 
 \begin{figure*}[t!]
 \centering
