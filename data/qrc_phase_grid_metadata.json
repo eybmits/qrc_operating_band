@@ -1,6 +1,5 @@
 {
-  "description": "Focused QRC-only phase-map ablations at the central gamma=0.12 slice.",
-  "base_source": "reused from data/qrc_seed_ensemble_grid.csv at gamma=0.12",
+  "description": "Canonical QRC phase-map grids for the 20-seed paper and one nearby architecture robustness variant.",
   "task_profile": "paperish",
   "tasks": {
     "mackey_glass": {
@@ -51,7 +50,13 @@
     0.28,
     0.42
   ],
-  "nominal_gamma": 0.12,
+  "gamma_grid": [
+    0.0,
+    0.05,
+    0.12,
+    0.22,
+    0.3
+  ],
   "seeds": [
     42,
     43,
@@ -88,49 +93,23 @@
     100.0,
     1000.0
   ],
-  "variants": {
-    "base_amplitude_rxzz": {
-      "channel": "amplitude",
-      "mixer": "rx_zz",
-      "effective_gamma": 0.12
-    },
-    "gamma0_amplitude": {
-      "channel": "amplitude",
-      "mixer": "rx_zz",
-      "effective_gamma": 0.0
-    },
-    "dephasing": {
-      "channel": "dephasing",
-      "mixer": "rx_zz",
-      "effective_gamma": 0.12
-    },
-    "depolarizing": {
-      "channel": "depolarizing",
-      "mixer": "rx_zz",
-      "effective_gamma": 0.12
-    },
-    "mixer_none": {
-      "channel": "amplitude",
-      "mixer": "none",
-      "effective_gamma": 0.12
-    },
-    "mixer_rx_only": {
-      "channel": "amplitude",
-      "mixer": "rx_only",
-      "effective_gamma": 0.12
-    },
-    "mixer_zz_only": {
-      "channel": "amplitude",
-      "mixer": "zz_only",
-      "effective_gamma": 0.12
-    }
-  },
-  "architecture": {
-    "n": 4,
-    "layers": 2,
+  "fixed_architecture": {
     "topology": "ring",
+    "mixer": "rx_zz",
     "input_mode": "uniform",
+    "channel": "amplitude",
     "trained_parameters": "ridge readout only"
   },
-  "rows": 27440
+  "settings": {
+    "base_4q2layer_z_zz": {
+      "description": "4q, 2 layers, Z+ZZ",
+      "output": "data/qrc_seed_ensemble_grid.csv",
+      "rows": 19600
+    },
+    "variant_4q3layer_z_zz": {
+      "description": "4q, 3 layers, Z+ZZ",
+      "output": "data/qrc_architecture_robustness_grid.csv",
+      "rows": 19600
+    }
+  }
 }

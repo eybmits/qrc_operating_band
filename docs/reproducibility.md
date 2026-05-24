@@ -22,34 +22,38 @@ This runs:
 
 ```bash
 python -m compileall -q scripts
+python scripts/run_qrc_phase_grid.py
 python scripts/run_qrc_phase_ablation_slices.py
 python scripts/analyze_phase_map_generalization.py
 python scripts/make_figures_and_build_data.py
-./paper/build.sh
+./paper/build.sh --update-pdf
 ```
 
 Expected outputs include:
 
 - `data/qrc_phase_ablation_slice_grid.csv`
 - `data/qrc_phase_ablation_slice_metadata.json`
+- `data/qrc_seed_ensemble_grid.csv`
+- `data/qrc_architecture_robustness_grid.csv`
+- `data/qrc_phase_grid_metadata.json`
 - `data/phase_map_generalization_stats.json`
 - `data/phase_map_band_membership.csv`
 - `data/phase_map_leave_one_task_out.csv`
 - `data/phase_map_leave_one_seed_out.csv`
 - `data/phase_map_task_seed_transfer_matrix.csv`
 - `data/phase_map_holdout_performance.csv`
+- `data/phase_map_architecture_robustness.csv`
 - `data/phase_map_ablation_retention.csv`
 - `paper/generated/phase_map_numbers.tex`
 - `paper/gfx/fig1_short_phase_maps.{png,pdf}`
 - `paper/gfx/fig2_short_evidence.{png,pdf}`
 - `paper/gfx/fig3_memory_capacity_screens.{png,pdf}`
 - `paper/build/qrc_phase_diagram.pdf`
+- `paper/qrc_phase_diagram.pdf`
 
-Use this command to refresh the tracked PDF copy after reviewing a clean build:
-
-```bash
-./paper/build.sh --update-pdf
-```
+The canonical row counts are 19,600 rows for `data/qrc_seed_ensemble_grid.csv`,
+19,600 rows for `data/qrc_architecture_robustness_grid.csv`, and 27,440 rows
+for `data/qrc_phase_ablation_slice_grid.csv`.
 
 The optional visual-candidate gallery is not part of the standard paper build. Regenerate it manually with:
 
@@ -57,18 +61,19 @@ The optional visual-candidate gallery is not part of the standard paper build. R
 python scripts/make_phase_map_candidate_gallery.py
 ```
 
-## Focused Ablation Recompute
+## Main Grid and Focused Ablation Recompute
 
-To force recomputation of the focused mechanism ablations:
+To force recomputation of the canonical 20-seed base grid, the 4q/3-layer robustness grid, and the focused mechanism ablations:
 
 ```bash
+python scripts/run_qrc_phase_grid.py --overwrite
 python scripts/run_qrc_phase_ablation_slices.py --overwrite
 python scripts/analyze_phase_map_generalization.py
 python scripts/make_figures_and_build_data.py
 ./paper/build.sh --update-pdf
 ```
 
-The ablation sweep evaluates the QRC16 `Z+ZZ` readout at the `gamma=0.12` slice for the base amplitude-damped RxZZ reservoir and six mechanism controls: `gamma0_amplitude`, `dephasing`, `depolarizing`, `mixer_none`, `mixer_rx_only`, and `mixer_zz_only`.
+The main grid evaluates the base 4q/2-layer reservoir and one nearby 4q/3-layer robustness variant across seeds 42--61. The ablation sweep evaluates the QRC16 `Z+ZZ` readout at the `gamma=0.12` slice for the base amplitude-damped RxZZ reservoir and six mechanism controls: `gamma0_amplitude`, `dephasing`, `depolarizing`, `mixer_none`, `mixer_rx_only`, and `mixer_zz_only`.
 
 ## Full Diagnostic Recompute
 
@@ -97,7 +102,7 @@ Chunk outputs are written under `data/diag_parts/`.
 
 - Frozen rotations: the main `rx_zz` mixer uses one seed-specific draw
   `theta_i ~ Uniform(0, 2*pi)` from `numpy.random.default_rng(seed)`, reused at
-  every time step and layer. Exact seed-42--51 values are checked in at
+  every time step and layer. Exact seed-42--61 values are checked in at
   `data/frozen_rx_angles.csv`.
 - Simulator: the QRC16 experiments use exact complex density matrices for
   `n=4`, column-major vectorization, an exact local channel superoperator, and
@@ -116,8 +121,9 @@ Chunk outputs are written under `data/diag_parts/`.
 ## Code and Data Availability
 
 All scripts, checked-in CSV/JSON inputs, generated TeX number macros, figure
-artifacts, and the built PDF are part of this repository. The manuscript now
-states that a public archival release will be linked for publication.
+artifacts, and the built PDF are part of this repository:
+
+<https://github.com/eybmits/qrc_phase_diagram>
 
 ## Simulator Smoke Test
 

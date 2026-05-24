@@ -2,9 +2,12 @@
 
 This repository contains the cleaned code, data, figures, and paper source for the QRC operating-regime / phase-diagram experiments. The current paper is QRC-only: the main claim is a reproducible phase-map operating regime, not a comparison against a classical baseline.
 
+Code and data availability: <https://github.com/eybmits/qrc_phase_diagram>
+
 ## Contents
 
 - `scripts/run_qrc_phase_ablation_slices.py`: focused QRC-only mechanism ablation sweep at the central `gamma=0.12` phase-map slice.
+- `scripts/run_qrc_phase_grid.py`: canonical 20-seed base phase-map grid plus the 4q/3-layer robustness grid.
 - `scripts/analyze_phase_map_generalization.py`: computes phase-map bands, leave-one-task/seed transfer, ablation retention, bootstrap CIs, and manuscript number macros.
 - `scripts/make_figures_and_build_data.py`: rebuilds the paper figures and `data/final_summary_numbers.json` from checked-in CSV/JSON artifacts.
 - `scripts/make_phase_map_candidate_gallery.py`: optional gallery generator for alternate phase-map visualizations; outputs are kept under `paper/gfx/candidate_phase_maps/`.
@@ -35,11 +38,22 @@ Run the standard QRC-only rebuild:
 ./reproduce.sh
 ```
 
-This compiles the scripts, verifies or creates the focused QRC ablation slice grid, recomputes phase-map statistics/macros, regenerates figures, and builds the paper PDF.
+This compiles the scripts, verifies or creates the canonical 20-seed phase grids and focused QRC ablation slice grid, recomputes phase-map statistics/macros, regenerates figures, and builds the paper PDF.
 
-To force the focused ablation sweep from scratch:
+Expected checked-in reviewer artifacts after a clean run:
+
+- `data/qrc_seed_ensemble_grid.csv`: 19,600 base-grid rows.
+- `data/qrc_architecture_robustness_grid.csv`: 19,600 nearby-depth robustness rows.
+- `data/qrc_phase_ablation_slice_grid.csv`: 27,440 focused ablation rows.
+- `data/phase_map_generalization_stats.json`, `data/phase_map_holdout_performance.csv`, and `data/phase_map_architecture_robustness.csv`.
+- `paper/generated/phase_map_numbers.tex`.
+- `paper/gfx/fig1_short_phase_maps.{png,pdf}`, `paper/gfx/fig2_short_evidence.{png,pdf}`, and `paper/gfx/fig3_memory_capacity_screens.{png,pdf}`.
+- `paper/qrc_phase_diagram.pdf`, the reviewer-facing PDF copy.
+
+To force the main phase grids and focused ablation sweep from scratch:
 
 ```bash
+python scripts/run_qrc_phase_grid.py --overwrite
 python scripts/run_qrc_phase_ablation_slices.py --overwrite
 python scripts/analyze_phase_map_generalization.py
 python scripts/make_figures_and_build_data.py
@@ -52,7 +66,7 @@ For the slower full simulator-backed diagnostic recomputation:
 python scripts/compute_qrc_real_diagnostics.py
 ```
 
-The full diagnostic run evaluates 2,450 QRC configurations. For split execution, use `scripts/compute_qrc_real_diagnostics_chunk.py START END` and write chunks into `data/diag_parts/`.
+The full diagnostic run evaluates all seed-coordinate QRC configurations in the current main grid. For split execution, use `scripts/compute_qrc_real_diagnostics_chunk.py START END` and write chunks into `data/diag_parts/`.
 
 To refresh the optional figure-selection gallery:
 
@@ -66,12 +80,13 @@ The saved QRC-only summary in `data/final_summary_numbers.json` reports:
 
 - Primary band: `B20_q0p7`
 - Primary band size: `4` connected points
-- Primary band medoid: `(beta/pi, lambda/pi, gamma) = (0.04, 0.12, 0.12)`
-- Leave-one-task held-out validation rank: `0.23990253793825228` with 95% bootstrap CI `[0.21520140524158385, 0.26467299515960224]`
-- Leave-one-seed held-out validation rank: `0.17991326530612245` with 95% bootstrap CI `[0.153600212585034, 0.20853911564625852]`
-- Final validation-selected band holdout rank: `0.1556122448979592`; see `data/phase_map_holdout_performance.csv`
-- QRC memory-capacity Spearman correlation with validation rank: `-0.8535591747217215`
-- QRC IPC-total Spearman correlation with validation rank: `-0.9038130116361606`
+- Primary band medoid: `(beta/pi, lambda/pi, gamma) = (0.04, 0.10, 0.12)`
+- Leave-one-task held-out validation rank: `0.22219055013309674` with 95% bootstrap CI `[0.2047532148094745, 0.23943242969289166]`
+- Leave-one-seed held-out validation rank: `0.16190889212827989` with 95% bootstrap CI `[0.14625605867346939, 0.17821187439261416]`
+- Final validation-selected band holdout rank: `0.16818877551020409`; see `data/phase_map_holdout_performance.csv`
+- 4q/3-layer robustness band: exists, held-out rank `0.15986151603498544`, overlap with base `0.2222222222222222`; see `data/phase_map_architecture_robustness.csv`
+- QRC memory-capacity Spearman correlation with validation rank: `-0.8771113558573318`
+- QRC IPC-total Spearman correlation with validation rank: `-0.9096600976002228`
 
 ## Archived Optional Baseline
 

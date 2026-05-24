@@ -64,32 +64,17 @@ U_\lambda
 \end{equation}
 The coupling strength $\lambda$ sets how much stored history is mixed across qubits, and the damping rate $\gamma$ sets how quickly the system forgets. These three quantities---$\beta$, $\lambda$, and $\gamma$---are the only controls we vary; every gate is otherwise frozen, and only a linear readout is trained on the measured outputs. Each control corresponds to one ingredient required by reservoir theory: $\beta$ governs how new information competes with old memory, $\lambda$ generates nonlinear mixing of past inputs, and $\gamma$ provides the controlled forgetting on which fading memory depends. The space $\theta=(\beta,\lambda,\gamma)$ is therefore not an arbitrary grid of knobs but the natural coordinate system in which to ask whether the reservoir is useful.
 
-\textbf{Configuration.} Unless stated otherwise, the reservoir uses four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout built from single-qubit $Z$ and ring-pair $ZZ$ expectation values. Training is ridge regression on these features alone. Hyperparameters are selected on validation data only; holdout data never participate in defining the operating region.
+\textbf{Configuration.} Unless stated otherwise, the reservoir uses four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout built from single-qubit $Z$ and ring-pair $ZZ$ expectation values. Training is ridge regression on these features alone. The phase grid spans $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, and $\gamma=\{0,0.05,0.12,0.22,0.30\}$ over reservoir seeds $42$--$61$. Hyperparameters are selected on validation data only; holdout data never participate in defining the operating region.
+
+\textbf{Tasks, metric, and splits.} We use four scalar one-step prediction tasks with chronological splits. Mackey--Glass is a chaotic delay series, Lorenz uses the next $x$ coordinate of an RK4-integrated Lorenz trajectory, NARMA10 is a nonlinear tenth-order memory benchmark, and Sunspots is the annual sunspot activity series from \texttt{statsmodels}. Mackey--Glass, Lorenz, and NARMA10 use washout/train/validation/holdout lengths $300/1600/400/400$; Sunspots uses $20/150/50/60$. Inputs are scaled to $[-1,1]$ and targets are standardized. The reported error is normalized mean-squared error,
+\(\NMSE=\langle(y-\widehat y)^2\rangle/(\operatorname{Var}(y)+10^{-12})\),
+computed separately on validation and holdout splits. For each reservoir setting the ridge parameter is selected only by validation NMSE from $\{10^{-8},10^{-7},\ldots,10^3\}$.
 
 \textbf{Operating band.} To locate the useful region we rank, rather than threshold, performance. For each task $j$ and reservoir seed $s$, a setting $\theta$ receives a validation percentile rank $r_{j,s}(\theta)$, with lower rank meaning better validation error. We then define the operating band as the set of settings that land in the top fraction $p$ for at least a fraction $q$ of all task-seed pairs,
 \begin{equation}
 B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
-This is deliberately a frequency-level definition, weaker than demanding a single universal optimum. It does not ask whether one coordinate wins every task; it asks whether a region behaves well repeatedly---across tasks and across initializations. That distinction is what separates a transferable operating regime from a point that merely happened to win once.
-
-\begin{table*}[t!]
-\centering
-\scriptsize
-\caption{QRC-only audit trail. Holdout data are not used to define the operating regime.}
-\label{tab:audit}
-\begin{tabular}{@{}p{0.17\textwidth}p{0.77\textwidth}@{}}
-\toprule
-Item & Value\\
-\midrule
-Tasks and splits & Mackey--Glass, Lorenz, NARMA10: washout/train/validation/holdout $=300/1600/400/400$; annual Sunspots: $20/150/50/60$. Inputs are scaled to $[-1,1]$ and targets standardized.\\
-Seeds and ridge & Reservoir seeds $42$--$51$; ridge grid $\{10^{-8},10^{-7},\ldots,10^3\}$ selected on validation.\\
-Phase grid & QRC16 coarse grid over $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, $\gamma=\{0,0.05,0.12,0.22,0.30\}$.\\
-Primary band & \PhasePrimaryBand{} contains \PhaseBTwentyQSeventySize{} connected points; the medoid is $(\beta/\pi,\lambda/\pi,\gamma)=(\PhaseRepresentativeBetaPi,\PhaseRepresentativeLambdaPi,\PhaseRepresentativeGamma)$. Relaxing to $B_{20,0.6}$ gives \PhaseBTwentyQSixtySize{} points and $B_{30,0.7}$ gives \PhaseBThirtyQSeventySize{} points.\\
-Stress tests & Focused QRC-only ablation maps at $\gamma=0.12$ compare base amplitude damping against $\gamma=0$, dephasing, depolarizing, no mixer, Rx-only mixer, and ZZ-only mixer. The readout, tasks, seeds, and ridge protocol are unchanged.\\
-Diagnostics & Memory capacity and intrinsic processing capacities are computed from simulator trajectories and compared to validation rank and top-decile screening retention.\\
-\bottomrule
-\end{tabular}
-\end{table*}
+Ranks are always formed within each task-seed replicate, so task scale and seed difficulty do not dominate the aggregate. This is deliberately a frequency-level definition, weaker than demanding a single universal optimum: it asks whether a region behaves well repeatedly across tasks and initializations. In leave-one-task or leave-one-seed tests, the band is built from the remaining replicates and then scored on the withheld replicate. In the holdout audit, the validation-defined band is frozen first and then evaluated once on holdout ranks and NMSE. Confidence intervals are nonparametric bootstrap intervals for the mean with 50,000 resamples and seed 20260523.
 
 \begin{figure*}[t!]
 \centering
@@ -99,12 +84,14 @@ Diagnostics & Memory capacity and intrinsic processing capacities are computed f
 \end{figure*}
 
 \section{Evidence}
-Across the control space, low validation rank does not spread arbitrarily; it gathers into a compact, connected region, and relaxing the selection threshold grows that region smoothly rather than fragmenting it---the signature of a single operating regime rather than a scatter of coincidences (Fig.~\ref{fig:phase}). A region that merely fit the four tasks jointly would prove little, so we test whether it survives the removal of the information it was built from. It does: when one task is withheld and the band is defined from the rest, the held-out task still lands in the top quartile on average, with mean validation rank \PhaseLotoMeanRank{} and CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when a seed is withheld instead, the held-out seed behaves the same way, with mean rank \PhaseLosoMeanRank{} and CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The region is thus a search prior that generalizes across both task identity and reservoir initialization, not a fit to either---and it holds on data it never touched: fixing the band by validation alone and evaluating once on the held-out split, with no coordinate chosen by holdout error, leaves it top-quartile on unseen data (Table~\ref{tab:holdout}). That the band is real rather than cosmetic is confirmed by perturbing the dynamics that sustain it: removing damping, removing recurrent mixing, or replacing amplitude damping with dephasing each erases the region entirely, with retention values \PhaseGammaZeroRetention{}, \PhaseNoMixerRetention{}, and \PhaseDephaseRetention{} under the same criterion. The collapse is total rather than gradual, exactly as expected if the regime is held in place by the mechanisms themselves---input strong enough to write but not overwrite, mixing that builds nonlinear features, and damping that preserves usable memory rather than merely adding noise (Fig.~\ref{fig:evidence}). And the region can be found before any task is run at all: memory capacity correlates strongly and negatively with validation rank, $\rho_s=\PhaseMCSpearman{}$, as do the information-processing capacities \cite{dambre2012}, whereas raw feature diversity does not, telling us that what marks a useful reservoir is not how much it expresses but how much it remembers (Fig.~\ref{fig:diagnostics}).
+Across the control space, low validation rank does not spread arbitrarily; it gathers into a compact, connected region, and relaxing the selection threshold grows that region smoothly rather than fragmenting it---the signature of a single operating regime rather than a scatter of coincidences (Fig.~\ref{fig:phase}). A region that merely fit the four tasks jointly would prove little, so we test whether it survives the removal of the information it was built from. It does: when one task is withheld and the band is defined from the rest, the held-out task still lands in the top quartile on average, with mean validation rank \PhaseLotoMeanRank{} and CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when a seed is withheld instead, the held-out seed behaves the same way, with mean rank \PhaseLosoMeanRank{} and CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The region is thus a search prior that generalizes across both task identity and reservoir initialization, not a fit to either.
+
+The same validation-defined band also holds on data it never touched: after the band is frozen, evaluating once on the chronological holdout split leaves it top-quartile on unseen data (Table~\ref{tab:holdout}). Repeating the identical protocol on a nearby four-qubit, three-layer variant tests whether the phenomenon is tied to the exact depth choice; the table reports band existence, held-out rank, and Jaccard overlap with the base control region (Table~\ref{tab:architecture-robustness}). That the band is real rather than cosmetic is confirmed by perturbing the dynamics that sustain it: removing damping, removing recurrent mixing, or replacing amplitude damping with dephasing each erases the region entirely, with retention values \PhaseGammaZeroRetention{}, \PhaseNoMixerRetention{}, and \PhaseDephaseRetention{} under the same criterion. The collapse is total rather than gradual, exactly as expected if the regime is held in place by input strong enough to write but not overwrite, mixing that builds nonlinear features, and damping that preserves usable memory rather than merely adding noise (Fig.~\ref{fig:evidence}). Finally, the region can be found before any task-specific search: memory capacity correlates strongly and negatively with validation rank, $\rho_s=\PhaseMCSpearman{}$, as do the information-processing capacities \cite{dambre2012}, whereas raw feature diversity does not (Fig.~\ref{fig:diagnostics}).
 
 \begin{table}[t]
 \centering
 \scriptsize
-\caption{Holdout performance after validation-only band selection. Means are over ten seeds per task; ``All'' averages the 40 task-seed rows.}
+\caption{Holdout performance after validation-only band selection. Means are over twenty seeds per task; ``All'' averages the 80 task-seed rows.}
 \label{tab:holdout}
 \setlength{\tabcolsep}{3.2pt}
 \begin{tabular}{@{}lccc@{}}
@@ -112,6 +99,21 @@ Across the control space, low validation rank does not spread arbitrarily; it ga
 Task & Band NMSE & Medoid NMSE & Band rank\\
 \midrule
 \PhaseHoldoutRows
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\scriptsize
+\caption{Architecture robustness after validation-only band selection. Overlap is Jaccard overlap with the base band in the shared $(\beta,\lambda,\gamma)$ grid.}
+\label{tab:architecture-robustness}
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Setting & Band? & Held-out rank & Overlap\\
+\midrule
+\PhaseRobustnessRows
 \bottomrule
 \end{tabular}
 \end{table}
@@ -152,16 +154,12 @@ The lesson is deflationary in the most productive sense. The resource that makes
 
 What remains is the harder half. These results are established in simulation, on a small family of architectures, with measurement treated as free; finite sampling, calibration drift, device noise, and the true cost of reading out many observables all lie outside the present claim. The natural next step is not a larger benchmark but a more honest one---to ask whether the same memory-defined regime persists once the reservoir must be measured, calibrated, and run on hardware that does not forget on command. We expect it to, and we have given the map for finding out.
 
+\textbf{Code and data availability.} Code, checked-in CSV/JSON artifacts, generated figures, and the reproduction script are available at \url{https://github.com/eybmits/qrc_phase_diagram}.
+
 \section*{Reproducibility Appendix}
-\footnotesize
-\textbf{Frozen reservoir.} The simulator uses exact density matrices initialized at $\rho_0=|0\cdots0\rangle\langle0\cdots0|$ and carried between time steps. For seed $s$, NumPy \texttt{default\_rng(s)} draws fixed angles $\theta_i\sim U[0,2\pi)$ once; the main mixer is $U_{\rm mix}=\bigotimes_i R_x(\theta_i)$, reused at every time step and layer. The layer unitary is $U_\lambda U_{\rm mix}$ with ring edges $(i,i+1\bmod n)$ and $U_\lambda=\prod_{(i,j)}\exp(-i\lambda Z_iZ_j)$. The exact $\theta_i$ values for seeds 42--51 are included in \texttt{data/frozen\_rx\_angles.csv}.
+\textbf{Frozen reservoir and simulator.} Exact density matrices start at $\rho_0=|0\cdots0\rangle\langle0\cdots0|$ and are carried between time steps. For seed $s$, \texttt{default\_rng(s)} draws $\theta_i\sim U[0,2\pi)$ once; $U_{\rm mix}=\bigotimes_i R_x(\theta_i)$ is reused at every step and layer, with exact seeds 42--61 stored in \texttt{data/frozen\_rx\_angles.csv}. Layers apply $U_\lambda U_{\rm mix}$ on ring edges followed by exact local amplitude damping; no finite-shot sampling is modeled. The readout is exact $Z_i$ and ring-pair $Z_iZ_j$ expectations after two layers, with an unpenalized-intercept ridge readout.
 
-\textbf{Simulator and features.} For $n=4$, the channel is applied as a column-major superoperator $\sum_k K_k^*\otimes K_k$ after each unitary layer; no finite-shot sampling is used. Amplitude damping uses local Kraus operators $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$ and $K_1=\sqrt{\gamma}|0\rangle\langle1|$. The main readout concatenates exact expectations of $Z_i$ and ring-pair $Z_iZ_j$ after each of two layers, giving 16 features; ridge regression adds an intercept and does not penalize it.
-
-\textbf{Diagnostics.} Memory and IPC are computed on a common iid diagnostic drive $u_t\sim U[-1,1]$ of length 900 with washout 150 and generator seed 12345. MC is the sum of held-out $R^2_+$ for delays 1--10. IPC uses ridge $\alpha=10^{-8}$, a 70/30 chronological train/test split, memory targets $\sqrt{3}u_{t-d}$ for delays 1--20, quadratic Legendre targets $\sqrt{5}(3u_{t-d}^2-1)/2$ for delays 1--10, and ten cross-delay products. Negative $R^2$ values are clipped to zero.
-
-\textbf{Uncertainty and artifacts.} Confidence intervals are nonparametric bootstrap intervals over the reported held-out transfer values: 50,000 resamples of the mean with replacement, seed 20260523, and 2.5/97.5 percentiles. Code, checked-in CSV/JSON data, generated number macros, and figure artifacts are included with the repository; \texttt{./reproduce.sh} rebuilds the QRC-only paper path, and a public archival release will be linked for publication.
-\normalsize
+\textbf{Diagnostics and uncertainty.} MC/IPC use a common iid drive $u_t\sim U[-1,1]$ of length 900, washout 150, seed 12345, ridge $\alpha=10^{-8}$, and a 70/30 chronological split. MC sums held-out $R^2_+$ over delays 1--10; IPC adds linear delays 1--20, quadratic Legendre delays 1--10, and ten cross-delay products, clipping negative $R^2$ to zero. Confidence intervals use 50,000 bootstrap resamples of the mean, seed 20260523. CSV/JSON data, generated macros, figures, and \texttt{./reproduce.sh} are included with the repository.
 
 \begin{thebibliography}{8}
 \bibitem{jaeger2004} H. Jaeger and H. Haas, ``Harnessing nonlinearity: Predicting chaotic systems and saving energy in wireless communication,'' \emph{Science}, vol. 304, no. 5667, pp. 78--80, 2004.
