@@ -3,7 +3,9 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage[hidelinks]{hyperref}
+\usepackage{orcidlink}
 \usepackage{microtype}
+\newcommand{\orcid}[1]{\,\orcidlink{#1}}
 \setlength{\textfloatsep}{6pt plus 1pt minus 2pt}
 \setlength{\floatsep}{5pt plus 1pt minus 1pt}
 \setlength{\intextsep}{5pt plus 1pt minus 1pt}
@@ -13,7 +15,13 @@
 \input{generated/phase_map_numbers.tex}
 \begin{document}
 \title{Where a Quantum Reservoir Works: A Transferable, Memory-Preserving Operating Band}
-\author{Anonymous QCE Submission}
+\author{%
+\IEEEauthorblockN{%
+Markus Baumann\IEEEauthorrefmark{1}\orcid{0009-0007-3575-1006}
+and Jonas Stein\IEEEauthorrefmark{1}\orcid{0000-0001-5727-9151}}
+\IEEEauthorblockA{\IEEEauthorrefmark{1}\textit{QAR-Lab, Department of Computer Science, LMU Munich, Munich, Germany}\\
+Corresponding author: \href{mailto:markus.baumann@campus.lmu.de}{markus.baumann@campus.lmu.de}}
+}
 \maketitle
 
 \begin{abstract}
