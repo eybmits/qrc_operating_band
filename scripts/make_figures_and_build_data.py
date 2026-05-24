@@ -10,7 +10,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.patches import Ellipse
+from matplotlib.patches import Ellipse, FancyBboxPatch
 from scipy.optimize import curve_fit
 from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
@@ -271,7 +271,10 @@ for ax, (title, tasks) in zip(axes, panels):
     ax.set_xlabel(r"$\beta/\pi$", fontsize=10)
 axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=11)
 fig.suptitle(r"Memory-defined QRC operating regime at the $\gamma=0.12$ slice", fontsize=15, y=1.05)
-cbar = fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.026, pad=0.018)
+fig.canvas.draw()
+right_box = axes[-1].get_position()
+cax = fig.add_axes([right_box.x1 + 0.012, right_box.y0, 0.012, right_box.height])
+cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
 cbar.set_label("rank percentile", fontsize=8.5, labelpad=4)
@@ -285,7 +288,10 @@ for ax, (title, tasks) in zip(axes, panels):
     im = plot_rank_map(ax, d, title, xmax, ymax, selected=selected, core=core, labelsize=6)
     ax.set_xlabel(r"$\beta/\pi$", fontsize=7)
 axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
-cbar = fig.colorbar(im, ax=axes.ravel().tolist(), fraction=0.020, pad=0.014)
+fig.canvas.draw()
+right_box = axes[-1].get_position()
+cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0065, right_box.height])
+cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
 cbar.set_label("rank percentile", fontsize=6.2, labelpad=3)
@@ -402,99 +408,124 @@ screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostic
 diag = pd.read_csv(DATA / "qrc_real_current_intrinsic_diagnostics_with_perf.csv")
 diag["logMC"] = np.log1p(diag["MC"])
 spearman = pd.read_csv(DATA / "qrc_real_current_diagnostic_spearman_named.csv")
-fig, axes = plt.subplots(1, 4, figsize=(14.0, 3.1))
+fig, axes_grid = plt.subplots(2, 2, figsize=(7.25, 5.15))
+axes = axes_grid.ravel()
 dead_mc_threshold = 0.1
 dead_mc = diag[diag.MC <= dead_mc_threshold]
 active_mc = diag[diag.MC > dead_mc_threshold]
 dead_pct = 100.0 * len(dead_mc) / len(diag)
 dead_rank = float(dead_mc.mean_val_rank.mean())
-axes[0].scatter(active_mc.MC, active_mc.mean_val_rank, s=8, alpha=0.27, color=PHASE_ROSE, edgecolor="none")
+axes[0].scatter(active_mc.MC, active_mc.mean_val_rank, s=15, alpha=0.25, color=PHASE_ROSE, edgecolor="none")
 if len(active_mc):
     z = np.polyfit(active_mc.MC, active_mc.mean_val_rank, 1)
     xs = np.linspace(active_mc.MC.min(), active_mc.MC.max(), 200)
-    axes[0].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
+    axes[0].plot(xs, z[0] * xs + z[1], color="black", lw=1.25)
 axes[0].text(
     0.04,
     0.93,
-    rf"$\mathrm{{MC}}\leq {dead_mc_threshold:.1f}$: {dead_pct:.0f}\%" + "\n" + rf"mean rank {dead_rank:.2f}",
+    f"MC <= {dead_mc_threshold:.1f}: {dead_pct:.0f}%" + "\n" + f"mean rank {dead_rank:.2f}",
     transform=axes[0].transAxes,
     ha="left",
     va="top",
-    fontsize=6.2,
+    fontsize=8.2,
     color=INK,
-    bbox=dict(facecolor="white", edgecolor=PHASE_CORAL, linewidth=0.35, alpha=0.82, pad=1.5),
+    bbox=dict(facecolor="white", edgecolor=PHASE_CORAL, linewidth=0.55, alpha=0.86, pad=2.3),
 )
-axes[0].set_title("(a) memory capacity")
-axes[0].set_xlabel("MC")
-axes[0].set_ylabel("validation rank")
-axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=8, alpha=0.28, color=PHASE_ROSE, edgecolor="none")
+axes[0].set_title("(a) memory capacity", fontsize=11.5)
+axes[0].set_xlabel("MC", fontsize=10.5)
+axes[0].set_ylabel("validation rank", fontsize=10.5)
+axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=15, alpha=0.26, color=PHASE_ROSE, edgecolor="none")
 z = np.polyfit(active_mc.logMC, active_mc.mean_val_rank, 1)
 xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 200)
-axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
-axes[1].set_title("(b) log memory")
-axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$")
-axes[1].set_ylabel("validation rank")
+axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.25)
+axes[1].set_title("(b) log memory", fontsize=11.5)
+axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=10.5)
+axes[1].set_ylabel("validation rank", fontsize=10.5)
 sp_order = ["IPCtot", "MC", "IPCmem", "IPCnonlin", "Vfeat", "reff"]
-sp_labels = [r"IPC$_t$", "MC", r"IPC$_m$", r"IPC$_n$", r"$V_f$", r"$r_e$"]
 sp = spearman.set_index("metric").reindex(sp_order)
-sp_y = np.arange(len(sp))[::-1]
-sp_colors = [PHASE_GOLD, PHASE_ROSE, PHASE_CORAL, PHASE_AMBER, PHASE_VIOLET, PHASE_VIOLET]
-axes[2].set_facecolor("#fbf8fb")
-axes[2].axvspan(-1.0, -0.65, color=PHASE_GOLD, alpha=0.10, lw=0)
-axes[2].axvspan(-0.65, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
-axes[2].axvspan(0.0, 0.24, color=PHASE_VIOLET, alpha=0.08, lw=0)
-axes[2].axvline(0, color=INK, lw=0.8, alpha=0.86, zorder=1)
-axes[2].text(-0.83, len(sp) - 0.17, "memory / IPC", ha="center", va="top", fontsize=6.4, color=INK, alpha=0.78)
-axes[2].text(0.12, len(sp) - 0.17, "diversity", ha="center", va="top", fontsize=6.4, color=INK, alpha=0.70)
-for yi, val, color in zip(sp_y, sp.spearman_vs_val_rank.to_numpy(dtype=float), sp_colors):
-    axes[2].hlines(yi, -0.98, 0.22, color="#e6ebf2", lw=0.7, alpha=0.95, zorder=0)
-    axes[2].scatter(
-        [val],
-        [yi],
-        s=98 + 92 * abs(val),
-        color=color,
-        edgecolor="white",
-        linewidth=0.85,
-        zorder=3,
+axes[2].set_title("(c) diagnostic scorecard", fontsize=11.5, pad=6)
+axes[2].set_xlim(0, 1)
+axes[2].set_ylim(0, 1)
+axes[2].axis("off")
+
+def draw_score_card(ax, x0, y0, w, h, title, rows, accent):
+    card = FancyBboxPatch(
+        (x0, y0),
+        w,
+        h,
+        boxstyle="round,pad=0.012,rounding_size=0.028",
+        linewidth=0.7,
+        edgecolor=accent,
+        facecolor="#fff9f4",
+        alpha=0.95,
+        transform=ax.transAxes,
+        zorder=0,
     )
-    x_text = val + 0.055 if val < 0 else val - 0.055
-    ha = "left" if val < 0 else "right"
-    axes[2].text(
-        x_text,
-        yi,
-        f"{val:.2f}",
-        ha=ha,
-        va="center",
-        fontsize=6.5,
-        color=INK,
-        bbox=dict(facecolor="white", edgecolor="none", alpha=0.78, pad=0.35),
-    )
-axes[2].set_yticks(sp_y, sp_labels)
-axes[2].set_xlim(-1.0, 0.24)
-axes[2].set_ylim(-0.65, len(sp) - 0.35)
-axes[2].set_title("(c) diagnostic rank correlation")
-axes[2].set_xlabel(r"Spearman $\rho_s$")
+    ax.add_patch(card)
+    ax.text(x0 + 0.04 * w, y0 + h - 0.10 * h, title, transform=ax.transAxes, fontsize=9.4, color=INK, weight="bold")
+    y_step = h * 0.17 if len(rows) > 2 else h * 0.24
+    start = y0 + h - 0.28 * h
+    for idx, (label, metric, color) in enumerate(rows):
+        val = float(sp.loc[metric, "spearman_vs_val_rank"])
+        yy = start - idx * y_step
+        ax.scatter([x0 + 0.12 * w], [yy], transform=ax.transAxes, s=210, color=color, edgecolor="white", linewidth=1.0, zorder=2)
+        ax.text(x0 + 0.22 * w, yy, label, transform=ax.transAxes, ha="left", va="center", fontsize=8.8, color=INK)
+        ax.text(
+            x0 + 0.93 * w,
+            yy,
+            f"{val:.2f}",
+            transform=ax.transAxes,
+            ha="right",
+            va="center",
+            fontsize=9.2,
+            color=INK,
+            weight="bold",
+        )
+
+draw_score_card(
+    axes[2],
+    0.04,
+    0.08,
+    0.56,
+    0.78,
+    "memory / IPC",
+    [(r"IPC$_t$", "IPCtot", PHASE_GOLD), ("MC", "MC", PHASE_ROSE), (r"IPC$_m$", "IPCmem", PHASE_CORAL), (r"IPC$_n$", "IPCnonlin", PHASE_AMBER)],
+    PHASE_CORAL,
+)
+draw_score_card(
+    axes[2],
+    0.66,
+    0.22,
+    0.30,
+    0.50,
+    "diversity",
+    [(r"$V_f$", "Vfeat", PHASE_VIOLET), (r"$r_e$", "reff", PHASE_VIOLET)],
+    PHASE_VIOLET,
+)
+axes[2].text(0.04, 0.94, r"Spearman $\rho_s$ vs. validation rank", transform=axes[2].transAxes, fontsize=8.7, color=INK)
+axes[2].text(0.04, 0.89, "more negative = better screen", transform=axes[2].transAxes, fontsize=8.0, color=INK, alpha=0.72)
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
     screen_y = np.maximum.accumulate(screen[col].to_numpy(dtype=float))
     if col == "random":
-        axes[3].plot(screen_x, screen_y, label=col, color=color, lw=1.35)
+        axes[3].plot(screen_x, screen_y, label=col, color=color, lw=1.7)
     else:
         screen_dense, smooth_y = smooth_retention_curve(screen_x, screen_y)
-        axes[3].plot(screen_dense, smooth_y, label=col, color=color, lw=1.85, solid_capstyle="round")
-axes[3].set_title("(d) screening retention")
-axes[3].set_xlabel("budget (%)")
-axes[3].set_ylabel("retained (%)")
-axes[3].legend(frameon=False, fontsize=7)
+        axes[3].plot(screen_dense, smooth_y, label=col, color=color, lw=2.25, solid_capstyle="round")
+axes[3].set_title("(d) screening retention", fontsize=11.5)
+axes[3].set_xlabel("budget (%)", fontsize=10.5)
+axes[3].set_ylabel("retained (%)", fontsize=10.5)
+axes[3].set_xlim(5, 100)
+axes[3].set_ylim(-4, 104)
+axes[3].legend(frameon=False, fontsize=8.7, loc="lower right")
 for i, ax in enumerate(axes):
     if i == 2:
-        ax.xaxis.grid(True, color=GRID, linewidth=0.45, alpha=0.45)
-        ax.yaxis.grid(False)
+        continue
     else:
-        ax.grid(color=GRID, linewidth=0.45, alpha=0.7)
+        ax.grid(color=GRID, linewidth=0.55, alpha=0.68)
     ax.spines[["top", "right"]].set_visible(False)
-    ax.tick_params(labelsize=8)
-fig.tight_layout(w_pad=1.5)
+    ax.tick_params(labelsize=8.8)
+fig.tight_layout(w_pad=2.0, h_pad=2.2)
 savefig_dual(fig, "fig3_memory_capacity_screens")
 
 summary = {
