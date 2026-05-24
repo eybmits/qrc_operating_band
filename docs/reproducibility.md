@@ -93,6 +93,32 @@ python scripts/compute_qrc_real_diagnostics_chunk.py 300 600
 
 Chunk outputs are written under `data/diag_parts/`.
 
+## Implementation Details Now Explicit in the Paper
+
+- Frozen rotations: the main `rx_zz` mixer uses one seed-specific draw
+  `theta_i ~ Uniform(0, 2*pi)` from `numpy.random.default_rng(seed)`, reused at
+  every time step and layer. Exact seed-42--51 values are checked in at
+  `data/frozen_rx_angles.csv`.
+- Simulator: the QRC16 experiments use exact complex density matrices for
+  `n=4`, column-major vectorization, an exact local channel superoperator, and
+  exact expectation values. No finite shots or hardware noise are modeled.
+- Readout: the main feature vector concatenates `Z_i` and ring-pair `Z_i Z_j`
+  expectations after each of two layers, for 16 features. Ridge readouts include
+  an unpenalized intercept.
+- Diagnostics: MC/IPC are computed on the common iid uniform diagnostic drive
+  with length 900, washout 150, seed 12345, ridge `alpha=1e-8`, and a 70/30
+  chronological train/test split. MC uses linear delays 1--10; IPC adds linear
+  delays 1--20, second-order Legendre delays 1--10, and the ten cross-delay
+  products listed in `scripts/compute_qrc_real_diagnostics.py`.
+- Confidence intervals: reported transfer CIs use 50,000 nonparametric
+  bootstrap resamples of the mean with seed 20260523 and 2.5/97.5 percentiles.
+
+## Code and Data Availability
+
+All scripts, checked-in CSV/JSON inputs, generated TeX number macros, figure
+artifacts, and the built PDF are part of this repository. The manuscript now
+states that a public archival release will be linked for publication.
+
 ## Simulator Smoke Test
 
 For a small standalone run of the simulator, use:

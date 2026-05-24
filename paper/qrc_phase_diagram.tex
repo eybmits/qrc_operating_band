@@ -152,6 +152,17 @@ The lesson is deflationary in the most productive sense. The resource that makes
 
 What remains is the harder half. These results are established in simulation, on a small family of architectures, with measurement treated as free; finite sampling, calibration drift, device noise, and the true cost of reading out many observables all lie outside the present claim. The natural next step is not a larger benchmark but a more honest one---to ask whether the same memory-defined regime persists once the reservoir must be measured, calibrated, and run on hardware that does not forget on command. We expect it to, and we have given the map for finding out.
 
+\section*{Reproducibility Appendix}
+\footnotesize
+\textbf{Frozen reservoir.} The simulator uses exact density matrices initialized at $\rho_0=|0\cdots0\rangle\langle0\cdots0|$ and carried between time steps. For seed $s$, NumPy \texttt{default\_rng(s)} draws fixed angles $\theta_i\sim U[0,2\pi)$ once; the main mixer is $U_{\rm mix}=\bigotimes_i R_x(\theta_i)$, reused at every time step and layer. The layer unitary is $U_\lambda U_{\rm mix}$ with ring edges $(i,i+1\bmod n)$ and $U_\lambda=\prod_{(i,j)}\exp(-i\lambda Z_iZ_j)$. The exact $\theta_i$ values for seeds 42--51 are included in \texttt{data/frozen\_rx\_angles.csv}.
+
+\textbf{Simulator and features.} For $n=4$, the channel is applied as a column-major superoperator $\sum_k K_k^*\otimes K_k$ after each unitary layer; no finite-shot sampling is used. Amplitude damping uses local Kraus operators $K_0=\mathrm{diag}(1,\sqrt{1-\gamma})$ and $K_1=\sqrt{\gamma}|0\rangle\langle1|$. The main readout concatenates exact expectations of $Z_i$ and ring-pair $Z_iZ_j$ after each of two layers, giving 16 features; ridge regression adds an intercept and does not penalize it.
+
+\textbf{Diagnostics.} Memory and IPC are computed on a common iid diagnostic drive $u_t\sim U[-1,1]$ of length 900 with washout 150 and generator seed 12345. MC is the sum of held-out $R^2_+$ for delays 1--10. IPC uses ridge $\alpha=10^{-8}$, a 70/30 chronological train/test split, memory targets $\sqrt{3}u_{t-d}$ for delays 1--20, quadratic Legendre targets $\sqrt{5}(3u_{t-d}^2-1)/2$ for delays 1--10, and ten cross-delay products. Negative $R^2$ values are clipped to zero.
+
+\textbf{Uncertainty and artifacts.} Confidence intervals are nonparametric bootstrap intervals over the reported held-out transfer values: 50,000 resamples of the mean with replacement, seed 20260523, and 2.5/97.5 percentiles. Code, checked-in CSV/JSON data, generated number macros, and figure artifacts are included with the repository; \texttt{./reproduce.sh} rebuilds the QRC-only paper path, and a public archival release will be linked for publication.
+\normalsize
+
 \begin{thebibliography}{8}
 \bibitem{jaeger2004} H. Jaeger and H. Haas, ``Harnessing nonlinearity: Predicting chaotic systems and saving energy in wireless communication,'' \emph{Science}, vol. 304, no. 5667, pp. 78--80, 2004.
 \bibitem{lukosevicius2009} M. Luko\v{s}evi\v{c}ius and H. Jaeger, ``Reservoir computing approaches to recurrent neural network training,'' \emph{Computer Science Review}, vol. 3, no. 3, pp. 127--149, 2009.

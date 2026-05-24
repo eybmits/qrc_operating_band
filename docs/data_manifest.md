@@ -5,6 +5,7 @@
 - `qrc_seed_ensemble_grid.csv`: main QRC16 phase-map grid across four tasks, ten seeds, and the coarse `(beta, lambda, gamma)` grid.
 - `qrc_phase_ablation_slice_grid.csv`: focused QRC-only mechanism ablation sweep at the central `gamma=0.12` slice.
 - `qrc_phase_ablation_slice_metadata.json`: task splits, grid values, seeds, ridge grid, and variant definitions for the ablation sweep.
+- `frozen_rx_angles.csv`: exact per-seed frozen `Rx` mixer angles for the main QRC16 simulations.
 - `phase_map_generalization_stats.json`: primary band summary, connectedness, leave-one-task/seed transfer, bootstrap CIs, ablation retention, and diagnostic correlations.
 - `phase_map_band_membership.csv`: membership of all grid points in `B_{p,q}` bands for `p={10,15,20,25,30}` and `q={0.5,0.6,0.7,0.8}`.
 - `phase_map_leave_one_task_out.csv`: leave-one-task band-transfer summary for the primary `B_{20,0.7}` protocol.
