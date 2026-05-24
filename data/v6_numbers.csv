@@ -1,2 +1,0 @@
-qrc96_shared_beta_pi,qrc96_shared_lambda_pi,qrc96_shared_gamma,qrc96_features,qrc96_shared_mean_val,qrc96_shared_mean_test,qrc96_upper_mean_test,esn100_shared_mean_test,esn100_upper_mean_test,esn16_shared_mean_test,qrc16_shared_mean_test,qrc_mc_spearman,esn_mc_spearman,gamma_slice
-0.01,0.05,0.08,96,0.0818323519494804,0.0726868459065475,0.08039075489579411,0.09033359418003997,0.12692812091211078,0.1118049136179415,0.1196394511367393,-0.8528302709370734,-0.61,0.12

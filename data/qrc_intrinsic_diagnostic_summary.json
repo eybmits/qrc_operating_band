@@ -1,0 +1,53 @@
+{
+  "source": "data/qrc_real_current_intrinsic_diagnostics_with_perf.csv",
+  "rows": 4900,
+  "top10_rows": 492,
+  "metrics": [
+    {
+      "metric": "MC",
+      "spearman_vs_val_rank": -0.8771113558573318
+    },
+    {
+      "metric": "IPCmem",
+      "spearman_vs_val_rank": -0.8674761667369656
+    },
+    {
+      "metric": "IPCtot",
+      "spearman_vs_val_rank": -0.9096600976002227
+    },
+    {
+      "metric": "IPCnonlin",
+      "spearman_vs_val_rank": -0.7750679296173227
+    },
+    {
+      "metric": "Vfeat",
+      "spearman_vs_val_rank": 0.14395904003947307
+    },
+    {
+      "metric": "reff",
+      "spearman_vs_val_rank": 0.12646533978129817
+    }
+  ],
+  "budgets": [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    75,
+    80,
+    85,
+    90,
+    95,
+    100
+  ]
+}

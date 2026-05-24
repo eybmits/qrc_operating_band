@@ -1,8 +1,0 @@
-method,features,selection,mean_test_nmse
-QRC band core,16,"frequency-band representative B20,q=.7",0.1871544075215128
-QRC grid shared,16,shared validation point on base grid,0.1196394511367393
-QRC targeted shared,16,rxzzrx_u_b005_l050_g12 selected by validation,0.10208750639641936
-QRC task-seed upper,16,one QRC grid point per task-seed by validation,0.1184251342206038
-ESN16 shared,16,one shared hyperparameter by validation,0.1118049136179415
-ESN16 task-seed upper,16,one ESN16 hyperparameter per task-seed,0.1216986172727814
-ESN100 shared,100,stronger larger ESN sanity baseline,0.0903335941800399

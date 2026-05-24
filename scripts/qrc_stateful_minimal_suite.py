@@ -13,7 +13,7 @@ suite discussed in the accompanying conversation:
   - uniform/masked/layer-reupload encodings
   - n/L/topology scaling probes
   - finite-shot and calibration perturbation probes
-  - delay/NVAR/ESN classical baselines
+  - delay/NVAR reference baselines
 
 The executed default is intentionally small enough to run on CPU. Increase GRID_MODE
 or the split lengths for a paper-scale run.
@@ -33,7 +33,6 @@ import time
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Dict, Iterable, List, Tuple, Optional, Any
-from functools import lru_cache
 
 import numpy as np
 import pandas as pd
@@ -94,38 +93,6 @@ def edges_for_topology(n: int, topology: str) -> List[Tuple[int, int]]:
     if topology == "skip_ring":
         return [(i, (i + 2) % n) for i in range(n)]
     raise ValueError(f"Unknown topology: {topology}")
-
-
-@lru_cache(maxsize=None)
-def pauli_ring_observable_matrix(n: int, topology: str = "ring") -> Tuple[Tuple[str, ...], np.ndarray]:
-    """Return local Pauli and ring-pair Pauli observables as flattened matrices.
-
-    The returned matrix maps a column-major flattened density matrix to real
-    expectation values via ``obs_flat @ rho.reshape(-1, order="F")``.
-    For n=4 and ring topology this gives 12 local + 36 two-body features.
-    """
-    paulis = {"X": X2, "Y": Y2, "Z": Z2}
-    names: List[str] = []
-    observables: List[np.ndarray] = []
-
-    for q in range(n):
-        for label, mat in paulis.items():
-            mats = [I2] * n
-            mats[q] = mat
-            names.append(f"{label}{q}")
-            observables.append(kron_all(mats))
-
-    for i, j in edges_for_topology(n, topology):
-        for li, mi in paulis.items():
-            for lj, mj in paulis.items():
-                mats = [I2] * n
-                mats[i] = mi
-                mats[j] = mj
-                names.append(f"{li}{i}{lj}{j}")
-                observables.append(kron_all(mats))
-
-    obs_flat = np.stack([op.T.reshape(-1, order="F") for op in observables], axis=0)
-    return tuple(names), obs_flat.astype(np.complex128)
 
 
 def zz_phase_diag(n: int, edges: List[Tuple[int, int]], lam: float) -> np.ndarray:
@@ -485,63 +452,6 @@ def simulate_features(task: TaskData, cfg: QRCConfig, uin_cache: Optional[Dict[s
     return np.asarray(Xz, dtype=float), np.asarray(Xzz, dtype=float)
 
 
-def simulate_pauli_ring_features(
-    task: TaskData, cfg: QRCConfig, uin_cache: Optional[Dict[str, List[np.ndarray]]] = None
-) -> Tuple[np.ndarray, Tuple[str, ...]]:
-    """Return all local Pauli and ring-pair Pauli features after each layer.
-
-    With n=4, two virtual layers, and ring topology the feature count is
-    (4 * 3 + 4 * 3 * 3) * 2 = 96. This is the QRC96 readout used for the
-    local refinement protocol in the paper.
-    """
-    n, d = cfg.n, 2 ** cfg.n
-    rng = np.random.default_rng(cfg.seed + 1009)
-    if cfg.input_mode == "masked":
-        mask = rng.choice([-1.0, 1.0], size=n)
-        mask = mask * rng.uniform(0.5, 1.5, size=n)
-    else:
-        mask = np.ones(n, dtype=float)
-
-    key = f"{task.name}|n={n}|beta={cfg.beta:.12g}|input={cfg.input_mode}|seed={cfg.seed}"
-    if uin_cache is not None and key in uin_cache:
-        Uins = uin_cache[key]
-    else:
-        Uins = build_input_unitaries(task, cfg, mask)
-        if uin_cache is not None:
-            uin_cache[key] = Uins
-
-    layer = build_layer_data(cfg)
-    S_layer = layer["S_layer"]
-    U_layer = layer["U_layer"]
-    names_one_layer, obs_flat = pauli_ring_observable_matrix(n, cfg.topology)
-    feature_names: Tuple[str, ...] = tuple(
-        f"L{ell + 1}_{name}" for ell in range(cfg.layers) for name in names_one_layer
-    )
-
-    rho = np.zeros((d, d), dtype=np.complex128)
-    rho[0, 0] = 1.0
-    rows: List[np.ndarray] = []
-    for t in range(task.total):
-        Uin = Uins[t]
-        if cfg.input_mode != "reupload":
-            rho = Uin @ rho @ Uin.conj().T
-        layer_feats: List[np.ndarray] = []
-        for _ in range(cfg.layers):
-            if cfg.input_mode == "reupload":
-                rho = Uin @ rho @ Uin.conj().T
-            if S_layer is not None:
-                v = rho.reshape(-1, order="F")
-                v = S_layer @ v
-                rho = v.reshape((d, d), order="F")
-            else:
-                rho = U_layer @ rho @ U_layer.conj().T
-                rho = apply_local_noise_tensor(rho, cfg.n, cfg.gamma, cfg.channel)
-                v = rho.reshape(-1, order="F")
-            layer_feats.append(np.real(obs_flat @ v))
-        if t >= task.washout:
-            rows.append(np.concatenate(layer_feats))
-    return np.asarray(rows, dtype=float), feature_names
-
 # -----------------------------
 # Readout/evaluation
 # -----------------------------
@@ -658,46 +568,6 @@ def evaluate_static_features(X_full: np.ndarray, y: np.ndarray, start: int, task
     assert best is not None
     return {"val_nmse": float(best[0]), "test_nmse": nmse(yy[te], pred_ridge(X[te], best[2])), "alpha": best[1]}
 
-
-def run_esn(task: TaskData, units: int = 100, seed: int = 0, alphas: Optional[np.ndarray] = None) -> Dict[str, float]:
-    if alphas is None:
-        alphas = np.logspace(-8, 3, 12)
-    rng = np.random.default_rng(seed)
-    # Hyperparameter mini-search on validation.
-    candidates = [(0.6, 0.5, 0.3), (0.9, 0.5, 0.3), (0.9, 1.0, 0.5), (1.1, 0.2, 0.2)]
-    y_period = task.y[task.washout : task.total]
-    tr, va, te = split_indices(task)
-    best_global = None
-    for sr, ins, leak in candidates:
-        W = rng.normal(size=(units, units)) / math.sqrt(units)
-        # Spectral radius scaling.
-        eig = np.linalg.eigvals(W)
-        W *= sr / (np.max(np.abs(eig)) + 1e-12)
-        Win = rng.normal(size=(units, 1)) * ins
-        b = rng.normal(size=units) * 0.01
-        x = np.zeros(units)
-        Xstates = []
-        for t in range(task.total):
-            pre = W @ x + Win[:, 0] * task.u[t] + b
-            x = (1.0 - leak) * x + leak * np.tanh(pre)
-            if t >= task.washout:
-                Xstates.append(x.copy())
-        Xstates = np.asarray(Xstates)
-        for a in alphas:
-            w = fit_ridge_closed(Xstates[tr], y_period[tr], float(a))
-            v = nmse(y_period[va], pred_ridge(Xstates[va], w))
-            if best_global is None or v < best_global[0]:
-                best_global = (v, float(a), w, Xstates, sr, ins, leak)
-    assert best_global is not None
-    _, a, w, Xstates, sr, ins, leak = best_global
-    return {
-        "val_nmse": float(best_global[0]),
-        "test_nmse": nmse(y_period[te], pred_ridge(Xstates[te], w)),
-        "alpha": a,
-        "spectral_radius": sr,
-        "input_scale": ins,
-        "leak": leak,
-    }
 
 # -----------------------------
 # Suite runners
@@ -927,8 +797,6 @@ def run_classical_baselines(tasks: Dict[str, TaskData], outdir: Path) -> pd.Data
         Xn, start = build_nvar_features(task.u[: task.total])
         res = evaluate_static_features(Xn, task.y, start, task, alphas)
         rows.append({"baseline": "NVAR_degree2", "task": task.name, **res})
-        res = run_esn(task, units=100, seed=123, alphas=alphas)
-        rows.append({"baseline": "ESN_100", "task": task.name, **res})
     df = pd.DataFrame(rows)
     df.to_csv(outdir / "qrc_classical_baselines.csv", index=False)
     return df

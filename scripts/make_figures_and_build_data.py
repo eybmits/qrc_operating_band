@@ -258,29 +258,11 @@ primary_members = pd.read_csv(DATA / "phase_map_band_membership.csv")
 primary_band = primary_members[(primary_members.p == 20) & np.isclose(primary_members.q, 0.7) & primary_members.in_band]
 primary_slice = primary_band[np.isclose(primary_band.gamma, gamma_star)][["beta_pi", "lambda_pi"]]
 
-# Figure 1: full-size and compact leave-one-task-out phase maps.
+# Figure 1: compact leave-one-task-out phase maps.
 panels = [("all tasks", all_tasks)] + [
     (f"leave out {TASK_LABELS[t]}", [x for x in all_tasks if x != t])
     for t in ["mackey_glass", "narma10", "lorenz", "sunspots_annual"]
 ]
-fig, axes = plt.subplots(1, 5, figsize=(13.8, 3.35), sharex=True, sharey=True)
-for ax, (title, tasks) in zip(axes, panels):
-    d = qg[qg.task.isin(tasks)].copy()
-    core = core_points_at_slice(d)
-    im = plot_rank_map(ax, d, title, xmax, ymax, selected=selected, core=core, labelsize=8)
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=10)
-axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=11)
-fig.suptitle(r"Memory-defined QRC operating regime at the $\gamma=0.12$ slice", fontsize=15, y=1.05)
-fig.canvas.draw()
-right_box = axes[-1].get_position()
-cax = fig.add_axes([right_box.x1 + 0.012, right_box.y0, 0.012, right_box.height])
-cbar = fig.colorbar(im, cax=cax)
-cbar.outline.set_visible(False)
-cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
-cbar.set_label("rank percentile", fontsize=8.5, labelpad=4)
-cbar.ax.tick_params(labelsize=7.5, length=2.0, width=0.55)
-savefig_dual(fig, "fig1_operating_regime_fixed_gamma")
-
 fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
 for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
     d = qg[qg.task.isin(tasks)].copy()
@@ -406,7 +388,7 @@ cbar.set_ticks([0.0, 0.15, 0.30, 0.45])
 cbar.ax.tick_params(labelsize=6.0, length=2.0, width=0.55, pad=1.6)
 cbar.set_label("rank loss", fontsize=6.6, labelpad=3.5)
 fig.suptitle("Validation-defined band and mechanism-sensitive phase-map geometry", fontsize=8.8, y=0.985, color=INK)
-savefig_dual(fig, "fig2_short_evidence", aliases=("fig2_phase_map_ablation_evidence",))
+savefig_dual(fig, "fig2_short_evidence")
 
 # Optional QRC-only diagnostic figure retained as a repository artifact.
 screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostics.csv")

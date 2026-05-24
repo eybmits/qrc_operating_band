@@ -7,6 +7,8 @@ env/
 outputs/
 tmp/
 paper/build/
+data/diag_parts/
+paper/gfx/candidate_phase_maps/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
