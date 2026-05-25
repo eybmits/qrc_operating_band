@@ -297,7 +297,7 @@ freq = primary_members[
 ax = fig.add_subplot(gs[0, 0])
 XI, YI, Zs = smooth_grid(freq.beta_pi.values, freq.lambda_pi.values, freq.top_frequency.values, xmax, ymax, nx=220, ny=180)
 Zp = np.clip(Zs, 0.0, 1.0)
-ax.imshow(
+freq_im = ax.imshow(
     Zp,
     origin="lower",
     extent=[0, xmax, 0, ymax],
@@ -328,6 +328,22 @@ ax.text(
     fontsize=6.2,
     color="white",
     bbox=dict(boxstyle="round,pad=0.18", facecolor="#111827", edgecolor="none", alpha=0.55),
+)
+freq_cax = ax.inset_axes([0.60, 0.865, 0.32, 0.035])
+freq_cbar = fig.colorbar(freq_im, cax=freq_cax, orientation="horizontal")
+freq_cbar.outline.set_edgecolor("white")
+freq_cbar.outline.set_linewidth(0.35)
+freq_cbar.set_ticks([0.0, 1.0])
+freq_cbar.ax.tick_params(labelsize=4.6, colors="white", length=1.2, width=0.35, pad=0.4)
+freq_cbar.ax.text(
+    0.5,
+    1.75,
+    "selection freq.",
+    transform=freq_cbar.ax.transAxes,
+    ha="center",
+    va="bottom",
+    fontsize=4.8,
+    color="white",
 )
 ax.text(0.96, 0.06, "bright = frequent", transform=ax.transAxes, ha="right", va="bottom", fontsize=5.2, color="white", alpha=0.9)
 
