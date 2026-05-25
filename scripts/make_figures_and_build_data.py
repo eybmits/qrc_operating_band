@@ -260,7 +260,7 @@ primary_slice = primary_band[np.isclose(primary_band.gamma, gamma_star)][["beta_
 
 # Figure 1: compact leave-one-task-out phase maps.
 panels = [("all tasks", all_tasks)] + [
-    (f"leave out {TASK_LABELS[t]}", [x for x in all_tasks if x != t])
+    (f"{TASK_LABELS[t]} not used", [x for x in all_tasks if x != t])
     for t in ["mackey_glass", "narma10", "lorenz", "sunspots_annual"]
 ]
 fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
@@ -282,7 +282,7 @@ cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
 cbar.set_label("rank percentile", fontsize=6.2, labelpad=3)
 cbar.ax.tick_params(labelsize=5.8, length=1.8, width=0.5)
-fig.suptitle(r"Phase maps transfer under leave-one-task-out conditioning ($\gamma=0.12$)", fontsize=9.5, y=0.985, color=INK)
+fig.suptitle(r"Phase maps when one task is not used ($\gamma=0.12$)", fontsize=9.5, y=0.985, color=INK)
 savefig_dual(fig, "fig1_short_phase_maps")
 
 # Figure 2: validation-band frequency and mechanism-sensitive ablation loss.
