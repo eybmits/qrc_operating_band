@@ -409,7 +409,9 @@ screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostic
 diag = pd.read_csv(DATA / "qrc_real_current_intrinsic_diagnostics_with_perf.csv")
 diag["logMC"] = np.log1p(diag["MC"])
 spearman = pd.read_csv(DATA / "qrc_real_current_diagnostic_spearman_named.csv")
-fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.28))
+fig = plt.figure(figsize=(7.25, 2.28))
+gs = fig.add_gridspec(1, 3, width_ratios=[0.72, 1.15, 1.15], wspace=0.22)
+axes = np.array([fig.add_subplot(gs[0, i]) for i in range(3)])
 
 memory_slice = (
     diag[np.isclose(diag.gamma, gamma_star)]
@@ -478,7 +480,7 @@ xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 220)
 axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
 axes[1].set_title("(b) memory predicts rank", fontsize=8.8, pad=3)
 axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=7.8)
-axes[1].set_ylabel("validation rank", fontsize=7.8)
+axes[1].set_ylabel("validation rank", fontsize=7.8, labelpad=1.0)
 
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
@@ -505,7 +507,7 @@ for i, ax in enumerate(axes):
         ax.grid(color=GRID, linewidth=0.42, alpha=0.68)
         ax.spines[["top", "right"]].set_visible(False)
         ax.tick_params(labelsize=6.8, length=2.0, width=0.55, pad=1.5)
-fig.subplots_adjust(left=0.058, right=0.988, bottom=0.25, top=0.86, wspace=0.28)
+fig.subplots_adjust(left=0.058, right=0.988, bottom=0.25, top=0.86)
 savefig_dual(fig, "fig3_memory_capacity_screens")
 
 summary = {
