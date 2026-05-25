@@ -361,7 +361,7 @@ for i, (variant, title) in enumerate(delta_variants, start=1):
         Zp,
         origin="lower",
         extent=[0, xmax, 0, ymax],
-        cmap=PHASE_FORWARD,
+        cmap=PHASE_CMAP,
         vmin=0.0,
         vmax=0.45,
         aspect="auto",
@@ -385,7 +385,7 @@ cbar = fig.colorbar(delta_im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.0, 0.15, 0.30, 0.45])
 cbar.ax.tick_params(labelsize=6.0, length=2.0, width=0.55, pad=1.6)
-cbar.set_label("rank loss", fontsize=6.6, labelpad=3.5)
+cbar.set_label("rank loss\n(dark = worse)", fontsize=6.2, labelpad=3.5)
 savefig_dual(fig, "fig2_short_evidence")
 
 # Optional QRC-only diagnostic figure retained as a repository artifact.
