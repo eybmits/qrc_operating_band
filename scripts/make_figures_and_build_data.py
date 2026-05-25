@@ -259,9 +259,9 @@ primary_band = primary_members[(primary_members.p == 20) & np.isclose(primary_me
 primary_slice = primary_band[np.isclose(primary_band.gamma, gamma_star)][["beta_pi", "lambda_pi"]]
 
 # Figure 1: compact leave-one-task-out phase maps.
-panels = [("all tasks used", all_tasks)] + [
-    (f"{TASK_LABELS[t]} removed", [x for x in all_tasks if x != t])
-    for t in ["mackey_glass", "narma10", "lorenz", "sunspots_annual"]
+panels = [("(a) all tasks used", all_tasks)] + [
+    (f"({chr(ord('b') + i)}) {TASK_LABELS[t]} removed", [x for x in all_tasks if x != t])
+    for i, t in enumerate(["mackey_glass", "narma10", "lorenz", "sunspots_annual"])
 ]
 fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
 for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
