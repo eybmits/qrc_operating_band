@@ -377,7 +377,7 @@ for i, (variant, title) in enumerate(delta_variants, start=1):
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
     polish_phase_axis(ax, labelsize=5.8)
-fig.subplots_adjust(left=0.047, right=0.940, bottom=0.19, top=0.84, wspace=0.12)
+fig.subplots_adjust(left=0.047, right=0.940, bottom=0.19, top=0.91, wspace=0.12)
 fig.canvas.draw()
 right_box = delta_axes[-1].get_position()
 cax = fig.add_axes([right_box.x1 + 0.010, right_box.y0, 0.012, right_box.height])
@@ -386,7 +386,6 @@ cbar.outline.set_visible(False)
 cbar.set_ticks([0.0, 0.15, 0.30, 0.45])
 cbar.ax.tick_params(labelsize=6.0, length=2.0, width=0.55, pad=1.6)
 cbar.set_label("rank loss", fontsize=6.6, labelpad=3.5)
-fig.suptitle("Validation-defined band and mechanism-sensitive phase-map geometry", fontsize=8.8, y=0.985, color=INK)
 savefig_dual(fig, "fig2_short_evidence")
 
 # Optional QRC-only diagnostic figure retained as a repository artifact.
