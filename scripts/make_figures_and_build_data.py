@@ -259,8 +259,8 @@ primary_band = primary_members[(primary_members.p == 20) & np.isclose(primary_me
 primary_slice = primary_band[np.isclose(primary_band.gamma, gamma_star)][["beta_pi", "lambda_pi"]]
 
 # Figure 1: compact leave-one-task-out phase maps.
-panels = [("all tasks", all_tasks)] + [
-    (f"{TASK_LABELS[t]} not used", [x for x in all_tasks if x != t])
+panels = [("all tasks used", all_tasks)] + [
+    (f"{TASK_LABELS[t]} removed", [x for x in all_tasks if x != t])
     for t in ["mackey_glass", "narma10", "lorenz", "sunspots_annual"]
 ]
 fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
@@ -273,7 +273,7 @@ for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
     ax.set_xticks(ticks)
     ax.set_xticklabels([f"{tick:g}" for tick in ticks])
 axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
-fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.84, wspace=0.06)
+fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.91, wspace=0.06)
 fig.canvas.draw()
 right_box = axes[-1].get_position()
 cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.height])
@@ -282,7 +282,6 @@ cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
 cbar.set_label("rank percentile", fontsize=6.2, labelpad=3)
 cbar.ax.tick_params(labelsize=5.8, length=1.8, width=0.5)
-fig.suptitle(r"Phase maps when one task is not used ($\gamma=0.12$)", fontsize=9.5, y=0.985, color=INK)
 savefig_dual(fig, "fig1_short_phase_maps")
 
 # Figure 2: validation-band frequency and mechanism-sensitive ablation loss.
