@@ -8,7 +8,7 @@ This directory contains the cleaned QRC-only manuscript package.
 - `generated/phase_map_numbers.tex`: generated macros for QRC-only phase-map band, transfer, ablation, robustness, and diagnostic numbers.
 - `gfx/fig1_short_phase_maps.pdf`: leave-one-task-out phase maps.
 - `gfx/fig2_short_evidence.pdf`: validation-band frequency and mechanism-ablation maps.
-- `gfx/fig3_memory_capacity_screens.pdf`: diagnostic and screening figure.
+- `gfx/fig3_memory_capacity_screens.pdf`: memory map, memory-rank relation, and screening-retention figure.
 
 Build the paper from the repository root:
 

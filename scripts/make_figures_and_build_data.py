@@ -234,12 +234,12 @@ def plot_rank_map(ax, d, title, xmax, ymax, selected=None, core=None, labelsize=
 
 
 def core_points_at_slice(d, p=0.20, q=0.70):
-    chunks = []
+    parts = []
     for _, g in d.groupby("replicate"):
         h = g.copy()
         h["top"] = h.val_rank_pct <= p
-        chunks.append(h)
-    return pd.concat(chunks).groupby(["beta_pi", "lambda_pi"]).top.mean().reset_index().query("top >= @q")
+        parts.append(h)
+    return pd.concat(parts).groupby(["beta_pi", "lambda_pi"]).top.mean().reset_index().query("top >= @q")
 
 
 stats_path = DATA / "phase_map_generalization_stats.json"
