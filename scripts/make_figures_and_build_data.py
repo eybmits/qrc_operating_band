@@ -404,50 +404,82 @@ cbar.ax.tick_params(labelsize=6.0, length=2.0, width=0.55, pad=1.6)
 cbar.set_label("rank loss\n(dark = worse)", fontsize=6.2, labelpad=3.5)
 savefig_dual(fig, "fig2_short_evidence")
 
-# Optional QRC-only diagnostic figure retained as a repository artifact.
+# Figure 3: diagnostic memory map, global memory relation, and screening retention.
 screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostics.csv")
 diag = pd.read_csv(DATA / "qrc_real_current_intrinsic_diagnostics_with_perf.csv")
 diag["logMC"] = np.log1p(diag["MC"])
 spearman = pd.read_csv(DATA / "qrc_real_current_diagnostic_spearman_named.csv")
-fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.18))
+fig, axes = plt.subplots(1, 3, figsize=(7.25, 2.28))
+
+memory_slice = (
+    diag[np.isclose(diag.gamma, gamma_star)]
+    .groupby(["beta_pi", "lambda_pi"])
+    .agg(logMC=("logMC", "mean"))
+    .reset_index()
+)
+ax = axes[0]
+XI, YI, Zs = smooth_grid(
+    memory_slice.beta_pi.values,
+    memory_slice.lambda_pi.values,
+    memory_slice.logMC.values,
+    xmax,
+    ymax,
+    nx=220,
+    ny=180,
+)
+memory_max = float(np.nanpercentile(memory_slice.logMC, 99))
+Zp = np.clip(Zs, 0.0, memory_max)
+memory_im = ax.imshow(
+    Zp,
+    origin="lower",
+    extent=[0, xmax, 0, ymax],
+    cmap=PHASE_FORWARD,
+    vmin=0.0,
+    vmax=memory_max,
+    aspect="auto",
+    interpolation="bicubic",
+    resample=True,
+)
+memory_levels = [float(np.nanpercentile(memory_slice.logMC, p)) for p in [55, 75, 90]]
+safe_contour(ax, XI, YI, Zp, memory_levels, colors="white", linewidths=[0.25, 0.35, 0.45], alpha=0.62)
+plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.62)
+ax.set_title("(a) memory map", fontsize=8.8, pad=3)
+ax.set_xlabel(r"$\beta/\pi$", fontsize=7.8)
+ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.8)
+ax.set_xlim(0, xmax)
+ax.set_ylim(0, ymax)
+ax.set_xticks([0.0, 0.25, 0.5])
+ax.set_yticks([0.0, 0.2, 0.4])
+ax.set_box_aspect(1)
+polish_phase_axis(ax, labelsize=6.8)
+memory_cax = ax.inset_axes([0.54, 0.07, 0.38, 0.04])
+memory_cbar = fig.colorbar(memory_im, cax=memory_cax, orientation="horizontal")
+memory_cbar.outline.set_edgecolor("white")
+memory_cbar.outline.set_linewidth(0.35)
+memory_cbar.set_ticks([0.0, memory_max])
+memory_cbar.ax.set_xticklabels(["0", "high"])
+memory_cbar.ax.tick_params(labelsize=4.8, colors="white", length=1.2, width=0.35, pad=0.4)
+memory_cbar.ax.text(
+    0.5,
+    1.70,
+    r"$\log(1+MC)$",
+    transform=memory_cbar.ax.transAxes,
+    ha="center",
+    va="bottom",
+    fontsize=5.0,
+    color="white",
+)
+
 dead_mc_threshold = 0.1
 active_mc = diag[diag.MC > dead_mc_threshold]
-axes[0].scatter(active_mc.logMC, active_mc.mean_val_rank, s=8.0, alpha=0.26, color=PHASE_ROSE, edgecolor="none")
+axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=8.5, alpha=0.24, color=PHASE_ROSE, edgecolor="none")
 z = np.polyfit(active_mc.logMC, active_mc.mean_val_rank, 1)
 xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 220)
-axes[0].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
-axes[0].set_title("(a) log memory", fontsize=8.8, pad=3)
-axes[0].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=7.8)
-axes[0].set_ylabel("validation rank", fontsize=7.8)
-sp_order = ["IPCtot", "MC", "IPCmem", "IPCnonlin", "Vfeat", "reff"]
-sp_labels = [r"IPC$_t$", "MC", r"IPC$_m$", r"IPC$_n$", r"$V_f$", r"$r_e$"]
-sp = spearman.set_index("metric").reindex(sp_order)
-sp_y = np.arange(len(sp))[::-1]
-sp_colors = [PHASE_GOLD, PHASE_ROSE, PHASE_CORAL, PHASE_AMBER, PHASE_VIOLET, PHASE_VIOLET]
-axes[1].axvspan(-1.0, 0.0, color=PHASE_CORAL, alpha=0.055, lw=0)
-axes[1].axvspan(0.0, 0.25, color=PHASE_VIOLET, alpha=0.075, lw=0)
-axes[1].axvline(0, color=INK, lw=0.75, alpha=0.90)
-for yi, label, val, color in zip(sp_y, sp_labels, sp.spearman_vs_val_rank.to_numpy(dtype=float), sp_colors):
-    axes[1].hlines(yi, min(0.0, val), max(0.0, val), color=color, lw=2.0, alpha=0.68, zorder=2)
-    axes[1].scatter([val], [yi], s=24, color=color, edgecolor="white", linewidth=0.5, zorder=3)
-    x_text = val + 0.055 if val < 0 else 0.045
-    ha = "left" if val < 0 else "right"
-    axes[1].text(
-        x_text,
-        yi,
-        f"{val:.2f}",
-        ha=ha,
-        va="center",
-        fontsize=5.8,
-        color=INK,
-        bbox=dict(facecolor="white", edgecolor="none", alpha=0.66, pad=0.2),
-    )
-axes[1].set_yticks(sp_y, sp_labels)
-axes[1].set_xlim(-1.0, 0.24)
-axes[1].set_xticks([-1.0, -0.5, 0.0])
-axes[1].set_ylim(-0.65, len(sp) - 0.35)
-axes[1].set_title("(b) diagnostic rank", fontsize=8.8, pad=3)
-axes[1].set_xlabel(r"Spearman $\rho_s$", fontsize=7.8)
+axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
+axes[1].set_title("(b) memory predicts rank", fontsize=8.8, pad=3)
+axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=7.8)
+axes[1].set_ylabel("validation rank", fontsize=7.8)
+
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
     screen_y = np.maximum.accumulate(screen[col].to_numpy(dtype=float))
@@ -465,19 +497,15 @@ axes[2].legend(
     frameon=False,
     fontsize=6.9,
     loc="lower right",
-    bbox_to_anchor=(1.045, 0.025),
-    handlelength=1.6,
-    borderaxespad=0.0,
+    handlelength=1.5,
+    borderaxespad=0.25,
 )
 for i, ax in enumerate(axes):
-    if i == 1:
-        ax.xaxis.grid(True, color=GRID, linewidth=0.40, alpha=0.55)
-        ax.yaxis.grid(False)
-    else:
+    if i > 0:
         ax.grid(color=GRID, linewidth=0.42, alpha=0.68)
-    ax.spines[["top", "right"]].set_visible(False)
-    ax.tick_params(labelsize=6.8, length=2.0, width=0.55, pad=1.5)
-fig.tight_layout(w_pad=0.95)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.tick_params(labelsize=6.8, length=2.0, width=0.55, pad=1.5)
+fig.subplots_adjust(left=0.058, right=0.988, bottom=0.25, top=0.86, wspace=0.28)
 savefig_dual(fig, "fig3_memory_capacity_screens")
 
 summary = {
