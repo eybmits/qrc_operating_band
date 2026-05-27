@@ -14,6 +14,19 @@
 \newcommand{\MC}{\mathrm{MC}}
 \newcommand{\NMSE}{\mathrm{NMSE}}
 \definecolor{repoLinkBlue}{RGB}{0,92,184}
+\makeatletter
+\newcommand{\pagewidefig}[3]{%
+\twocolumn[{%
+\begin{@twocolumnfalse}
+\vspace{-5pt}
+\centering
+#1\par\vspace{3pt}
+\refstepcounter{figure}\label{#2}%
+\parbox{0.98\textwidth}{\footnotesize\textbf{Fig.~\thefigure.} #3}
+\vspace{5pt}
+\end{@twocolumnfalse}
+}]}
+\makeatother
 \input{generated/phase_map_numbers.tex}
 \begin{document}
 \title{Where a Quantum Reservoir Works: A Transferable Operating Band}
@@ -78,24 +91,12 @@ B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
 Ranks are always formed within each task-seed replicate, so task scale and seed difficulty do not dominate the aggregate. This is deliberately a frequency-level definition, weaker than demanding a single universal optimum: it asks whether a region behaves well repeatedly across tasks and initializations. In leave-one-task or leave-one-seed tests, the band is built from the remaining replicates and then scored on the withheld replicate. In the holdout audit, the validation-defined band is frozen first and then evaluated once on holdout ranks and NMSE. Confidence intervals are nonparametric bootstrap intervals for the mean with 50,000 resamples and seed 20260523.
 
-\begin{figure*}[t!]
-\centering
-\makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{gfx/fig1_short_phase_maps.pdf}}
-\caption{Validation phase maps at the fixed $\gamma=0.12$ slice. The first panel uses all four tasks. Each following panel recomputes the map after removing one task from the validation aggregate. If the bright low-rank region remains in the same place, the operating band is not driven by a single task. Gold circles mark coordinates that repeatedly fall in the top validation quintile; the star marks the medoid of the primary band.}
-\label{fig:phase}
-\end{figure*}
-\clearpage
-
-\begin{figure*}[t!]
-\centering
-\includegraphics[width=0.98\textwidth]{gfx/gamma_regime_slices_only.pdf}
-\caption{Damping-slice atlas for the same validation-ranked grid. Each panel fixes $\gamma$ and maps validation rank over $(\beta,\lambda)$, with bright color indicating better rank. All marked points use the same consistency requirement $q=0.7$: filled circles show the strict $B_{20,0.7}$ core, open circles show the broader $B_{30,0.7}$ band, and the star marks the $B_{20,0.7}$ medoid. The strict core sits at $\gamma=0.12$, while the broader same-consistency band extends into neighboring nonzero damping slices.}
-\label{fig:gamma-slices}
-\end{figure*}
-\clearpage
+\pagewidefig{\makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{gfx/fig1_short_phase_maps.pdf}}}{fig:phase}{Validation phase maps at the fixed $\gamma=0.12$ slice. The first panel uses all four tasks. Each following panel recomputes the map after removing one task from the validation aggregate. If the bright low-rank region remains in the same place, the operating band is not driven by a single task. Gold circles mark coordinates that repeatedly fall in the top validation quintile; the star marks the medoid of the primary band.}
 
 \section{Evidence}
 Across the control space, low validation rank does not spread arbitrarily; it gathers into a compact, connected region, and relaxing the selection threshold grows that region smoothly rather than fragmenting it---the signature of a single operating regime rather than a scatter of coincidences (Fig.~\ref{fig:phase}). The damping coordinate is selected by the validation scan, not fixed by hand: the strict $B_{20,0.7}$ core lies at $\gamma=0.12$, while the broader $B_{30,0.7}$ band, under the same 70\% consistency requirement, extends into neighboring nonzero damping slices (Fig.~\ref{fig:gamma-slices}). A region that merely fit the four tasks jointly would prove little, so we test whether it survives the removal of the information it was built from. It does: when one task is withheld and the band is defined from the rest, the held-out task still lands in the top quartile on average, with mean validation rank \PhaseLotoMeanRank{} and CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when a seed is withheld instead, the held-out seed behaves the same way, with mean rank \PhaseLosoMeanRank{} and CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The region is thus a search prior that generalizes across both task identity and reservoir initialization, not a fit to either.
+
+\pagewidefig{\includegraphics[width=0.98\textwidth]{gfx/gamma_regime_slices_only.pdf}}{fig:gamma-slices}{Damping-slice atlas for the same validation-ranked grid. Each panel fixes $\gamma$ and maps validation rank over $(\beta,\lambda)$, with bright color indicating better rank. All marked points use the same consistency requirement $q=0.7$: filled circles show the strict $B_{20,0.7}$ core, open circles show the broader $B_{30,0.7}$ band, and the star marks the $B_{20,0.7}$ medoid. The strict core sits at $\gamma=0.12$, while the broader same-consistency band extends into neighboring nonzero damping slices.}
 
 The same validation-defined band also holds on data it never touched: after the band is frozen, evaluating once on the chronological holdout split leaves it top-quartile on unseen data (Table~\ref{tab:holdout}). Repeating the identical protocol on a nearby four-qubit, three-layer variant tests whether the phenomenon is tied to the exact depth choice; the table reports band existence, held-out rank, and Jaccard overlap with the base control region (Table~\ref{tab:architecture-robustness}). That the band is real rather than cosmetic is confirmed by perturbing the dynamics that sustain it: removing damping, removing recurrent mixing, or replacing amplitude damping with dephasing each erases the region entirely, with retention values \PhaseGammaZeroRetention{}, \PhaseNoMixerRetention{}, and \PhaseDephaseRetention{} under the same criterion. The collapse is total rather than gradual, exactly as expected if the regime is held in place by input strong enough to write but not overwrite, mixing that builds nonlinear features, and damping that preserves usable memory rather than merely adding noise (Fig.~\ref{fig:evidence}). Finally, the region can be found before any task-specific search: memory capacity correlates strongly and negatively with validation rank, $\rho_s=\PhaseMCSpearman{}$, as do the information-processing capacities \cite{dambre2012}, whereas raw feature diversity does not (Fig.~\ref{fig:diagnostics}).
 
@@ -129,6 +130,8 @@ Setting & Band? & Held-out rank & Overlap\\
 \end{tabular}
 \end{table}
 
+\pagewidefig{\includegraphics[width=0.98\textwidth]{gfx/fig2_short_evidence.pdf}}{fig:evidence}{Why the operating band is meaningful. (a) Bright coordinates are selected often by the validation rule, so they form the operating band; the small in-panel scale gives the selection frequency. (b--d) The same control-space slice is recomputed after removing damping, removing mixing, or replacing amplitude damping by dephasing. The right colorbar applies only to these three panels: dark color means larger rank loss, i.e., worse validation rank after the mechanism is changed. The damage concentrates around the gold band, showing that the useful region depends on these mechanisms within this reservoir family.}
+
 \begin{center}
 \scriptsize
 \setlength{\tabcolsep}{4pt}
@@ -141,24 +144,10 @@ Variant & Band pts. & Retention & Rank on base band\\
 \end{tabular}
 \end{center}
 
-\begin{figure*}[t!]
-\centering
-\includegraphics[width=0.98\textwidth]{gfx/fig2_short_evidence.pdf}
-\caption{Why the operating band is meaningful. (a) Bright coordinates are selected often by the validation rule, so they form the operating band; the small in-panel scale gives the selection frequency. (b--d) The same control-space slice is recomputed after removing damping, removing mixing, or replacing amplitude damping by dephasing. The right colorbar applies only to these three panels: dark color means larger rank loss, i.e., worse validation rank after the mechanism is changed. The damage concentrates around the gold band, showing that the useful region depends on these mechanisms within this reservoir family.}
-\label{fig:evidence}
-\end{figure*}
-\clearpage
-
-\begin{figure*}[t!]
-\centering
-\includegraphics[width=0.98\textwidth]{gfx/fig3_memory_capacity_screens.pdf}
-\caption{Memory-based diagnostics identify the operating region before task-specific search. (a) The task-free memory map shows $\log(1+\mathrm{MC})$ on the same $\gamma=0.12$ control slice as the phase maps. The gold operating-band points lie inside the structured memory-rich region, showing that the band is visible from reservoir dynamics alone. (b) Across all sampled settings and seeds, higher memory predicts lower validation rank, giving a global quantitative version of the same effect. (c) Screening efficiency: the fraction of genuinely good reservoirs retained as a function of how many settings are kept. Screening by memory or information-processing capacity recovers the useful settings far earlier than random selection, while raw feature diversity remains much weaker.}
-\label{fig:diagnostics}
-\end{figure*}
-\clearpage
-
 \section{Discussion and Scope}
 For this reservoir family, useful learning is organized by a transferable operating regime rather than by task-specific tuning---a hypothesis whose credibility comes from variety. Four tasks with little in common, spanning smooth chaos, nonlinear memory, and irregular real-world data, obey the same region, and that region holds when any one task or any one seed is withheld; what survives this much variation is hard to dismiss as a fluke. The reading we draw is deflationary. The useful region is not picked out by Hilbert-space size or by feature diversity but by memory, which suggests that a quantum reservoir succeeds not because its state space is large but because drive, coupling, and dissipation together keep memory and nonlinearity in balance---the principle classical reservoir theory named long ago \cite{dambre2012,tanaka2019}. This is also why the ablations bite: strip out damping or mixing and the regime does not weaken, it disappears. The boundaries are drawn on purpose. Everything here is simulated, on one architecture family, with measurement treated as free, so finite-shot noise, calibration drift, and readout cost are all absent and could each deform the regime \cite{mujal2023,ahmed2025}; we therefore claim neither quantum advantage nor hardware efficiency. The claim is smaller and sturdier---that the operating regime is the right object to study, that it transfers, and that memory is how to find it.
+
+\pagewidefig{\includegraphics[width=0.98\textwidth]{gfx/fig3_memory_capacity_screens.pdf}}{fig:diagnostics}{Memory-based diagnostics identify the operating region before task-specific search. (a) The task-free memory map shows $\log(1+\mathrm{MC})$ on the same $\gamma=0.12$ control slice as the phase maps. The gold operating-band points lie inside the structured memory-rich region, showing that the band is visible from reservoir dynamics alone. (b) Across all sampled settings and seeds, higher memory predicts lower validation rank, giving a global quantitative version of the same effect. (c) Screening efficiency: the fraction of genuinely good reservoirs retained as a function of how many settings are kept. Screening by memory or information-processing capacity recovers the useful settings far earlier than random selection, while raw feature diversity remains much weaker.}
 
 \section{Conclusion}
 The usefulness of a dissipative quantum reservoir is not a property of its size but of where it is operated. Across tasks and reservoir initializations, strong performance does not wander the control space; it gathers in a single memory-preserving region where input drive, recurrent coupling, and dissipation hold one another in balance. That region transfers, it survives the removal of the very mechanisms that define it only by collapsing, and it can be found in advance by a diagnostic that asks nothing about the task---only whether the reservoir remembers.
