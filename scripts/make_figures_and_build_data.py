@@ -290,10 +290,7 @@ broad_band = primary_members[
     (primary_members.p == 30) & np.isclose(primary_members.q, 0.7) & primary_members.in_band
 ]
 gamma_values = [0.0, 0.05, 0.12, 0.22, 0.30]
-fig = plt.figure(figsize=(12.0, 2.82))
-gs = fig.add_gridspec(1, 6, width_ratios=[1, 1, 1, 1, 1, 0.055], wspace=0.18)
-axes = [fig.add_subplot(gs[0, i]) for i in range(5)]
-cax = fig.add_subplot(gs[0, 5])
+fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
 gamma_im = None
 for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
     d = q[np.isclose(q.gamma, gamma)]
@@ -356,27 +353,32 @@ for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
             zorder=7,
         )
 
-    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=10.2, pad=3, color=INK)
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=6.8, pad=2.5, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
-    ax.set_xticks([0, 0.25, 0.5])
-    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=7.6)
+    ticks = [0.0, 0.25] if idx < len(axes) - 1 else [0.0, 0.25, 0.5]
+    ax.set_xticks(ticks)
+    ax.set_xticklabels([f"{tick:g}" for tick in ticks], fontsize=6)
     ax.set_yticks([0, 0.2, 0.4])
     if idx == 0:
-        ax.set_ylabel(r"$\lambda/\pi$", fontsize=9.4)
-        ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=7.6)
+        ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
+        ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=6)
     else:
         ax.set_yticklabels([])
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=9.4, labelpad=1)
-    ax.tick_params(length=2.6, pad=1.5)
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=7, labelpad=1)
+    ax.tick_params(length=2.0, pad=1.4)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
 
+fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.91, wspace=0.06)
+fig.canvas.draw()
+right_box = axes[-1].get_position()
+cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.height])
 cbar = fig.colorbar(gamma_im, cax=cax)
-cbar.set_label("validation rank percentile\nbright = better", fontsize=8.6, color=INK, labelpad=6)
-cbar.set_ticks([0.1, 0.2, 0.4, 0.6, 0.8])
-cbar.ax.tick_params(labelsize=7.4, length=2.5)
+cbar.set_label("rank percentile", fontsize=6.2, color=INK, labelpad=3)
+cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
+cbar.ax.tick_params(labelsize=5.8, length=1.8, width=0.5)
 cbar.outline.set_visible(False)
 legend_handles = [
     Line2D(
@@ -421,12 +423,11 @@ axes[-1].legend(
     framealpha=0.78,
     facecolor="white",
     edgecolor="none",
-    fontsize=6.3,
-    handletextpad=0.35,
-    borderpad=0.25,
-    labelspacing=0.2,
+    fontsize=4.6,
+    handletextpad=0.22,
+    borderpad=0.18,
+    labelspacing=0.12,
 )
-fig.subplots_adjust(left=0.055, right=0.965, top=0.86, bottom=0.18)
 savefig_dual(fig, "gamma_regime_slices_only")
 
 # Figure 3: validation-band frequency and mechanism-sensitive ablation loss.
