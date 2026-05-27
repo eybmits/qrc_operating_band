@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.patches import Ellipse
+from matplotlib.lines import Line2D
 from scipy.optimize import curve_fit
 from scipy.interpolate import PchipInterpolator, griddata
 from scipy.stats import spearmanr
@@ -284,7 +285,151 @@ cbar.set_label("rank percentile", fontsize=6.2, labelpad=3)
 cbar.ax.tick_params(labelsize=5.8, length=1.8, width=0.5)
 savefig_dual(fig, "fig1_short_phase_maps")
 
-# Figure 2: validation-band frequency and mechanism-sensitive ablation loss.
+# Figure 2: damping-slice atlas for the same validation-ranked phase grid.
+broad_band = primary_members[
+    (primary_members.p == 30) & np.isclose(primary_members.q, 0.7) & primary_members.in_band
+]
+gamma_values = [0.0, 0.05, 0.12, 0.22, 0.30]
+fig = plt.figure(figsize=(12.0, 2.82))
+gs = fig.add_gridspec(1, 6, width_ratios=[1, 1, 1, 1, 1, 0.055], wspace=0.18)
+axes = [fig.add_subplot(gs[0, i]) for i in range(5)]
+cax = fig.add_subplot(gs[0, 5])
+gamma_im = None
+for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
+    d = q[np.isclose(q.gamma, gamma)]
+    agg = d.groupby(["beta_pi", "lambda_pi"]).agg(mean_rank=("val_rank_pct", "mean")).reset_index()
+    XI, YI, Zs = smooth_grid(agg.beta_pi.values, agg.lambda_pi.values, agg.mean_rank.values, xmax, ymax)
+    Zp = np.clip(Zs, RANK_VMIN, RANK_VMAX)
+    gamma_im = ax.imshow(
+        Zp,
+        origin="lower",
+        extent=[0, xmax, 0, ymax],
+        cmap=PHASE_CMAP,
+        vmin=RANK_VMIN,
+        vmax=RANK_VMAX,
+        aspect="auto",
+        interpolation="bicubic",
+        resample=True,
+    )
+    safe_contour(ax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.75], alpha=0.88)
+    safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.36, 0.28], alpha=0.58)
+
+    broad_slice = broad_band[np.isclose(broad_band.gamma, gamma)]
+    core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
+    if len(broad_slice):
+        ax.scatter(
+            broad_slice.beta_pi,
+            broad_slice.lambda_pi,
+            s=26,
+            facecolors=(1.0, 0.86, 0.43, 0.28),
+            edgecolors="white",
+            linewidths=0.75,
+            zorder=4,
+        )
+        ax.scatter(
+            broad_slice.beta_pi,
+            broad_slice.lambda_pi,
+            s=13,
+            facecolors="none",
+            edgecolors="#8a6200",
+            linewidths=0.6,
+            zorder=5,
+        )
+    if len(core_slice):
+        ax.scatter(
+            core_slice.beta_pi,
+            core_slice.lambda_pi,
+            s=54,
+            facecolors="#fff0a6",
+            edgecolors="white",
+            linewidths=0.9,
+            zorder=6,
+        )
+        ax.scatter(
+            [selected["beta_pi"]],
+            [selected["lambda_pi"]],
+            marker="*",
+            s=122,
+            facecolors="white",
+            edgecolors=INK,
+            linewidths=0.6,
+            zorder=7,
+        )
+
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=10.2, pad=3, color=INK)
+    ax.set_xlim(0, xmax)
+    ax.set_ylim(0, ymax)
+    ax.set_box_aspect(1)
+    ax.set_xticks([0, 0.25, 0.5])
+    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=7.6)
+    ax.set_yticks([0, 0.2, 0.4])
+    if idx == 0:
+        ax.set_ylabel(r"$\lambda/\pi$", fontsize=9.4)
+        ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=7.6)
+    else:
+        ax.set_yticklabels([])
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=9.4, labelpad=1)
+    ax.tick_params(length=2.6, pad=1.5)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+
+cbar = fig.colorbar(gamma_im, cax=cax)
+cbar.set_label("validation rank percentile\nbright = better", fontsize=8.6, color=INK, labelpad=6)
+cbar.set_ticks([0.1, 0.2, 0.4, 0.6, 0.8])
+cbar.ax.tick_params(labelsize=7.4, length=2.5)
+cbar.outline.set_visible(False)
+legend_handles = [
+    Line2D(
+        [0],
+        [0],
+        marker="*",
+        linestyle="none",
+        markersize=9.5,
+        markerfacecolor="white",
+        markeredgecolor=INK,
+        markeredgewidth=0.7,
+        label=r"$B_{20,0.7}$ medoid",
+    ),
+    Line2D(
+        [0],
+        [0],
+        marker="o",
+        linestyle="none",
+        markersize=6.8,
+        markerfacecolor="#fff0a6",
+        markeredgecolor="white",
+        markeredgewidth=0.9,
+        label=r"$B_{20,0.7}$ strict core",
+    ),
+    Line2D(
+        [0],
+        [0],
+        marker="o",
+        linestyle="none",
+        markersize=5.8,
+        markerfacecolor="none",
+        markeredgecolor="#8a6200",
+        markeredgewidth=0.8,
+        label=r"$B_{30,0.7}$ broader band",
+    ),
+]
+axes[-1].legend(
+    handles=legend_handles,
+    loc="upper right",
+    bbox_to_anchor=(0.995, 0.985),
+    frameon=True,
+    framealpha=0.78,
+    facecolor="white",
+    edgecolor="none",
+    fontsize=6.3,
+    handletextpad=0.35,
+    borderpad=0.25,
+    labelspacing=0.2,
+)
+fig.subplots_adjust(left=0.055, right=0.965, top=0.86, bottom=0.18)
+savefig_dual(fig, "gamma_regime_slices_only")
+
+# Figure 3: validation-band frequency and mechanism-sensitive ablation loss.
 abl = pd.read_csv(DATA / "qrc_phase_ablation_slice_grid.csv")
 abl["replicate"] = abl["variant"] + "__" + abl["task"] + "__seed" + abl["seed"].astype(str)
 abl["val_rank_pct"] = abl.groupby("replicate")["val_nmse"].rank(method="average", pct=True)
@@ -404,7 +549,7 @@ cbar.ax.tick_params(labelsize=6.0, length=2.0, width=0.55, pad=1.6)
 cbar.set_label("rank loss\n(dark = worse)", fontsize=6.2, labelpad=3.5)
 savefig_dual(fig, "fig2_short_evidence")
 
-# Figure 3: diagnostic memory map, global memory relation, and screening retention.
+# Figure 4: diagnostic memory map, global memory relation, and screening retention.
 screen = pd.read_csv(DATA / "screening_retention_recomputed_intrinsic_diagnostics.csv")
 diag = pd.read_csv(DATA / "qrc_real_current_intrinsic_diagnostics_with_perf.csv")
 diag["logMC"] = np.log1p(diag["MC"])

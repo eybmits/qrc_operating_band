@@ -71,5 +71,6 @@ The rebuild refreshes:
 - `paper/qrc_phase_diagram.pdf`
 - `paper/generated/phase_map_numbers.tex`
 - `paper/gfx/fig1_short_phase_maps.{pdf,png}`
+- `paper/gfx/gamma_regime_slices_only.{pdf,png}`
 - `paper/gfx/fig2_short_evidence.{pdf,png}`
 - `paper/gfx/fig3_memory_capacity_screens.{pdf,png}`
