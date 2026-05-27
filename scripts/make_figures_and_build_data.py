@@ -430,6 +430,100 @@ axes[-1].legend(
 )
 savefig_dual(fig, "gamma_regime_slices_only")
 
+# Compact single-column version for the four-page workshop paper.
+compact_gamma_values = [0.05, 0.12, 0.22, 0.30]
+fig, axes = plt.subplots(2, 2, figsize=(3.34, 3.36), sharex=True, sharey=True)
+gamma_im = None
+for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):
+    d = q[np.isclose(q.gamma, gamma)]
+    agg = d.groupby(["beta_pi", "lambda_pi"]).agg(mean_rank=("val_rank_pct", "mean")).reset_index()
+    XI, YI, Zs = smooth_grid(agg.beta_pi.values, agg.lambda_pi.values, agg.mean_rank.values, xmax, ymax)
+    Zp = np.clip(Zs, RANK_VMIN, RANK_VMAX)
+    gamma_im = ax.imshow(
+        Zp,
+        origin="lower",
+        extent=[0, xmax, 0, ymax],
+        cmap=PHASE_CMAP,
+        vmin=RANK_VMIN,
+        vmax=RANK_VMAX,
+        aspect="auto",
+        interpolation="bicubic",
+        resample=True,
+    )
+    safe_contour(ax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.65], alpha=0.9)
+    safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.30, 0.24], alpha=0.55)
+
+    broad_slice = broad_band[np.isclose(broad_band.gamma, gamma)]
+    core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
+    if len(broad_slice):
+        ax.scatter(
+            broad_slice.beta_pi,
+            broad_slice.lambda_pi,
+            s=18,
+            facecolors=(1.0, 0.86, 0.43, 0.26),
+            edgecolors="white",
+            linewidths=0.6,
+            zorder=4,
+        )
+        ax.scatter(
+            broad_slice.beta_pi,
+            broad_slice.lambda_pi,
+            s=8,
+            facecolors="none",
+            edgecolors="#8a6200",
+            linewidths=0.45,
+            zorder=5,
+        )
+    if len(core_slice):
+        ax.scatter(
+            core_slice.beta_pi,
+            core_slice.lambda_pi,
+            s=31,
+            facecolors="#fff0a6",
+            edgecolors="white",
+            linewidths=0.7,
+            zorder=6,
+        )
+        ax.scatter(
+            [selected["beta_pi"]],
+            [selected["lambda_pi"]],
+            marker="*",
+            s=70,
+            facecolors="white",
+            edgecolors=INK,
+            linewidths=0.5,
+            zorder=7,
+        )
+
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=7.0, pad=1.8, color=INK)
+    ax.set_xlim(0, xmax)
+    ax.set_ylim(0, ymax)
+    ax.set_box_aspect(1)
+    ax.set_xticks([0.0, 0.25, 0.5])
+    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=6.0)
+    ax.set_yticks([0.0, 0.2, 0.4])
+    ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=6.0)
+    ax.tick_params(length=1.8, pad=1.0)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+
+for ax in axes[:, 0]:
+    ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.0, labelpad=1.0)
+for ax in axes[-1, :]:
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=7.0, labelpad=1.0)
+
+fig.subplots_adjust(left=0.12, right=0.89, bottom=0.10, top=0.93, wspace=0.08, hspace=0.20)
+fig.canvas.draw()
+top_box = axes[0, 1].get_position()
+bottom_box = axes[1, 1].get_position()
+cax = fig.add_axes([top_box.x1 + 0.020, bottom_box.y0, 0.026, top_box.y1 - bottom_box.y0])
+cbar = fig.colorbar(gamma_im, cax=cax)
+cbar.set_label("rank percentile\nbright = better", fontsize=6.0, color=INK, labelpad=2.5)
+cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
+cbar.ax.tick_params(labelsize=5.8, length=1.6, width=0.45)
+cbar.outline.set_visible(False)
+savefig_dual(fig, "fig4_gamma_slices_compact")
+
 # Figure 3: validation-band frequency and mechanism-sensitive ablation loss.
 abl = pd.read_csv(DATA / "qrc_phase_ablation_slice_grid.csv")
 abl["replicate"] = abl["variant"] + "__" + abl["task"] + "__seed" + abl["seed"].astype(str)

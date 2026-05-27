@@ -7,9 +7,10 @@ This directory contains the cleaned QRC-only manuscript package.
 - `IEEEtran.cls`: local class file kept for reproducible builds.
 - `generated/phase_map_numbers.tex`: generated macros for QRC-only phase-map band, transfer, ablation, robustness, and diagnostic numbers.
 - `gfx/fig1_short_phase_maps.pdf`: leave-one-task-out phase maps.
+- `gfx/fig4_gamma_slices_compact.pdf`: compact 2x2 damping-slice figure included in the 4-page workshop PDF.
 - `gfx/fig2_short_evidence.pdf`: validation-band frequency and mechanism-ablation maps.
 - `gfx/fig3_memory_capacity_screens.pdf`: memory map, memory-rank relation, and screening-retention figure.
-- `gfx/gamma_regime_slices_only.pdf`: supplemental repository damping-slice atlas; not included in the 4-page workshop PDF.
+- `gfx/gamma_regime_slices_only.pdf`: supplemental wide repository damping-slice atlas.
 
 Build the 4-page paper from the repository root:
 

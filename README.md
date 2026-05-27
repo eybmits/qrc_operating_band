@@ -15,9 +15,11 @@ Code and data availability: [project repository](https://github.com/eybmits/qrc_
 
 ![Fig. 1](paper/gfx/fig1_short_phase_maps.png)
 
-![Fig. 2](paper/gfx/fig2_short_evidence.png)
+![Fig. 2](paper/gfx/fig4_gamma_slices_compact.png)
 
-![Fig. 3](paper/gfx/fig3_memory_capacity_screens.png)
+![Fig. 3](paper/gfx/fig2_short_evidence.png)
+
+![Fig. 4](paper/gfx/fig3_memory_capacity_screens.png)
 
 Extra repository figure:
 
@@ -32,7 +34,7 @@ pip install -r requirements.txt
 ./reproduce.sh
 ```
 
-`./reproduce.sh` rebuilds the checked-in CSV/JSON summaries, the three paper figures, the supplemental damping atlas, generated TeX numbers, and the 4-page `paper/qrc_phase_diagram.pdf`.
+`./reproduce.sh` rebuilds the checked-in CSV/JSON summaries, the four paper figures, the supplemental wide damping atlas, generated TeX numbers, and the 4-page `paper/qrc_phase_diagram.pdf`.
 
 ## Main Artifacts
 
