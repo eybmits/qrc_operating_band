@@ -9,9 +9,9 @@ This directory contains the cleaned QRC-only manuscript package.
 - `gfx/fig1_short_phase_maps.pdf`: leave-one-task-out phase maps.
 - `gfx/fig2_short_evidence.pdf`: validation-band frequency and mechanism-ablation maps.
 - `gfx/fig3_memory_capacity_screens.pdf`: memory map, memory-rank relation, and screening-retention figure.
-- `gfx/gamma_regime_slices_only.pdf`: appendix damping-slice atlas for the validation-ranked phase grid.
+- `gfx/gamma_regime_slices_only.pdf`: supplemental repository damping-slice atlas; not included in the 4-page workshop PDF.
 
-Build the paper from the repository root:
+Build the 4-page paper from the repository root:
 
 ```bash
 ./paper/build.sh

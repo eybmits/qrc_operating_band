@@ -19,9 +19,9 @@ Code and data availability: [project repository](https://github.com/eybmits/qrc_
 
 ![Fig. 3](paper/gfx/fig3_memory_capacity_screens.png)
 
-Appendix figure:
+Extra repository figure:
 
-![Appendix damping-slice atlas](paper/gfx/gamma_regime_slices_only.png)
+![Damping-slice atlas](paper/gfx/gamma_regime_slices_only.png)
 
 ## Reproduce
 
@@ -32,7 +32,7 @@ pip install -r requirements.txt
 ./reproduce.sh
 ```
 
-`./reproduce.sh` rebuilds the checked-in CSV/JSON summaries, the three main figures plus appendix atlas, generated TeX numbers, and `paper/qrc_phase_diagram.pdf`.
+`./reproduce.sh` rebuilds the checked-in CSV/JSON summaries, the three paper figures, the supplemental damping atlas, generated TeX numbers, and the 4-page `paper/qrc_phase_diagram.pdf`.
 
 ## Main Artifacts
 
