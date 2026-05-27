@@ -36,6 +36,13 @@ Quantum reservoir computing performs temporal machine learning by training only 
 quantum reservoir computing, dissipative dynamics, memory capacity, phase diagrams, operating regimes
 \end{IEEEkeywords}
 
+\begin{figure*}[t!]
+\centering
+\makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{gfx/fig1_short_phase_maps.pdf}}
+\caption{Validation phase maps at the fixed $\gamma=0.12$ slice. The first panel uses all four tasks. Each following panel recomputes the map after removing one task from the validation aggregate. If the bright low-rank region remains in the same place, the operating band is not driven by a single task. Gold circles mark coordinates that repeatedly fall in the top validation quintile; the star marks the medoid of the primary band.}
+\label{fig:phase}
+\end{figure*}
+
 \section{Introduction}
 Reservoir computing rests on an unusually economical idea: a fixed dynamical system, left untrained, transforms an input signal into a high-dimensional trace of its recent history, and learning reduces to fitting a single linear readout on top of that trace \cite{maass2002,jaeger2004,lukosevicius2009,tanaka2019}. The dynamics are never optimized, only observed. This economy is precisely what makes the approach appealing for near-term quantum hardware: native quantum evolution can serve as the reservoir and only the classical readout must be trained \cite{fujii2017,ghosh2019,chen2020,mujal2021}. Yet the same economy relocates the entire burden of the method onto the fixed dynamics, and so onto a question that is easy to state and surprisingly hard to answer: what makes those dynamics useful?
 
@@ -77,13 +84,6 @@ computed separately on validation and holdout splits. For each reservoir setting
 B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
 Ranks are always formed within each task-seed replicate, so task scale and seed difficulty do not dominate the aggregate. This is deliberately a frequency-level definition, weaker than demanding a single universal optimum: it asks whether a region behaves well repeatedly across tasks and initializations. In leave-one-task or leave-one-seed tests, the band is built from the remaining replicates and then scored on the withheld replicate. In the holdout audit, the validation-defined band is frozen first and then evaluated once on holdout ranks and NMSE. Confidence intervals are nonparametric bootstrap intervals for the mean with 50,000 resamples and seed 20260523.
-
-\begin{figure*}[t!]
-\centering
-\makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{gfx/fig1_short_phase_maps.pdf}}
-\caption{Validation phase maps at the fixed $\gamma=0.12$ slice. The first panel uses all four tasks. Each following panel recomputes the map after removing one task from the validation aggregate. If the bright low-rank region remains in the same place, the operating band is not driven by a single task. Gold circles mark coordinates that repeatedly fall in the top validation quintile; the star marks the medoid of the primary band.}
-\label{fig:phase}
-\end{figure*}
 
 \section{Evidence}
 Across the control space, low validation rank does not spread arbitrarily; it gathers into a compact, connected region, and relaxing the selection threshold grows that region smoothly rather than fragmenting it---the signature of a single operating regime rather than a scatter of coincidences (Fig.~\ref{fig:phase}). The damping coordinate is selected by the validation scan, not fixed by hand: the strict $B_{20,0.7}$ core lies at $\gamma=0.12$, while the broader $B_{30,0.7}$ band extends into neighboring nonzero damping slices; the full damping-slice atlas is included as a repository artifact. A region that merely fit the four tasks jointly would prove little, so we test whether it survives the removal of the information it was built from. It does: when one task is withheld and the band is defined from the rest, the held-out task still lands in the top quartile on average, with mean validation rank \PhaseLotoMeanRank{} and CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when a seed is withheld instead, the held-out seed behaves the same way, with mean rank \PhaseLosoMeanRank{} and CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The region is thus a search prior that generalizes across both task identity and reservoir initialization, not a fit to either.
