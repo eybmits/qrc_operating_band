@@ -528,13 +528,12 @@ savefig_dual(fig, "fig4_gamma_slices_compact")
 abl = pd.read_csv(DATA / "qrc_phase_ablation_slice_grid.csv")
 abl["replicate"] = abl["variant"] + "__" + abl["task"] + "__seed" + abl["seed"].astype(str)
 abl["val_rank_pct"] = abl.groupby("replicate")["val_nmse"].rank(method="average", pct=True)
-fig = plt.figure(figsize=(7.25, 2.64))
-gs = fig.add_gridspec(1, 4, width_ratios=[1.0, 1.0, 1.0, 1.0], wspace=0.18)
+fig, axes = plt.subplots(2, 2, figsize=(3.34, 3.36), sharex=True, sharey=True)
 
 freq = primary_members[
     (primary_members.p == 20) & np.isclose(primary_members.q, 0.7) & np.isclose(primary_members.gamma, gamma_star)
 ].copy()
-ax = fig.add_subplot(gs[0, 0])
+ax = axes[0, 0]
 XI, YI, Zs = smooth_grid(freq.beta_pi.values, freq.lambda_pi.values, freq.top_frequency.values, xmax, ymax, nx=220, ny=180)
 Zp = np.clip(Zs, 0.0, 1.0)
 freq_im = ax.imshow(
@@ -548,16 +547,15 @@ freq_im = ax.imshow(
     interpolation="bicubic",
     resample=True,
 )
-safe_contour(ax, XI, YI, Zp, [0.70], colors=[PHASE_GOLD], linewidths=[0.75], alpha=0.9)
-safe_contour(ax, XI, YI, Zp, [0.30, 0.50], colors="white", linewidths=[0.32, 0.42], alpha=0.62)
-plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.62)
-ax.set_title("(a) validation-band frequency", fontsize=7.8, color=INK, pad=3.5)
-ax.set_xlabel(r"$\beta/\pi$", fontsize=6.4)
-ax.set_ylabel(r"$\lambda/\pi$", fontsize=6.4)
+safe_contour(ax, XI, YI, Zp, [0.70], colors=[PHASE_GOLD], linewidths=[0.64], alpha=0.9)
+safe_contour(ax, XI, YI, Zp, [0.30, 0.50], colors="white", linewidths=[0.28, 0.34], alpha=0.62)
+plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.52)
+ax.set_title("(a) band frequency", fontsize=7.0, color=INK, pad=1.8)
+ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.0, labelpad=1.0)
 ax.set_xlim(0, xmax)
 ax.set_ylim(0, ymax)
 ax.set_box_aspect(1)
-polish_phase_axis(ax, labelsize=5.8)
+polish_phase_axis(ax, labelsize=5.6)
 ax.text(
     0.04,
     0.95,
@@ -565,16 +563,16 @@ ax.text(
     transform=ax.transAxes,
     ha="left",
     va="top",
-    fontsize=6.2,
+    fontsize=5.7,
     color="white",
     bbox=dict(boxstyle="round,pad=0.18", facecolor="#111827", edgecolor="none", alpha=0.55),
 )
-freq_cax = ax.inset_axes([0.60, 0.865, 0.32, 0.035])
+freq_cax = ax.inset_axes([0.56, 0.862, 0.34, 0.035])
 freq_cbar = fig.colorbar(freq_im, cax=freq_cax, orientation="horizontal")
 freq_cbar.outline.set_edgecolor("white")
 freq_cbar.outline.set_linewidth(0.35)
 freq_cbar.set_ticks([0.0, 1.0])
-freq_cbar.ax.tick_params(labelsize=4.6, colors="white", length=1.2, width=0.35, pad=0.4)
+freq_cbar.ax.tick_params(labelsize=4.2, colors="white", length=1.1, width=0.32, pad=0.3)
 freq_cbar.ax.text(
     0.5,
     1.75,
@@ -582,10 +580,10 @@ freq_cbar.ax.text(
     transform=freq_cbar.ax.transAxes,
     ha="center",
     va="bottom",
-    fontsize=4.8,
+    fontsize=4.3,
     color="white",
 )
-ax.text(0.96, 0.06, "bright = frequent", transform=ax.transAxes, ha="right", va="bottom", fontsize=5.2, color="white", alpha=0.9)
+ax.text(0.96, 0.06, "bright = frequent", transform=ax.transAxes, ha="right", va="bottom", fontsize=4.6, color="white", alpha=0.9)
 
 base = (
     abl[abl.variant == "base_amplitude_rxzz"]
@@ -601,7 +599,7 @@ delta_variants = [
 delta_axes = []
 delta_im = None
 for i, (variant, title) in enumerate(delta_variants, start=1):
-    ax = fig.add_subplot(gs[0, i])
+    ax = axes.ravel()[i]
     delta_axes.append(ax)
     v = (
         abl[abl.variant == variant]
@@ -624,24 +622,33 @@ for i, (variant, title) in enumerate(delta_variants, start=1):
         interpolation="bicubic",
         resample=True,
     )
-    safe_contour(ax, XI, YI, Zp, [0.10, 0.20, 0.30], colors="white", linewidths=[0.28, 0.36, 0.44], alpha=0.66)
-    plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.56)
-    ax.set_title(title, fontsize=7.8, color=INK, pad=3.5)
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=6.4)
-    ax.set_ylabel("")
+    safe_contour(ax, XI, YI, Zp, [0.10, 0.20, 0.30], colors="white", linewidths=[0.24, 0.30, 0.36], alpha=0.66)
+    plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.48)
+    ax.set_title(title, fontsize=7.0, color=INK, pad=1.8)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
-    polish_phase_axis(ax, labelsize=5.8)
-fig.subplots_adjust(left=0.047, right=0.940, bottom=0.19, top=0.91, wspace=0.12)
+    polish_phase_axis(ax, labelsize=5.6)
+for ax in axes[:, 0]:
+    ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.0, labelpad=1.0)
+for ax in axes[-1, :]:
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=7.0, labelpad=1.0)
+for ax in axes.ravel():
+    ax.set_xticks([0.0, 0.25, 0.5])
+    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=5.6)
+    ax.set_yticks([0.0, 0.2, 0.4])
+    ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=5.6)
+    ax.tick_params(length=1.8, pad=1.0)
+fig.subplots_adjust(left=0.12, right=0.89, bottom=0.10, top=0.93, wspace=0.08, hspace=0.20)
 fig.canvas.draw()
-right_box = delta_axes[-1].get_position()
-cax = fig.add_axes([right_box.x1 + 0.010, right_box.y0, 0.012, right_box.height])
+top_box = axes[0, 1].get_position()
+bottom_box = axes[1, 1].get_position()
+cax = fig.add_axes([top_box.x1 + 0.020, bottom_box.y0, 0.026, top_box.y1 - bottom_box.y0])
 cbar = fig.colorbar(delta_im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.0, 0.15, 0.30, 0.45])
-cbar.ax.tick_params(labelsize=6.0, length=2.0, width=0.55, pad=1.6)
-cbar.set_label("rank loss\n(dark = worse)", fontsize=6.2, labelpad=3.5)
+cbar.ax.tick_params(labelsize=5.8, length=1.6, width=0.45, pad=1.2)
+cbar.set_label("rank loss\n(dark = worse)", fontsize=6.0, labelpad=2.5)
 savefig_dual(fig, "fig2_short_evidence")
 
 # Figure 4: diagnostic memory map, global memory relation, and screening retention.

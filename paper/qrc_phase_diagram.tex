@@ -127,12 +127,12 @@ Setting & Band? & Held-out rank & Overlap\\
 \end{tabular}
 \end{table}
 
-\begin{figure*}[t!]
+\begin{figure}[t!]
 \centering
-\includegraphics[width=0.98\textwidth]{gfx/fig2_short_evidence.pdf}
-\caption{Why the operating band is meaningful. (a) Bright coordinates are selected often by the validation rule, so they form the operating band; the small in-panel scale gives the selection frequency. (b--d) The same control-space slice is recomputed after removing damping, removing mixing, or replacing amplitude damping by dephasing. The right colorbar applies only to these three panels: dark color means larger rank loss, i.e., worse validation rank after the mechanism is changed. The damage concentrates around the gold band, showing that the useful region depends on these mechanisms within this reservoir family.}
+\includegraphics[width=0.92\columnwidth]{gfx/fig2_short_evidence.pdf}
+\caption{Why the operating band is meaningful. (a) Bright coordinates are frequently selected by validation. (b--d) Removing damping, removing mixing, or replacing amplitude damping by dephasing concentrates rank loss around the same gold band, showing that the useful region depends on these mechanisms.}
 \label{fig:evidence}
-\end{figure*}
+\end{figure}
 
 \section{Discussion and Scope}
 For this reservoir family, useful learning is organized by a transferable operating regime rather than by task-specific tuning---a hypothesis whose credibility comes from variety. Four tasks with little in common, spanning smooth chaos, nonlinear memory, and irregular real-world data, obey the same region, and that region holds when any one task or any one seed is withheld; what survives this much variation is hard to dismiss as a fluke. The reading we draw is deflationary. The useful region is not picked out by Hilbert-space size or by feature diversity but by memory, which suggests that a quantum reservoir succeeds not because its state space is large but because drive, coupling, and dissipation together keep memory and nonlinearity in balance---the principle classical reservoir theory named long ago \cite{dambre2012,tanaka2019}. This is also why the ablations bite: strip out damping or mixing and the regime does not weaken, it disappears. The boundaries are drawn on purpose. Everything here is simulated, on one architecture family, with measurement treated as free, so finite-shot noise, calibration drift, and readout cost are all absent and could each deform the regime \cite{mujal2023,ahmed2025}; we therefore claim neither quantum advantage nor hardware efficiency. The claim is smaller and sturdier---that the operating regime is the right object to study, that it transfers, and that memory is how to find it.
