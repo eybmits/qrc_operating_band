@@ -290,8 +290,19 @@ cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.heigh
 cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
-cbar.set_label("rank percentile", fontsize=PHASE_CBAR_LABEL_FS, labelpad=3)
 cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.8, width=0.5)
+cbar.ax.text(
+    0.50,
+    0.50,
+    "rank percentile",
+    transform=cbar.ax.transAxes,
+    rotation=90,
+    ha="center",
+    va="center",
+    fontsize=PHASE_CBAR_LABEL_FS,
+    color=INK,
+    bbox=dict(boxstyle="round,pad=0.10", facecolor="white", edgecolor="none", alpha=0.58),
+)
 savefig_dual(fig, "fig1_short_phase_maps")
 
 # Figure 2: damping-slice atlas for the same validation-ranked phase grid.
