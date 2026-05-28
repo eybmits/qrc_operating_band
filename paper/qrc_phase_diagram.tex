@@ -52,16 +52,17 @@ Recent QRC work now spans noisy gate-model devices, continuous-variable and osci
 We take this seriously as an organizing principle rather than a caveat. For a stateful dissipative gate-model reservoir, we treat the space of these three resources as the proper setting in which to ask when the reservoir works, and we map it. The picture that emerges is not a single tuned operating point but a connected region---gentle input, nonmaximal coupling, controlled damping---in which good performance concentrates and from which it does not stray arbitrarily across tasks. The contribution of this paper is that region itself: its existence, its transfer across tasks and reservoir initializations, the mechanisms that sustain it, and a memory-based diagnostic that locates it before any task-specific search.
 
 \section{Protocol}
-\textbf{Reservoir.} The reservoir is a fixed quantum system that processes a scalar time series one step at a time, carrying its state forward as memory. Concretely, the state is a density matrix that is never reset between steps: each new input perturbs the state left behind by the previous step, so recent history accumulates in the system rather than being overwritten. The input enters as a small rotation whose angle is set by the current value,
+\subsection{Reservoir}
+The reservoir processes a scalar time series without resetting its density matrix, so the carried state stores recent history. At step $t$, the new input perturbs the previous state through a uniform rotation,
 \begin{equation}
 \rho_{t,0}
 =U_{\mathrm{in}}(u_t)\rho_{t-1,L}U_{\mathrm{in}}^\dagger(u_t),
 \qquad
 U_{\mathrm{in}}(u_t)=\bigotimes_i R_y(\beta u_t).
 \end{equation}
-The input strength $\beta$ controls how strongly each step disturbs the carried state.
+The input strength $\beta$ controls how strongly each step writes into the carried state.
 
-The perturbed state then evolves through a small number of identical layers. Each layer does three things in turn: it mixes each qubit locally with a frozen rotation, couples neighbors around a ring, and lets the qubits dissipate through a noise channel,
+The perturbed state then passes through identical layers: a frozen local mixer, ring $ZZ$ coupling, and a dissipative channel,
 \begin{equation}
 \begin{aligned}
 \rho_{t,\ell}
@@ -72,19 +73,22 @@ U_\lambda
 &=\prod_{(i,j)\in E_{\rm ring}}e^{-i\lambda Z_iZ_j}.
 \end{aligned}
 \end{equation}
-The coupling strength $\lambda$ sets how much stored history is mixed across qubits, and the damping rate $\gamma$ sets how quickly the system forgets. These three quantities---$\beta$, $\lambda$, and $\gamma$---are the only controls we vary; every gate is otherwise frozen, and only a linear readout is trained on the measured outputs. Each control corresponds to one ingredient required by reservoir theory: $\beta$ governs how new information competes with old memory, $\lambda$ generates nonlinear mixing of past inputs, and $\gamma$ provides the controlled forgetting on which fading memory depends. The space $\theta=(\beta,\lambda,\gamma)$ is therefore not an arbitrary grid of knobs but the natural coordinate system in which to ask whether the reservoir is useful.
+The coupling strength $\lambda$ controls recurrent mixing and $\gamma$ controls forgetting. We vary only $\theta=(\beta,\lambda,\gamma)$; all other gates are frozen and only a linear readout is trained. The three axes therefore correspond directly to input drive, nonlinear mixing, and controlled forgetting.
 
-\textbf{Configuration.} Unless stated otherwise, the reservoir uses four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout built from single-qubit $Z$ and ring-pair $ZZ$ expectation values. Training is ridge regression on these features alone. The phase grid spans $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, and $\gamma=\{0,0.05,0.12,0.22,0.30\}$ over reservoir seeds $42$--$61$. Hyperparameters are selected on validation data only; holdout data never participate in defining the operating region.
+\subsection{Configuration}
+Unless stated otherwise, we use four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout from single-qubit $Z$ and ring-pair $ZZ$ expectations. Training is ridge regression on these features alone. The grid spans $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, and $\gamma=\{0,0.05,0.12,0.22,0.30\}$ over seeds $42$--$61$. Hyperparameters are selected on validation data only; holdout data never define the operating region.
 
-\textbf{Tasks, metric, and splits.} We use four scalar one-step prediction tasks with chronological splits. Mackey--Glass is a chaotic delay series \cite{mackey1977}, Lorenz uses the next $x$ coordinate of an RK4-integrated Lorenz trajectory \cite{lorenz1963}, NARMA10 is a nonlinear tenth-order memory benchmark \cite{narendra1990}, and Sunspots is the annual sunspot activity series from \texttt{statsmodels}. Mackey--Glass, Lorenz, and NARMA10 use washout/train/validation/holdout lengths $300/1600/400/400$; Sunspots uses $20/150/50/60$. Inputs are scaled to $[-1,1]$ and targets are standardized. The reported error is normalized mean-squared error,
+\subsection{Tasks, Metric, and Splits}
+We use four scalar one-step prediction tasks: Mackey--Glass chaos \cite{mackey1977}, the next $x$ coordinate of an RK4 Lorenz trajectory \cite{lorenz1963}, NARMA10 memory prediction \cite{narendra1990}, and annual Sunspots from \texttt{statsmodels}. Mackey--Glass, Lorenz, and NARMA10 use washout/train/validation/holdout lengths $300/1600/400/400$; Sunspots uses $20/150/50/60$. Inputs are scaled to $[-1,1]$ and targets are standardized. The error is normalized mean-squared error,
 \(\NMSE=\langle(y-\widehat y)^2\rangle/(\operatorname{Var}(y)+10^{-12})\),
-computed separately on validation and holdout splits. For each reservoir setting the ridge parameter is selected only by validation NMSE from $\{10^{-8},10^{-7},\ldots,10^3\}$.
+computed separately on validation and holdout splits. Ridge is selected only by validation NMSE from $\{10^{-8},10^{-7},\ldots,10^3\}$.
 
-\textbf{Operating band.} To locate the useful region we rank, rather than threshold, performance. For each task $j$ and reservoir seed $s$, a setting $\theta$ receives a validation percentile rank $r_{j,s}(\theta)$, with lower rank meaning better validation error. We then define the operating band as the set of settings that land in the top fraction $p$ for at least a fraction $q$ of all task-seed pairs,
+\subsection{Operating Band}
+To locate the useful region we rank performance within each task $j$ and seed $s$. A setting $\theta$ receives validation percentile rank $r_{j,s}(\theta)$, with lower rank better. The operating band contains settings that land in the top fraction $p$ for at least a fraction $q$ of task-seed pairs,
 \begin{equation}
 B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
-Ranks are always formed within each task-seed replicate, so task scale and seed difficulty do not dominate the aggregate. This is deliberately a frequency-level definition, weaker than demanding a single universal optimum: it asks whether a region behaves well repeatedly across tasks and initializations. In leave-one-task or leave-one-seed tests, the band is built from the remaining replicates and then scored on the withheld replicate. In the holdout audit, the validation-defined band is frozen first and then evaluated once on holdout ranks and NMSE. Confidence intervals are nonparametric bootstrap percentile intervals for the mean with 50,000 resamples and a fixed random seed.
+This frequency-level definition asks whether a region behaves well repeatedly, not whether one coordinate wins every task. In leave-one-task or leave-one-seed tests, the band is built from the remaining replicates and scored on the withheld replicate. In the holdout audit, the validation-defined band is frozen first and evaluated once on holdout ranks and NMSE. Confidence intervals are nonparametric bootstrap percentile intervals for the mean with 50,000 resamples and a fixed seed.
 
 \section{Evidence}
 Across the control space, low validation rank does not spread arbitrarily; it gathers into a compact, connected region, and relaxing the selection threshold grows that region smoothly rather than fragmenting it---the signature of a single operating regime rather than a scatter of coincidences (Fig.~\ref{fig:phase}). The damping coordinate is selected by the validation scan, not fixed by hand: the strict $B_{20,0.7}$ core lies at $\gamma=0.12$, while the broader $B_{30,0.7}$ band extends into neighboring nonzero damping slices (Fig.~\ref{fig:gamma-slices}). A region that merely fit the four tasks jointly would prove little, so we test whether it survives the removal of the information it was built from. It does: when one task is withheld and the band is defined from the rest, the held-out task still lands in the top quartile on average, with mean validation rank \PhaseLotoMeanRank{} and CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when a seed is withheld instead, the held-out seed behaves the same way, with mean rank \PhaseLosoMeanRank{} and CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$. The region is thus a search prior that generalizes across both task identity and reservoir initialization, not a fit to either.
