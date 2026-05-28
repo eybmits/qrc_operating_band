@@ -10,7 +10,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.patches import Ellipse
 from matplotlib.lines import Line2D
 from scipy.optimize import curve_fit
 from scipy.interpolate import PchipInterpolator, griddata
@@ -152,21 +151,6 @@ def polish_phase_axis(ax, labelsize=6.5, show_ticks=True):
 
 def plot_band_overlay(ax, core, selected=None, marker_scale=1.0):
     if core is not None and len(core):
-        cx = float(core.beta_pi.mean())
-        cy = float(core.lambda_pi.mean())
-        width = max(0.085, float(core.beta_pi.max() - core.beta_pi.min()) + 0.075)
-        height = max(0.095, float(core.lambda_pi.max() - core.lambda_pi.min()) + 0.085)
-        halo = Ellipse(
-            (cx, cy),
-            width=width,
-            height=height,
-            facecolor=PHASE_GOLD,
-            edgecolor="white",
-            linewidth=0.45 * marker_scale,
-            alpha=0.20,
-            zorder=3,
-        )
-        ax.add_patch(halo)
         ax.scatter(
             core.beta_pi,
             core.lambda_pi,
@@ -286,12 +270,11 @@ axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS + 0.2)
 fig.subplots_adjust(left=0.038, right=0.942, bottom=0.19, top=0.91, wspace=0.06)
 fig.canvas.draw()
 right_box = axes[-1].get_position()
-cax = fig.add_axes([right_box.x1 + 0.007, right_box.y0, 0.008, right_box.height])
+cax = fig.add_axes([right_box.x1 + 0.006, right_box.y0, 0.0075, right_box.height])
 cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
 cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.8, width=0.5, pad=1.5)
-cbar.ax.set_title("rank\npct.", fontsize=PHASE_CBAR_LABEL_FS - 0.4, color=INK, pad=2.0)
 savefig_dual(fig, "fig1_short_phase_maps")
 
 # Figure 2: damping-slice atlas for the same validation-ranked phase grid.
