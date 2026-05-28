@@ -71,12 +71,12 @@ U_\lambda
 &=\prod_{(i,j)\in E_{\rm ring}}e^{-i\lambda Z_iZ_j}.
 \end{aligned}
 \end{equation}
-In this expression, $E_{\rm ring}$ is the set of nearest-neighbor edges on the qubit ring, $Z_i$ is the Pauli-$Z$ operator on qubit $i$, $\lambda$ sets the coupling strength, and $\gamma$ sets the damping rate. We vary only $\theta=(\beta,\lambda,\gamma)$; all other gates are frozen and only a linear readout is trained. The three axes therefore correspond directly to input drive, nonlinear mixing, and controlled forgetting.
+In this expression, $E_{\rm ring}$ is the set of nearest-neighbor edges on the qubit ring, $Z_i$ is the Pauli-$Z$ operator on qubit $i$, $\lambda$ sets the coupling strength, and $\gamma$ sets the damping rate. We vary only $\theta=(\beta,\lambda,\gamma)$, where $\beta$ and $\lambda$ are angles in radians and $\gamma\in[0,1]$ is the amplitude-damping probability; all other gates are frozen and only a linear readout is trained. The three axes therefore correspond directly to input drive, nonlinear mixing, and controlled forgetting.
 
 This is a minimal testbed, not an optimized model. Four qubits and two layers keep the phase grid searchable, the ring coupling still gives recurrent many-body mixing, and the modest $Z+ZZ$ readout observes local and nearest-neighbor correlations rather than the full density matrix.
 
 \subsection{Configuration}
-Unless stated otherwise, we use four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout from single-qubit $Z$ and ring-pair $ZZ$ expectations. Training is ridge regression on these features alone. The grid spans $\beta/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\lambda/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, and $\gamma=\{0,0.01,0.05,0.12,0.22,0.30\}$ over seeds $42$--$61$. Hyperparameters are selected on validation data only; holdout data never define the operating region.
+Unless stated otherwise, we use four qubits, two layers, ring coupling, uniform input injection, amplitude damping, and a readout from single-qubit $Z$ and ring-pair $ZZ$ expectations. Training is ridge regression on these features alone. The finite search space is $\Theta_{\rm grid}=\mathcal{B}\times\mathcal{L}\times\mathcal{G}\subset[0,\pi/2]\times[0,0.42\pi]\times[0,1]$, with $\mathcal{B}/\pi=\{0,0.02,0.04,0.07,0.10,0.22,0.50\}$, $\mathcal{L}/\pi=\{0,0.05,0.10,0.12,0.16,0.28,0.42\}$, and $\mathcal{G}=\{0,0.01,0.05,0.12,0.22,0.30\}$ over seeds $42$--$61$. Hyperparameters are selected on validation data only; holdout data never define the operating region.
 The resulting balanced panel contains $4\times20=80$ task-seed replicates for every grid coordinate.
 
 \subsection{Tasks, Metric, and Splits}
@@ -85,7 +85,7 @@ We use four scalar one-step prediction tasks: Mackey--Glass chaos \cite{mackey19
 computed separately on validation and holdout splits. Ridge is selected only by validation NMSE from $\{10^{-8},10^{-7},\ldots,10^3\}$.
 
 \subsection{Operating Band}
-To locate the useful region we rank performance within each task $j$ and seed $s$. A setting $\theta$ receives validation percentile rank $r_{j,s}(\theta)$, with lower rank better. The operating band contains settings that land in the top fraction $p$ for at least a fraction $q$ of task-seed pairs,
+To locate the useful region we rank performance within each task $j$ and seed $s$. A setting $\theta\in\Theta_{\rm grid}$ receives validation percentile rank $r_{j,s}(\theta)$, with lower rank better. The operating band contains settings that land in the top fraction $p$ for at least a fraction $q$ of task-seed pairs,
 \begin{equation}
 B_{p,q}=\{\theta:\Pr_{j,s}[r_{j,s}(\theta)\le p]\ge q\}.
 \end{equation}
