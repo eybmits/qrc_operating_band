@@ -40,7 +40,7 @@ quantum reservoir computing, dissipative dynamics, memory capacity, phase diagra
 \begin{figure*}[t!]
 \centering
 \makebox[\textwidth][c]{\includegraphics[width=1.12\textwidth]{gfx/fig1_short_phase_maps.pdf}}
-\caption{Validation phase maps at the fixed $\gamma=0.12$ slice. The first panel uses all four tasks. Each following panel recomputes the map after removing one task from the validation aggregate. If the bright low-rank region remains in the same place, the operating band is not driven by a single task. Gold circles mark coordinates that repeatedly fall in the top validation quintile; the star marks the primary-band medoid projected onto this slice.}
+\caption{Validation phase maps at $\gamma=0.12$, the first damping slice where the strict validation-defined band is populated. The full $\gamma$ scan is shown in Fig.~\ref{fig:gamma-slices}; this slice is used only for a readable 2D transfer view. The first panel uses all four tasks. Each following panel recomputes the map after removing one task from the validation aggregate. Gold circles mark coordinates that repeatedly fall in the top validation quintile; the star marks the primary-band medoid projected onto this slice.}
 \label{fig:phase}
 \end{figure*}
 
@@ -93,7 +93,7 @@ This frequency-level definition asks whether a region behaves well repeatedly, n
 Because ranks are formed within each task-seed replicate before aggregation, no large-error task or difficult seed can dominate the band.
 
 \section{Results}
-Across the control space, low validation rank gathers into a compact, connected region rather than a scatter of isolated optima (Fig.~\ref{fig:phase}). The damping coordinate is selected by validation: the near-zero $\gamma=0.01$ slice is a weak contrast, while the strict $B_{20,0.7}$ core appears for $\gamma=0.12$--$0.30$ with medoid $\gamma=\PhaseRepresentativeGamma$ (Fig.~\ref{fig:gamma-slices}). Leave-one-out tests show transfer. When one task is withheld, the band built from the rest scores mean held-out rank \PhaseLotoMeanRank{} with CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when one seed is withheld, the corresponding mean rank is \PhaseLosoMeanRank{} with CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$.
+Across the control space, low validation rank gathers into a compact, connected region rather than a scatter of isolated optima (Fig.~\ref{fig:phase}). The damping coordinate is selected by validation: the near-zero $\gamma=0.01$ slice is a weak contrast, while the strict $B_{20,0.7}$ core appears for $\gamma=0.12$--$0.30$ with medoid $\gamma=\PhaseRepresentativeGamma$ (Fig.~\ref{fig:gamma-slices}). We use $\gamma=0.12$ in Fig.~\ref{fig:phase} because it is the first populated band slice, not because it was chosen as a magic operating point. Leave-one-out tests show transfer. When one task is withheld, the band built from the rest scores mean held-out rank \PhaseLotoMeanRank{} with CI $[\PhaseLotoCILow,\PhaseLotoCIHigh]$; when one seed is withheld, the corresponding mean rank is \PhaseLosoMeanRank{} with CI $[\PhaseLosoCILow,\PhaseLosoCIHigh]$.
 
 \begin{figure}[t!]
 \centering
