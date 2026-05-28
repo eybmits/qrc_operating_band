@@ -44,6 +44,15 @@ INK = "#1f2933"
 GRID = "#d9dee7"
 RANK_VMIN = 0.05
 RANK_VMAX = 0.80
+PHASE_TITLE_FS = 7.6
+PHASE_LABEL_FS = 7.6
+PHASE_TICK_FS = 6.7
+PHASE_CBAR_LABEL_FS = 7.0
+PHASE_CBAR_TICK_FS = 6.5
+INSET_LABEL_FS = 5.6
+DIAG_TITLE_FS = 9.2
+DIAG_LABEL_FS = 8.3
+DIAG_TICK_FS = 7.3
 
 KEYS = ["beta_pi", "lambda_pi", "gamma"]
 TASK_LABELS = {
@@ -268,12 +277,12 @@ fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
 for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
     d = qg[qg.task.isin(tasks)].copy()
     core = core_points_at_slice(d)
-    im = plot_rank_map(ax, d, title, xmax, ymax, selected=selected, core=core, labelsize=6)
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=7)
+    im = plot_rank_map(ax, d, title, xmax, ymax, selected=selected, core=core, labelsize=PHASE_TICK_FS)
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=PHASE_LABEL_FS)
     ticks = [0.0, 0.25] if idx < len(axes) - 1 else [0.0, 0.25, 0.5]
     ax.set_xticks(ticks)
     ax.set_xticklabels([f"{tick:g}" for tick in ticks])
-axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
+axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS + 0.2)
 fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.91, wspace=0.06)
 fig.canvas.draw()
 right_box = axes[-1].get_position()
@@ -281,8 +290,8 @@ cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.heigh
 cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
-cbar.set_label("rank percentile", fontsize=6.2, labelpad=3)
-cbar.ax.tick_params(labelsize=5.8, length=1.8, width=0.5)
+cbar.set_label("rank percentile", fontsize=PHASE_CBAR_LABEL_FS, labelpad=3)
+cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.8, width=0.5)
 savefig_dual(fig, "fig1_short_phase_maps")
 
 # Figure 2: damping-slice atlas for the same validation-ranked phase grid.
@@ -353,20 +362,20 @@ for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
             zorder=7,
         )
 
-    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=6.8, pad=2.5, color=INK)
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=2.5, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
     ticks = [0.0, 0.25] if idx < len(axes) - 1 else [0.0, 0.25, 0.5]
     ax.set_xticks(ticks)
-    ax.set_xticklabels([f"{tick:g}" for tick in ticks], fontsize=6)
+    ax.set_xticklabels([f"{tick:g}" for tick in ticks], fontsize=PHASE_TICK_FS)
     ax.set_yticks([0, 0.2, 0.4])
     if idx == 0:
-        ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.5)
-        ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=6)
+        ax.set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS + 0.2)
+        ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=PHASE_TICK_FS)
     else:
         ax.set_yticklabels([])
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=7, labelpad=1)
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1)
     ax.tick_params(length=2.0, pad=1.4)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
@@ -376,9 +385,9 @@ fig.canvas.draw()
 right_box = axes[-1].get_position()
 cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.height])
 cbar = fig.colorbar(gamma_im, cax=cax)
-cbar.set_label("rank percentile", fontsize=6.2, color=INK, labelpad=3)
+cbar.set_label("rank percentile", fontsize=PHASE_CBAR_LABEL_FS, color=INK, labelpad=3)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
-cbar.ax.tick_params(labelsize=5.8, length=1.8, width=0.5)
+cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.8, width=0.5)
 cbar.outline.set_visible(False)
 legend_handles = [
     Line2D(
@@ -423,7 +432,7 @@ axes[-1].legend(
     framealpha=0.78,
     facecolor="white",
     edgecolor="none",
-    fontsize=4.6,
+    fontsize=5.6,
     handletextpad=0.22,
     borderpad=0.18,
     labelspacing=0.12,
@@ -495,22 +504,22 @@ for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):
             zorder=7,
         )
 
-    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=7.0, pad=1.8, color=INK)
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=1.8, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
     ax.set_xticks([0.0, 0.25, 0.5])
-    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=6.0)
+    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=PHASE_TICK_FS)
     ax.set_yticks([0.0, 0.2, 0.4])
-    ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=6.0)
+    ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=PHASE_TICK_FS)
     ax.tick_params(length=1.8, pad=1.0)
     for spine in ["top", "right"]:
         ax.spines[spine].set_visible(False)
 
 for ax in axes[:, 0]:
-    ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.0, labelpad=1.0)
+    ax.set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 for ax in axes[-1, :]:
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=7.0, labelpad=1.0)
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 
 fig.subplots_adjust(left=0.12, right=0.89, bottom=0.10, top=0.93, wspace=0.08, hspace=0.20)
 fig.canvas.draw()
@@ -518,9 +527,9 @@ top_box = axes[0, 1].get_position()
 bottom_box = axes[1, 1].get_position()
 cax = fig.add_axes([top_box.x1 + 0.020, bottom_box.y0, 0.026, top_box.y1 - bottom_box.y0])
 cbar = fig.colorbar(gamma_im, cax=cax)
-cbar.set_label("rank percentile\nbright = better", fontsize=6.0, color=INK, labelpad=2.5)
+cbar.set_label("rank percentile\nbright = better", fontsize=PHASE_CBAR_LABEL_FS, color=INK, labelpad=2.5)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
-cbar.ax.tick_params(labelsize=5.8, length=1.6, width=0.45)
+cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.6, width=0.45)
 cbar.outline.set_visible(False)
 savefig_dual(fig, "fig4_gamma_slices_compact")
 
@@ -550,12 +559,12 @@ freq_im = ax.imshow(
 safe_contour(ax, XI, YI, Zp, [0.70], colors=[PHASE_GOLD], linewidths=[0.64], alpha=0.9)
 safe_contour(ax, XI, YI, Zp, [0.30, 0.50], colors="white", linewidths=[0.28, 0.34], alpha=0.62)
 plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.52)
-ax.set_title("(a) band frequency", fontsize=7.0, color=INK, pad=1.8)
-ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.0, labelpad=1.0)
+ax.set_title("(a) band frequency", fontsize=PHASE_TITLE_FS, color=INK, pad=1.8)
+ax.set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 ax.set_xlim(0, xmax)
 ax.set_ylim(0, ymax)
 ax.set_box_aspect(1)
-polish_phase_axis(ax, labelsize=5.6)
+polish_phase_axis(ax, labelsize=PHASE_TICK_FS)
 ax.text(
     0.04,
     0.95,
@@ -563,7 +572,7 @@ ax.text(
     transform=ax.transAxes,
     ha="left",
     va="top",
-    fontsize=5.7,
+    fontsize=INSET_LABEL_FS,
     color="white",
     bbox=dict(boxstyle="round,pad=0.18", facecolor="#111827", edgecolor="none", alpha=0.55),
 )
@@ -572,7 +581,7 @@ freq_cbar = fig.colorbar(freq_im, cax=freq_cax, orientation="horizontal")
 freq_cbar.outline.set_edgecolor("white")
 freq_cbar.outline.set_linewidth(0.35)
 freq_cbar.set_ticks([0.0, 1.0])
-freq_cbar.ax.tick_params(labelsize=4.2, colors="white", length=1.1, width=0.32, pad=0.3)
+freq_cbar.ax.tick_params(labelsize=INSET_LABEL_FS - 0.2, colors="white", length=1.1, width=0.32, pad=0.3)
 freq_cbar.ax.text(
     0.5,
     1.75,
@@ -580,10 +589,10 @@ freq_cbar.ax.text(
     transform=freq_cbar.ax.transAxes,
     ha="center",
     va="bottom",
-    fontsize=4.3,
+    fontsize=INSET_LABEL_FS - 0.1,
     color="white",
 )
-ax.text(0.96, 0.06, "bright = frequent", transform=ax.transAxes, ha="right", va="bottom", fontsize=4.6, color="white", alpha=0.9)
+ax.text(0.96, 0.06, "bright = frequent", transform=ax.transAxes, ha="right", va="bottom", fontsize=INSET_LABEL_FS, color="white", alpha=0.9)
 
 base = (
     abl[abl.variant == "base_amplitude_rxzz"]
@@ -624,20 +633,20 @@ for i, (variant, title) in enumerate(delta_variants, start=1):
     )
     safe_contour(ax, XI, YI, Zp, [0.10, 0.20, 0.30], colors="white", linewidths=[0.24, 0.30, 0.36], alpha=0.66)
     plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.48)
-    ax.set_title(title, fontsize=7.0, color=INK, pad=1.8)
+    ax.set_title(title, fontsize=PHASE_TITLE_FS, color=INK, pad=1.8)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
-    polish_phase_axis(ax, labelsize=5.6)
+    polish_phase_axis(ax, labelsize=PHASE_TICK_FS)
 for ax in axes[:, 0]:
-    ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.0, labelpad=1.0)
+    ax.set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 for ax in axes[-1, :]:
-    ax.set_xlabel(r"$\beta/\pi$", fontsize=7.0, labelpad=1.0)
+    ax.set_xlabel(r"$\beta/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 for ax in axes.ravel():
     ax.set_xticks([0.0, 0.25, 0.5])
-    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=5.6)
+    ax.set_xticklabels(["0", "0.25", "0.5"], fontsize=PHASE_TICK_FS)
     ax.set_yticks([0.0, 0.2, 0.4])
-    ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=5.6)
+    ax.set_yticklabels(["0", "0.2", "0.4"], fontsize=PHASE_TICK_FS)
     ax.tick_params(length=1.8, pad=1.0)
 fig.subplots_adjust(left=0.12, right=0.89, bottom=0.10, top=0.93, wspace=0.08, hspace=0.20)
 fig.canvas.draw()
@@ -647,8 +656,8 @@ cax = fig.add_axes([top_box.x1 + 0.020, bottom_box.y0, 0.026, top_box.y1 - botto
 cbar = fig.colorbar(delta_im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.0, 0.15, 0.30, 0.45])
-cbar.ax.tick_params(labelsize=5.8, length=1.6, width=0.45, pad=1.2)
-cbar.set_label("rank loss\n(dark = worse)", fontsize=6.0, labelpad=2.5)
+cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.6, width=0.45, pad=1.2)
+cbar.set_label("rank loss\n(dark = worse)", fontsize=PHASE_CBAR_LABEL_FS, labelpad=2.5)
 savefig_dual(fig, "fig2_short_evidence")
 
 # Figure 4: diagnostic memory map, global memory relation, and screening retention.
@@ -692,22 +701,22 @@ memory_im = ax.imshow(
 memory_levels = [float(np.nanpercentile(memory_slice.logMC, p)) for p in [55, 75, 90]]
 safe_contour(ax, XI, YI, Zp, memory_levels, colors="white", linewidths=[0.25, 0.35, 0.45], alpha=0.62)
 plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.62)
-ax.set_title("(a) memory map", fontsize=8.8, pad=3)
-ax.set_xlabel(r"$\beta/\pi$", fontsize=7.8)
-ax.set_ylabel(r"$\lambda/\pi$", fontsize=7.8)
+ax.set_title("(a) memory map", fontsize=DIAG_TITLE_FS, pad=3)
+ax.set_xlabel(r"$\beta/\pi$", fontsize=DIAG_LABEL_FS)
+ax.set_ylabel(r"$\lambda/\pi$", fontsize=DIAG_LABEL_FS)
 ax.set_xlim(0, xmax)
 ax.set_ylim(0, ymax)
 ax.set_xticks([0.0, 0.25, 0.5])
 ax.set_yticks([0.0, 0.2, 0.4])
 ax.set_box_aspect(1)
-polish_phase_axis(ax, labelsize=6.8)
+polish_phase_axis(ax, labelsize=DIAG_TICK_FS)
 memory_cax = ax.inset_axes([0.54, 0.07, 0.38, 0.04])
 memory_cbar = fig.colorbar(memory_im, cax=memory_cax, orientation="horizontal")
 memory_cbar.outline.set_edgecolor("white")
 memory_cbar.outline.set_linewidth(0.35)
 memory_cbar.set_ticks([0.0, memory_max])
 memory_cbar.ax.set_xticklabels(["0", "high"])
-memory_cbar.ax.tick_params(labelsize=4.8, colors="white", length=1.2, width=0.35, pad=0.4)
+memory_cbar.ax.tick_params(labelsize=5.8, colors="white", length=1.2, width=0.35, pad=0.4)
 memory_cbar.ax.text(
     0.5,
     1.70,
@@ -715,7 +724,7 @@ memory_cbar.ax.text(
     transform=memory_cbar.ax.transAxes,
     ha="center",
     va="bottom",
-    fontsize=5.0,
+    fontsize=6.0,
     color="white",
 )
 
@@ -725,9 +734,9 @@ axes[1].scatter(active_mc.logMC, active_mc.mean_val_rank, s=8.5, alpha=0.24, col
 z = np.polyfit(active_mc.logMC, active_mc.mean_val_rank, 1)
 xs = np.linspace(active_mc.logMC.min(), active_mc.logMC.max(), 220)
 axes[1].plot(xs, z[0] * xs + z[1], color="black", lw=1.0)
-axes[1].set_title("(b) memory predicts rank", fontsize=8.8, pad=3)
-axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=7.8)
-axes[1].set_ylabel("validation rank", fontsize=7.8, labelpad=1.0)
+axes[1].set_title("(b) memory predicts rank", fontsize=DIAG_TITLE_FS, pad=3)
+axes[1].set_xlabel(r"$\log(1+\mathrm{MC})$", fontsize=DIAG_LABEL_FS)
+axes[1].set_ylabel("validation rank", fontsize=DIAG_LABEL_FS, labelpad=1.0)
 
 screen_x = screen["budget_pct"].to_numpy(dtype=float)
 for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_VIOLET), ("random", "#9ca3af")]:
@@ -737,14 +746,14 @@ for col, color in [("IPCtot", PHASE_GOLD), ("MC", PHASE_ROSE), ("Vfeat", PHASE_V
     else:
         screen_dense, smooth_y = smooth_retention_curve(screen_x, screen_y)
         axes[2].plot(screen_dense, smooth_y, label=col, color=color, lw=1.65, solid_capstyle="round")
-axes[2].set_title("(c) screening retention", fontsize=8.8, pad=3)
-axes[2].set_xlabel("budget (%)", fontsize=7.8)
-axes[2].set_ylabel("retained (%)", fontsize=7.8)
+axes[2].set_title("(c) screening retention", fontsize=DIAG_TITLE_FS, pad=3)
+axes[2].set_xlabel("budget (%)", fontsize=DIAG_LABEL_FS)
+axes[2].set_ylabel("retained (%)", fontsize=DIAG_LABEL_FS)
 axes[2].set_xlim(5, 100)
 axes[2].set_ylim(-4, 104)
 axes[2].legend(
     frameon=False,
-    fontsize=6.9,
+    fontsize=7.5,
     loc="lower right",
     handlelength=1.5,
     borderaxespad=0.25,
@@ -753,7 +762,7 @@ for i, ax in enumerate(axes):
     if i > 0:
         ax.grid(color=GRID, linewidth=0.42, alpha=0.68)
         ax.spines[["top", "right"]].set_visible(False)
-        ax.tick_params(labelsize=6.8, length=2.0, width=0.55, pad=1.5)
+        ax.tick_params(labelsize=DIAG_TICK_FS, length=2.0, width=0.55, pad=1.5)
 fig.subplots_adjust(left=0.058, right=0.988, bottom=0.25, top=0.86)
 savefig_dual(fig, "fig3_memory_capacity_screens")
 
