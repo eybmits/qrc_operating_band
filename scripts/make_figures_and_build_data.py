@@ -283,26 +283,15 @@ for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
     ax.set_xticks(ticks)
     ax.set_xticklabels([f"{tick:g}" for tick in ticks])
 axes[0].set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS + 0.2)
-fig.subplots_adjust(left=0.035, right=0.955, bottom=0.19, top=0.91, wspace=0.06)
+fig.subplots_adjust(left=0.038, right=0.942, bottom=0.19, top=0.91, wspace=0.06)
 fig.canvas.draw()
 right_box = axes[-1].get_position()
-cax = fig.add_axes([right_box.x1 + 0.0075, right_box.y0, 0.0085, right_box.height])
+cax = fig.add_axes([right_box.x1 + 0.007, right_box.y0, 0.008, right_box.height])
 cbar = fig.colorbar(im, cax=cax)
 cbar.outline.set_visible(False)
 cbar.set_ticks([0.2, 0.4, 0.6, 0.8])
-cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.8, width=0.5)
-cbar.ax.text(
-    0.50,
-    0.50,
-    "rank percentile",
-    transform=cbar.ax.transAxes,
-    rotation=90,
-    ha="center",
-    va="center",
-    fontsize=PHASE_CBAR_LABEL_FS,
-    color=INK,
-    bbox=dict(boxstyle="round,pad=0.10", facecolor="white", edgecolor="none", alpha=0.58),
-)
+cbar.ax.tick_params(labelsize=PHASE_CBAR_TICK_FS, length=1.8, width=0.5, pad=1.5)
+cbar.ax.set_title("rank\npct.", fontsize=PHASE_CBAR_LABEL_FS - 0.4, color=INK, pad=2.0)
 savefig_dual(fig, "fig1_short_phase_maps")
 
 # Figure 2: damping-slice atlas for the same validation-ranked phase grid.
