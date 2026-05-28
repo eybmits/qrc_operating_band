@@ -321,16 +321,7 @@ for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
     safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.36, 0.28], alpha=0.58)
 
     core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
-    if len(core_slice):
-        ax.scatter(
-            core_slice.beta_pi,
-            core_slice.lambda_pi,
-            s=54,
-            facecolors="#fff0a6",
-            edgecolors="white",
-            linewidths=0.9,
-            zorder=6,
-        )
+    plot_band_overlay(ax, core_slice, selected=None, marker_scale=0.75)
 
     ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=2.5, color=INK)
     ax.set_xlim(0, xmax)
@@ -366,9 +357,9 @@ legend_handles = [
         marker="o",
         linestyle="none",
         markersize=6.8,
-        markerfacecolor="#fff0a6",
-        markeredgecolor="white",
-        markeredgewidth=0.9,
+        markerfacecolor=PHASE_GOLD,
+        markeredgecolor=INK,
+        markeredgewidth=0.55,
         label=r"$B_{20,0.7}$ band",
     ),
 ]
@@ -411,16 +402,7 @@ for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):
     safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.30, 0.24], alpha=0.55)
 
     core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
-    if len(core_slice):
-        ax.scatter(
-            core_slice.beta_pi,
-            core_slice.lambda_pi,
-            s=31,
-            facecolors="#fff0a6",
-            edgecolors="white",
-            linewidths=0.7,
-            zorder=6,
-        )
+    plot_band_overlay(ax, core_slice, selected=None, marker_scale=0.52)
 
     ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=1.8, color=INK)
     ax.set_xlim(0, xmax)
