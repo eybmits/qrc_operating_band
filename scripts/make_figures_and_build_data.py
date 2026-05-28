@@ -43,15 +43,15 @@ INK = "#1f2933"
 GRID = "#d9dee7"
 RANK_VMIN = 0.05
 RANK_VMAX = 0.80
-PHASE_TITLE_FS = 7.6
-PHASE_LABEL_FS = 7.6
-PHASE_TICK_FS = 6.7
-PHASE_CBAR_LABEL_FS = 7.0
-PHASE_CBAR_TICK_FS = 6.5
-INSET_LABEL_FS = 5.6
-DIAG_TITLE_FS = 9.2
-DIAG_LABEL_FS = 8.3
-DIAG_TICK_FS = 7.3
+PHASE_TITLE_FS = 9.0
+PHASE_LABEL_FS = 8.8
+PHASE_TICK_FS = 8.0
+PHASE_CBAR_LABEL_FS = 8.3
+PHASE_CBAR_TICK_FS = 7.8
+INSET_LABEL_FS = 6.5
+DIAG_TITLE_FS = 9.6
+DIAG_LABEL_FS = 9.0
+DIAG_TICK_FS = 8.1
 
 KEYS = ["beta_pi", "lambda_pi", "gamma"]
 TASK_LABELS = {
@@ -599,7 +599,7 @@ memory_cbar.outline.set_edgecolor("white")
 memory_cbar.outline.set_linewidth(0.35)
 memory_cbar.set_ticks([0.0, memory_max])
 memory_cbar.ax.set_xticklabels(["0", "high"])
-memory_cbar.ax.tick_params(labelsize=5.8, colors="white", length=1.2, width=0.35, pad=0.4)
+memory_cbar.ax.tick_params(labelsize=6.7, colors="white", length=1.2, width=0.35, pad=0.4)
 memory_cbar.ax.text(
     0.5,
     1.70,
@@ -607,7 +607,7 @@ memory_cbar.ax.text(
     transform=memory_cbar.ax.transAxes,
     ha="center",
     va="bottom",
-    fontsize=6.0,
+    fontsize=6.9,
     color="white",
 )
 
@@ -636,7 +636,7 @@ axes[2].set_xlim(5, 100)
 axes[2].set_ylim(-4, 104)
 axes[2].legend(
     frameon=False,
-    fontsize=7.5,
+    fontsize=8.2,
     loc="lower right",
     handlelength=1.5,
     borderaxespad=0.25,
