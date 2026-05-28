@@ -320,27 +320,7 @@ for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
     safe_contour(ax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.75], alpha=0.88)
     safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.36, 0.28], alpha=0.58)
 
-    broad_slice = broad_band[np.isclose(broad_band.gamma, gamma)]
     core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
-    if len(broad_slice):
-        ax.scatter(
-            broad_slice.beta_pi,
-            broad_slice.lambda_pi,
-            s=26,
-            facecolors=(1.0, 0.86, 0.43, 0.28),
-            edgecolors="white",
-            linewidths=0.75,
-            zorder=4,
-        )
-        ax.scatter(
-            broad_slice.beta_pi,
-            broad_slice.lambda_pi,
-            s=13,
-            facecolors="none",
-            edgecolors="#8a6200",
-            linewidths=0.6,
-            zorder=5,
-        )
     if len(core_slice):
         ax.scatter(
             core_slice.beta_pi,
@@ -350,16 +330,6 @@ for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
             edgecolors="white",
             linewidths=0.9,
             zorder=6,
-        )
-        ax.scatter(
-            [selected["beta_pi"]],
-            [selected["lambda_pi"]],
-            marker="*",
-            s=122,
-            facecolors="white",
-            edgecolors=INK,
-            linewidths=0.6,
-            zorder=7,
         )
 
     ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=2.5, color=INK)
@@ -393,35 +363,13 @@ legend_handles = [
     Line2D(
         [0],
         [0],
-        marker="*",
-        linestyle="none",
-        markersize=9.5,
-        markerfacecolor="white",
-        markeredgecolor=INK,
-        markeredgewidth=0.7,
-        label=r"$B_{20,0.7}$ medoid",
-    ),
-    Line2D(
-        [0],
-        [0],
         marker="o",
         linestyle="none",
         markersize=6.8,
         markerfacecolor="#fff0a6",
         markeredgecolor="white",
         markeredgewidth=0.9,
-        label=r"$B_{20,0.7}$ strict core",
-    ),
-    Line2D(
-        [0],
-        [0],
-        marker="o",
-        linestyle="none",
-        markersize=5.8,
-        markerfacecolor="none",
-        markeredgecolor="#8a6200",
-        markeredgewidth=0.8,
-        label=r"$B_{30,0.7}$ broader band",
+        label=r"$B_{20,0.7}$ band",
     ),
 ]
 axes[-1].legend(
@@ -462,27 +410,7 @@ for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):
     safe_contour(ax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.65], alpha=0.9)
     safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.30, 0.24], alpha=0.55)
 
-    broad_slice = broad_band[np.isclose(broad_band.gamma, gamma)]
     core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
-    if len(broad_slice):
-        ax.scatter(
-            broad_slice.beta_pi,
-            broad_slice.lambda_pi,
-            s=18,
-            facecolors=(1.0, 0.86, 0.43, 0.26),
-            edgecolors="white",
-            linewidths=0.6,
-            zorder=4,
-        )
-        ax.scatter(
-            broad_slice.beta_pi,
-            broad_slice.lambda_pi,
-            s=8,
-            facecolors="none",
-            edgecolors="#8a6200",
-            linewidths=0.45,
-            zorder=5,
-        )
     if len(core_slice):
         ax.scatter(
             core_slice.beta_pi,
@@ -492,16 +420,6 @@ for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):
             edgecolors="white",
             linewidths=0.7,
             zorder=6,
-        )
-        ax.scatter(
-            [selected["beta_pi"]],
-            [selected["lambda_pi"]],
-            marker="*",
-            s=70,
-            facecolors="white",
-            edgecolors=INK,
-            linewidths=0.5,
-            zorder=7,
         )
 
     ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=1.8, color=INK)
@@ -558,7 +476,7 @@ freq_im = ax.imshow(
 )
 safe_contour(ax, XI, YI, Zp, [0.70], colors=[PHASE_GOLD], linewidths=[0.64], alpha=0.9)
 safe_contour(ax, XI, YI, Zp, [0.30, 0.50], colors="white", linewidths=[0.28, 0.34], alpha=0.62)
-plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.52)
+plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.52)
 ax.set_title("(a) band frequency", fontsize=PHASE_TITLE_FS, color=INK, pad=1.8)
 ax.set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 ax.set_xlim(0, xmax)
@@ -700,7 +618,7 @@ memory_im = ax.imshow(
 )
 memory_levels = [float(np.nanpercentile(memory_slice.logMC, p)) for p in [55, 75, 90]]
 safe_contour(ax, XI, YI, Zp, memory_levels, colors="white", linewidths=[0.25, 0.35, 0.45], alpha=0.62)
-plot_band_overlay(ax, primary_slice, selected=selected, marker_scale=0.62)
+plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.62)
 ax.set_title("(a) memory map", fontsize=DIAG_TITLE_FS, pad=3)
 ax.set_xlabel(r"$\beta/\pi$", fontsize=DIAG_LABEL_FS)
 ax.set_ylabel(r"$\lambda/\pi$", fontsize=DIAG_LABEL_FS)
