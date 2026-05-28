@@ -48,6 +48,7 @@ PHASE_LABEL_FS = 8.8
 PHASE_TICK_FS = 8.0
 PHASE_CBAR_LABEL_FS = 8.3
 PHASE_CBAR_TICK_FS = 7.8
+PHASE_TITLE_PAD = 6.0
 INSET_LABEL_FS = 6.5
 DIAG_TITLE_FS = 9.6
 DIAG_LABEL_FS = 9.0
@@ -215,7 +216,7 @@ def plot_rank_map(ax, d, title, xmax, ymax, selected=None, core=None, labelsize=
     safe_contour(ax, XI, YI, Zp, [0.20], colors=[PHASE_GOLD], linewidths=[0.75], alpha=0.86)
     safe_contour(ax, XI, YI, Zp, [0.30, 0.45], colors="white", linewidths=[0.36, 0.28], alpha=0.58)
     plot_band_overlay(ax, core, selected=selected, marker_scale=max(0.75, labelsize / 7.0))
-    ax.set_title(title, fontsize=labelsize + 0.8, pad=2.5, color=INK)
+    ax.set_title(title, fontsize=labelsize + 0.8, pad=PHASE_TITLE_PAD, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
@@ -306,7 +307,7 @@ for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
     core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
     plot_band_overlay(ax, core_slice, selected=None, marker_scale=0.75)
 
-    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=2.5, color=INK)
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=PHASE_TITLE_PAD, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
@@ -387,7 +388,7 @@ for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):
     core_slice = primary_band[np.isclose(primary_band.gamma, gamma)]
     plot_band_overlay(ax, core_slice, selected=None, marker_scale=0.52)
 
-    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=1.8, color=INK)
+    ax.set_title(rf"({chr(97 + idx)}) $\gamma={gamma:g}$", fontsize=PHASE_TITLE_FS, pad=PHASE_TITLE_PAD, color=INK)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
@@ -442,7 +443,7 @@ freq_im = ax.imshow(
 safe_contour(ax, XI, YI, Zp, [0.70], colors=[PHASE_GOLD], linewidths=[0.64], alpha=0.9)
 safe_contour(ax, XI, YI, Zp, [0.30, 0.50], colors="white", linewidths=[0.28, 0.34], alpha=0.62)
 plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.52)
-ax.set_title("(a) band frequency", fontsize=PHASE_TITLE_FS, color=INK, pad=1.8)
+ax.set_title("(a) band frequency", fontsize=PHASE_TITLE_FS, color=INK, pad=PHASE_TITLE_PAD)
 ax.set_ylabel(r"$\lambda/\pi$", fontsize=PHASE_LABEL_FS, labelpad=1.0)
 ax.set_xlim(0, xmax)
 ax.set_ylim(0, ymax)
@@ -486,7 +487,7 @@ base = (
 delta_variants = [
     ("gamma0_amplitude", r"(b) remove damping"),
     ("mixer_none", "(c) remove mixing"),
-    ("dephasing", "(d) dephasing channel"),
+    ("dephasing", "(d) dephasing"),
 ]
 delta_axes = []
 delta_im = None
@@ -516,7 +517,7 @@ for i, (variant, title) in enumerate(delta_variants, start=1):
     )
     safe_contour(ax, XI, YI, Zp, [0.10, 0.20, 0.30], colors="white", linewidths=[0.24, 0.30, 0.36], alpha=0.66)
     plot_band_overlay(ax, primary_slice, selected=None, marker_scale=0.48)
-    ax.set_title(title, fontsize=PHASE_TITLE_FS, color=INK, pad=1.8)
+    ax.set_title(title, fontsize=PHASE_TITLE_FS, color=INK, pad=PHASE_TITLE_PAD)
     ax.set_xlim(0, xmax)
     ax.set_ylim(0, ymax)
     ax.set_box_aspect(1)
