@@ -51,16 +51,16 @@ Classical reservoir theory answers that usefulness is not maximal expressivity b
 
 \section{Protocol}
 \subsection{Reservoir}
-The reservoir processes a scalar time series without resetting its density matrix, so the carried state stores recent history. At step $t$, the new input perturbs the previous state through a uniform rotation,
+The reservoir processes a scalar time series without resetting its density matrix, so the carried state stores recent history. We write $\rho_{t,\ell}$ for the quantum state after input time $t$ and layer $\ell$; $L$ is the final layer, so $\rho_{t-1,L}$ is the state carried over from the previous time step. At step $t$, the scalar input value $u_t$ perturbs this carried state through the same $Y$ rotation on every qubit,
 \begin{equation}
 \rho_{t,0}
 =U_{\mathrm{in}}(u_t)\rho_{t-1,L}U_{\mathrm{in}}^\dagger(u_t),
 \qquad
 U_{\mathrm{in}}(u_t)=\bigotimes_i R_y(\beta u_t).
 \end{equation}
-The input strength $\beta$ controls how strongly each step writes into the carried state.
+Here $R_y(\cdot)$ is a single-qubit rotation, $\bigotimes_i$ means that the rotation is applied to all qubits, and $^\dagger$ denotes the inverse conjugate transpose. The input strength $\beta$ controls how strongly each step writes into the carried state.
 
-The perturbed state then passes through identical layers: a frozen local mixer, ring $ZZ$ coupling, and a dissipative channel,
+The perturbed state then passes through identical layers: a frozen local mixer $U_{\rm mix}$, a ring $ZZ$ coupling unitary $U_\lambda$, and a dissipative channel $\mathcal{D}_\gamma$ applied independently to all $n$ qubits,
 \begin{equation}
 \begin{aligned}
 \rho_{t,\ell}
@@ -71,7 +71,7 @@ U_\lambda
 &=\prod_{(i,j)\in E_{\rm ring}}e^{-i\lambda Z_iZ_j}.
 \end{aligned}
 \end{equation}
-The coupling strength $\lambda$ controls recurrent mixing and $\gamma$ controls forgetting. We vary only $\theta=(\beta,\lambda,\gamma)$; all other gates are frozen and only a linear readout is trained. The three axes therefore correspond directly to input drive, nonlinear mixing, and controlled forgetting.
+In this expression, $E_{\rm ring}$ is the set of nearest-neighbor edges on the qubit ring, $Z_i$ is the Pauli-$Z$ operator on qubit $i$, $\lambda$ sets the coupling strength, and $\gamma$ sets the damping rate. We vary only $\theta=(\beta,\lambda,\gamma)$; all other gates are frozen and only a linear readout is trained. The three axes therefore correspond directly to input drive, nonlinear mixing, and controlled forgetting.
 
 This is a minimal testbed, not an optimized model. Four qubits and two layers keep the phase grid searchable, the ring coupling still gives recurrent many-body mixing, and the modest $Z+ZZ$ readout observes local and nearest-neighbor correlations rather than the full density matrix.
 
