@@ -38,8 +38,8 @@ pip install -r requirements.txt
 
 ## Main Artifacts
 
-- `data/qrc_seed_ensemble_grid.csv`: base 4q/2-layer QRC phase grid, 19,600 rows.
-- `data/qrc_architecture_robustness_grid.csv`: 4q/3-layer robustness grid, 19,600 rows.
+- `data/qrc_seed_ensemble_grid.csv`: base 4q/2-layer QRC phase grid, 23,520 rows.
+- `data/qrc_architecture_robustness_grid.csv`: 4q/3-layer robustness grid, 23,520 rows.
 - `data/qrc_phase_ablation_slice_grid.csv`: mechanism ablation slice grid, 27,440 rows.
 - `data/phase_map_generalization_stats.json`: operating-band, transfer, holdout, robustness, and ablation statistics.
 - `data/qrc_real_current_intrinsic_diagnostics.csv`: intrinsic memory/IPC diagnostics.

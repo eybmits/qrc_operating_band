@@ -1,3 +1,3 @@
 setting,band_exists,band_size,components,largest_component,mean_heldout_rank,mean_validation_rank,band_overlap_with_base,n_task_seed
-"4q, 2 layers, Z+ZZ",True,4,1,4,0.16818877551020409,0.15732142857142856,1.0,80
-"4q, 3 layers, Z+ZZ",True,7,3,5,0.15986151603498544,0.161567055393586,0.2222222222222222,80
+"4q, 2 layers, Z+ZZ",True,22,2,14,0.15286603277674704,0.14656771799628943,1.0,80
+"4q, 3 layers, Z+ZZ",True,4,3,2,0.15392219387755102,0.15119047619047618,0.04,80

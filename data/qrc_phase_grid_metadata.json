@@ -52,6 +52,7 @@
   ],
   "gamma_grid": [
     0.0,
+    0.01,
     0.05,
     0.12,
     0.22,
@@ -104,12 +105,12 @@
     "base_4q2layer_z_zz": {
       "description": "4q, 2 layers, Z+ZZ",
       "output": "data/qrc_seed_ensemble_grid.csv",
-      "rows": 19600
+      "rows": 23520
     },
     "variant_4q3layer_z_zz": {
       "description": "4q, 3 layers, Z+ZZ",
       "output": "data/qrc_architecture_robustness_grid.csv",
-      "rows": 19600
+      "rows": 23520
     }
   }
 }

@@ -27,7 +27,7 @@ from qrc_stateful_minimal_suite import (  # noqa: E402
 
 BETA_FRACS = np.array([0.0, 0.02, 0.04, 0.07, 0.10, 0.22, 0.50], dtype=float)
 LAMBDA_FRACS = np.array([0.0, 0.05, 0.10, 0.12, 0.16, 0.28, 0.42], dtype=float)
-GAMMAS = np.array([0.0, 0.05, 0.12, 0.22, 0.30], dtype=float)
+GAMMAS = np.array([0.0, 0.01, 0.05, 0.12, 0.22, 0.30], dtype=float)
 SEEDS = list(range(42, 62))
 ALPHAS = np.logspace(-8, 3, 12)
 READOUT = "Z+ZZ"

@@ -5,27 +5,27 @@
   "metrics": [
     {
       "metric": "MC",
-      "spearman_vs_val_rank": -0.8771113558573318
+      "spearman_vs_val_rank": -0.8843044095492406
     },
     {
       "metric": "IPCmem",
-      "spearman_vs_val_rank": -0.8674761667369656
+      "spearman_vs_val_rank": -0.8751988097587707
     },
     {
       "metric": "IPCtot",
-      "spearman_vs_val_rank": -0.9096600976002227
+      "spearman_vs_val_rank": -0.9106788266262834
     },
     {
       "metric": "IPCnonlin",
-      "spearman_vs_val_rank": -0.7750679296173227
+      "spearman_vs_val_rank": -0.7585516319340783
     },
     {
       "metric": "Vfeat",
-      "spearman_vs_val_rank": 0.14395904003947307
+      "spearman_vs_val_rank": 0.13383460726944962
     },
     {
       "metric": "reff",
-      "spearman_vs_val_rank": 0.12646533978129817
+      "spearman_vs_val_rank": 0.11588513253443881
     }
   ],
   "budgets": [

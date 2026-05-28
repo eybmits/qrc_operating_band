@@ -289,7 +289,7 @@ savefig_dual(fig, "fig1_short_phase_maps")
 broad_band = primary_members[
     (primary_members.p == 30) & np.isclose(primary_members.q, 0.7) & primary_members.in_band
 ]
-gamma_values = [0.0, 0.05, 0.12, 0.22, 0.30]
+gamma_values = [0.0, 0.01, 0.05, 0.12, 0.22, 0.30]
 fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
 gamma_im = None
 for idx, (ax, gamma) in enumerate(zip(axes, gamma_values)):
@@ -431,7 +431,7 @@ axes[-1].legend(
 savefig_dual(fig, "gamma_regime_slices_only")
 
 # Compact single-column version for the four-page workshop paper.
-compact_gamma_values = [0.05, 0.12, 0.22, 0.30]
+compact_gamma_values = [0.01, 0.12, 0.22, 0.30]
 fig, axes = plt.subplots(2, 2, figsize=(3.34, 3.36), sharex=True, sharey=True)
 gamma_im = None
 for idx, (ax, gamma) in enumerate(zip(axes.ravel(), compact_gamma_values)):

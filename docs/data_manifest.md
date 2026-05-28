@@ -4,8 +4,8 @@
 
 | File | Purpose |
 |---|---|
-| `data/qrc_seed_ensemble_grid.csv` | Base 4q/2-layer phase-map grid over four tasks, seeds 42-61, and the coarse `(beta, lambda, gamma)` grid. |
-| `data/qrc_architecture_robustness_grid.csv` | Nearby 4q/3-layer robustness grid using the same task, seed, readout, and split protocol. |
+| `data/qrc_seed_ensemble_grid.csv` | Base 4q/2-layer phase-map grid over four tasks, seeds 42-61, and the `(beta, lambda, gamma)` grid including the low-damping `gamma=0.01` slice. |
+| `data/qrc_architecture_robustness_grid.csv` | Nearby 4q/3-layer robustness grid using the same task, seed, readout, split protocol, and damping grid. |
 | `data/qrc_phase_ablation_slice_grid.csv` | Focused mechanism ablation sweep at `gamma=0.12`. |
 | `data/qrc_phase_grid_metadata.json` | Metadata for the base and robustness grids. |
 | `data/qrc_phase_ablation_slice_metadata.json` | Metadata for the ablation grid. |

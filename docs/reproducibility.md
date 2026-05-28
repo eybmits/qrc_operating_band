@@ -33,8 +33,8 @@ python scripts/make_figures_and_build_data.py
 
 | Artifact | Rows |
 |---|---:|
-| `data/qrc_seed_ensemble_grid.csv` | 19,600 |
-| `data/qrc_architecture_robustness_grid.csv` | 19,600 |
+| `data/qrc_seed_ensemble_grid.csv` | 23,520 |
+| `data/qrc_architecture_robustness_grid.csv` | 23,520 |
 | `data/qrc_phase_ablation_slice_grid.csv` | 27,440 |
 
 ## Force Recompute
