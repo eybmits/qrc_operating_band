@@ -6,9 +6,19 @@ venv/
 env/
 outputs/
 tmp/
-paper/build/
 data/diag_parts/
-paper/gfx/candidate_phase_maps/
+paper/build/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+
+# optional local bundles and generated zips
+*qrc_phase_diagram_repro.zip
+
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/

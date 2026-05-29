@@ -1,7 +1,6 @@
 # Reproducibility
 
-This repository reproduces the QRC-only paper figures and tables from checked-in simulation artifacts.
-The manuscript PDF is constrained to four QCE workshop pages including references.
+This repository provides a complete, versioned reproducibility package for the QRC phase-diagram paper.
 
 ## Setup
 
@@ -11,15 +10,15 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## One-Command Rebuild
+## Exact reproducibility workflow
 
-For quick regeneration of manuscript outputs from checked-in artifacts (Figs. 1–4 and Tables I–II), use:
+From checked-in artifacts, regenerate all manuscript outputs and supporting tables/figures:
 
 ```bash
 ./reproduce_from_artifacts.sh
 ```
 
-The script runs:
+This command:
 
 ```bash
 python scripts/analyze_phase_map_generalization.py
@@ -27,53 +26,30 @@ python scripts/make_figures_and_build_data.py
 ./paper/build.sh --update-pdf
 ```
 
-The artifact rebuild path does not rerun the reservoir simulations and instead refreshes the published figures/tables from checked-in CSV/JSON artifacts.
+### Full rerun from scratch
 
-To regenerate the full artifacts from scratch (including simulation runs), use:
+If you need to recompute simulation results from raw runs as well:
 
 ```bash
 ./reproduce.sh
 ```
 
-## Expected Row Counts
+## Scope and fixed setup
 
-| Artifact | Rows |
-|---|---:|
-| `data/qrc_seed_ensemble_grid.csv` | 23,520 |
-| `data/qrc_architecture_robustness_grid.csv` | 23,520 |
-| `data/qrc_phase_ablation_slice_grid.csv` | 27,440 |
+- Fixed control grid and seeds are defined in `scripts/run_qrc_phase_grid.py` and `scripts/run_qrc_phase_ablation_slices.py`.
+- Seeds used in the core experiments: `42` to `61`.
+- Core hyperparameters (including ridge search) are selected on validation only; holdout is never used for band selection.
 
-## Force Recompute
+## Included materials
 
-```bash
-python scripts/run_qrc_phase_grid.py --overwrite
-python scripts/run_qrc_phase_ablation_slices.py --overwrite
-python scripts/analyze_qrc_intrinsic_diagnostics.py
-python scripts/analyze_phase_map_generalization.py
-python scripts/make_figures_and_build_data.py
-./paper/build.sh --update-pdf
-```
+The package includes:
 
-For the slower simulator-backed diagnostic recomputation:
+- Checked-in simulation outputs and summaries under `data/`
+- Manuscript number macros in `paper/generated/phase_map_numbers.tex`
+- Figure outputs in `paper/gfx/`
+- Final manuscript in `paper/qrc_phase_diagram.pdf`
 
-```bash
-python scripts/compute_qrc_real_diagnostics.py
-python scripts/analyze_qrc_intrinsic_diagnostics.py
-```
-
-## Simulator Scope
-
-- Reservoir: exact density-matrix simulation, four qubits, ring topology, `rx_zz` mixer, uniform scalar input, amplitude damping.
-- Main readout: `Z_i` and ring-pair `Z_i Z_j` expectations over two layers, ridge readout with unpenalized intercept.
-- Seeds: `42-61`.
-- Main band: validation-defined `B_{20,0.7}`; holdout is evaluated only after the band is fixed.
-- Diagnostics: memory capacity and IPC use a common iid diagnostic drive, length 900, washout 150, seed 12345.
-- Uncertainty: 50,000 nonparametric bootstrap resamples with fixed seed and percentile confidence intervals.
-- No finite shots, calibration drift, or hardware noise are modeled.
-
-## Outputs
-
-The rebuild refreshes:
+## Reproduced artifacts
 
 - `paper/qrc_phase_diagram.pdf`
 - `paper/generated/phase_map_numbers.tex`
@@ -81,4 +57,4 @@ The rebuild refreshes:
 - `paper/gfx/fig4_gamma_slices_compact.{pdf,png}`
 - `paper/gfx/fig2_short_evidence.{pdf,png}`
 - `paper/gfx/fig3_memory_capacity_screens.{pdf,png}`
-- `paper/gfx/gamma_regime_slices_only.{pdf,png}` as a supplemental wide repository atlas
+- `paper/gfx/gamma_regime_slices_only.{pdf,png}`

@@ -1,78 +1,87 @@
 # QRC Phase Diagram
 
-Publication repository for the QRC-only short paper:
-
-**Where a Quantum Reservoir Works: A Transferable Operating Band**
-
-Code and data availability: [project repository](https://github.com/eybmits/qrc_phase_diagram)
+Publication repository for the paper **Where a Quantum Reservoir Works: A Transferable Operating Band**.
 
 ## Reproducibility package
 
 Complete, versioned material for this submission is available at:
 
-- Repository: https://github.com/eybmits/qrc_phase_diagram
+- Repository: `https://github.com/eybmits/qrc_phase_diagram`
 - Artifact tag: `v1.0.0-repro` (this commit)
-- DOI: not yet assigned
+- DOI: pending (to be added at submission)
 
-The package contains:
+This package contains:
 
-- Simulator and experiment code: `scripts/qrc_stateful_minimal_suite.py`, `scripts/run_qrc_phase_grid.py`, `scripts/run_qrc_phase_ablation_slices.py`, `scripts/analyze_phase_map_generalization.py`.
-- Selection and diagnostic code: `scripts/analyze_phase_map_generalization.py`, `scripts/analyze_qrc_intrinsic_diagnostics.py`, `scripts/make_figures_and_build_data.py`.
-- Fixed grid and seed definitions: `scripts/run_qrc_phase_grid.py` and `scripts/run_qrc_phase_ablation_slices.py` (`beta/\pi`, `lambda/\pi`, `gamma` grids; seeds `42..61`).
-- Checked-in result files under `data/` (CSV/JSON summaries and intermediate artifacts).
-- Figure/table generation and manuscript integration scripts under `scripts/` and `paper/`.
+- Simulator and experiment code (`scripts/`)
+- Fixed configuration and search setup for the published experiments (`scripts/run_qrc_phase_grid.py`, `scripts/run_qrc_phase_ablation_slices.py`)
+- Checked-in result files under `data/` (CSV/JSON)
+- Figure/table generation scripts (`scripts/analyze_phase_map_generalization.py`, `scripts/analyze_qrc_intrinsic_diagnostics.py`, `scripts/make_figures_and_build_data.py`)
+- Manuscript sources and generated outputs under `paper/`
+- Submission package under `dist/` (`qrc_phase_diagram_tex_package.zip`)
 
-Exact reproduction workflow from checked-in artifacts (regenerates Figs. 1–4 and Tables I–II):
+### Exact reproducibility contract
+
+From checked-in artifacts, regenerate the manuscript figures and LaTeX numbers:
 
 ```bash
 ./reproduce_from_artifacts.sh
 ```
 
-For anonymous review, use the same tagged material through the submission-specific mirror.
+This runs:
 
-## Paper
+```bash
+python scripts/analyze_phase_map_generalization.py
+python scripts/make_figures_and_build_data.py
+./paper/build.sh --update-pdf
+```
 
-## Paper
+For full re-computation from raw simulations:
 
-- [PDF](paper/qrc_phase_diagram.pdf)
-- TeX submission ZIP: `dist/qrc_phase_diagram_tex_package.zip`
+```bash
+./reproduce.sh
+```
 
-## Figures
+For anonymous review, use the same tagged material through the submission review channel.
 
-![Fig. 1](paper/gfx/fig1_short_phase_maps.png)
-
-![Fig. 2](paper/gfx/fig4_gamma_slices_compact.png)
-
-![Fig. 3](paper/gfx/fig2_short_evidence.png)
-
-![Fig. 4](paper/gfx/fig3_memory_capacity_screens.png)
-
-Extra repository figure:
-
-![Damping-slice atlas](paper/gfx/gamma_regime_slices_only.png)
-
-## Reproduce
+## Quickstart
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-./reproduce.sh
 ```
 
-`./reproduce.sh` rebuilds the checked-in CSV/JSON summaries, the four paper figures, the supplemental wide damping atlas, generated TeX numbers, and the 4-page `paper/qrc_phase_diagram.pdf`.
+```bash
+./reproduce_from_artifacts.sh
+```
 
-## Main Artifacts
+## Expected outputs
 
-- `data/qrc_seed_ensemble_grid.csv`: base 4q/2-layer QRC phase grid, 23,520 rows.
-- `data/qrc_architecture_robustness_grid.csv`: 4q/3-layer robustness grid, 23,520 rows.
-- `data/qrc_phase_ablation_slice_grid.csv`: mechanism ablation slice grid, 27,440 rows.
-- `data/phase_map_generalization_stats.json`: operating-band, transfer, holdout, robustness, and ablation statistics.
-- `data/qrc_real_current_intrinsic_diagnostics.csv`: intrinsic memory/IPC diagnostics.
-- `paper/generated/phase_map_numbers.tex`: generated manuscript numbers.
-- `paper/gfx/`: final figure PDFs and PNG previews.
+- `paper/qrc_phase_diagram.pdf`
+- `paper/generated/phase_map_numbers.tex`
+- `paper/gfx/fig1_short_phase_maps.{pdf,png}`
+- `paper/gfx/fig4_gamma_slices_compact.{pdf,png}`
+- `paper/gfx/fig2_short_evidence.{pdf,png}`
+- `paper/gfx/fig3_memory_capacity_screens.{pdf,png}`
+- `paper/gfx/gamma_regime_slices_only.{pdf,png}`
 
-## Docs
+## Repository layout
 
-- [Reproducibility](docs/reproducibility.md)
-- [Data manifest](docs/data_manifest.md)
+```text
+.
+├── data/                      # fixed CSV/JSON outputs
+├── docs/                      # reproducibility and manifest documentation
+├── scripts/                   # simulation, analysis, and plotting code
+├── paper/                     # manuscript sources and compiled outputs
+├── dist/                      # submission TeX package
+├── reproduce.sh               # full pipeline (includes simulation recompute)
+└── reproduce_from_artifacts.sh # fast artifact-based rebuild
+```
+
+## Main links
+
+- Paper PDF: [paper/qrc_phase_diagram.pdf](paper/qrc_phase_diagram.pdf)
+- Manuscript source: [paper/qrc_phase_diagram.tex](paper/qrc_phase_diagram.tex)
+- Data manifest: [docs/data_manifest.md](docs/data_manifest.md)
+- Reproducibility guide: [docs/reproducibility.md](docs/reproducibility.md)
+- TeX package: `dist/qrc_phase_diagram_tex_package.zip`
