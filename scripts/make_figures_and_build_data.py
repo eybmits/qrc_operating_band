@@ -58,7 +58,7 @@ DIAG_TICK_FS = 8.1
 KEYS = ["beta_pi", "lambda_pi", "gamma"]
 TASK_LABELS = {
     "mackey_glass": "MG",
-    "narma10": "NARMA10",
+    "narma10": "NARMA",
     "lorenz": "Lorenz",
     "sunspots_annual": "Sunspots",
 }
@@ -267,9 +267,12 @@ primary_band = primary_members[(primary_members.p == 20) & np.isclose(primary_me
 primary_slice = primary_band[np.isclose(primary_band.gamma, gamma_star)][["beta_pi", "lambda_pi"]]
 
 # Figure 1: compact leave-one-task-out phase maps.
-panels = [("(a) all tasks used", all_tasks)] + [
-    (f"({chr(ord('b') + i)}) {TASK_LABELS[t]} removed", [x for x in all_tasks if x != t])
-    for i, t in enumerate(["mackey_glass", "narma10", "lorenz", "sunspots_annual"])
+panels = [
+    ("(a) all tasks used", ["mackey_glass", "narma10", "lorenz", "sunspots_annual"]),
+    ("(b) MG removed", ["narma10", "lorenz", "sunspots_annual"]),
+    ("(c) NARMA removed", ["mackey_glass", "lorenz", "sunspots_annual"]),
+    ("(d) Lorenz removed", ["mackey_glass", "narma10", "sunspots_annual"]),
+    ("(e) Sunspots removed", ["mackey_glass", "narma10", "lorenz"]),
 ]
 fig, axes = plt.subplots(1, 5, figsize=(7.25, 2.64), sharey=True)
 for idx, (ax, (title, tasks)) in enumerate(zip(axes, panels)):
@@ -363,7 +366,7 @@ legend_handles = [
 axes[-1].legend(
     handles=legend_handles,
     loc="upper right",
-    bbox_to_anchor=(0.995, 0.985),
+    bbox_to_anchor=(0.995, 1.0),
     frameon=True,
     framealpha=0.78,
     facecolor="white",
@@ -463,33 +466,31 @@ ax.set_ylim(0, ymax)
 ax.set_box_aspect(1)
 polish_phase_axis(ax, labelsize=PHASE_TICK_FS)
 ax.text(
-    0.04,
-    0.95,
+    0.98,
+    0.98,
     r"$B_{20,0.7}$",
     transform=ax.transAxes,
-    ha="left",
+    ha="right",
     va="top",
     fontsize=INSET_LABEL_FS,
     color="white",
     bbox=dict(boxstyle="round,pad=0.18", facecolor="#111827", edgecolor="none", alpha=0.55),
 )
-freq_cax = ax.inset_axes([0.56, 0.862, 0.34, 0.035])
+freq_cax = ax.inset_axes([0.56, 0.08, 0.34, 0.035])
 freq_cbar = fig.colorbar(freq_im, cax=freq_cax, orientation="horizontal")
 freq_cbar.outline.set_edgecolor("white")
 freq_cbar.outline.set_linewidth(0.35)
 freq_cbar.set_ticks([0.0, 1.0])
-freq_cbar.ax.tick_params(labelsize=INSET_LABEL_FS - 0.2, colors="white", length=1.1, width=0.32, pad=0.3)
-freq_cbar.ax.text(
-    0.5,
-    1.75,
+freq_cbar.ax.set_title(
     "selection freq.",
-    transform=freq_cbar.ax.transAxes,
-    ha="center",
-    va="bottom",
     fontsize=INSET_LABEL_FS - 0.1,
     color="white",
+    loc="center",
+    pad=0.7,
 )
-ax.text(0.96, 0.06, "bright = frequent", transform=ax.transAxes, ha="right", va="bottom", fontsize=INSET_LABEL_FS, color="white", alpha=0.9)
+freq_cbar.ax.tick_params(labelsize=INSET_LABEL_FS - 0.2, colors="white", length=1.1, width=0.32, pad=0.3)
+freq_cbar.ax.xaxis.set_ticklabels(["0", "1"])
+ 
 
 base = (
     abl[abl.variant == "base_amplitude_rxzz"]
@@ -607,7 +608,7 @@ ax.set_xticks([0.0, 0.25, 0.5])
 ax.set_yticks([0.0, 0.2, 0.4])
 ax.set_box_aspect(1)
 polish_phase_axis(ax, labelsize=DIAG_TICK_FS)
-memory_cax = ax.inset_axes([0.54, 0.07, 0.38, 0.04])
+memory_cax = ax.inset_axes([0.54, 0.095, 0.38, 0.04])
 memory_cbar = fig.colorbar(memory_im, cax=memory_cax, orientation="horizontal")
 memory_cbar.outline.set_edgecolor("white")
 memory_cbar.outline.set_linewidth(0.35)

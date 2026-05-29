@@ -6,6 +6,32 @@ Publication repository for the QRC-only short paper:
 
 Code and data availability: [project repository](https://github.com/eybmits/qrc_phase_diagram)
 
+## Reproducibility package
+
+Complete, versioned material for this submission is available at:
+
+- Repository: https://github.com/eybmits/qrc_phase_diagram
+- Artifact tag: `v1.0.0-repro` (this commit)
+- DOI: not yet assigned
+
+The package contains:
+
+- Simulator and experiment code: `scripts/qrc_stateful_minimal_suite.py`, `scripts/run_qrc_phase_grid.py`, `scripts/run_qrc_phase_ablation_slices.py`, `scripts/analyze_phase_map_generalization.py`.
+- Selection and diagnostic code: `scripts/analyze_phase_map_generalization.py`, `scripts/analyze_qrc_intrinsic_diagnostics.py`, `scripts/make_figures_and_build_data.py`.
+- Fixed grid and seed definitions: `scripts/run_qrc_phase_grid.py` and `scripts/run_qrc_phase_ablation_slices.py` (`beta/\pi`, `lambda/\pi`, `gamma` grids; seeds `42..61`).
+- Checked-in result files under `data/` (CSV/JSON summaries and intermediate artifacts).
+- Figure/table generation and manuscript integration scripts under `scripts/` and `paper/`.
+
+Exact reproduction workflow from checked-in artifacts (regenerates Figs. 1–4 and Tables I–II):
+
+```bash
+./reproduce_from_artifacts.sh
+```
+
+For anonymous review, use the same tagged material through the submission-specific mirror.
+
+## Paper
+
 ## Paper
 
 - [PDF](paper/qrc_phase_diagram.pdf)

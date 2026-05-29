@@ -13,20 +13,26 @@ pip install -r requirements.txt
 
 ## One-Command Rebuild
 
+For quick regeneration of manuscript outputs from checked-in artifacts (Figs. 1–4 and Tables I–II), use:
+
 ```bash
-./reproduce.sh
+./reproduce_from_artifacts.sh
 ```
 
-The script runs the canonical pipeline:
+The script runs:
 
 ```bash
-python -m compileall -q scripts
-python scripts/run_qrc_phase_grid.py
-python scripts/run_qrc_phase_ablation_slices.py
-python scripts/analyze_qrc_intrinsic_diagnostics.py
 python scripts/analyze_phase_map_generalization.py
 python scripts/make_figures_and_build_data.py
 ./paper/build.sh --update-pdf
+```
+
+The artifact rebuild path does not rerun the reservoir simulations and instead refreshes the published figures/tables from checked-in CSV/JSON artifacts.
+
+To regenerate the full artifacts from scratch (including simulation runs), use:
+
+```bash
+./reproduce.sh
 ```
 
 ## Expected Row Counts

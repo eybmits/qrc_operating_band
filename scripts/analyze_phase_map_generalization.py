@@ -281,7 +281,7 @@ def main() -> None:
     task_labels = {
         "mackey_glass": "Mackey--Glass",
         "lorenz": "Lorenz",
-        "narma10": "NARMA10",
+        "narma10": "NARMA",
         "sunspots_annual": "Sunspots",
     }
     holdout_rows: List[Dict[str, object]] = []

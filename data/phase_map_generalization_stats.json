@@ -600,7 +600,7 @@
     },
     {
       "task": "narma10",
-      "task_label": "NARMA10",
+      "task_label": "NARMA",
       "n_task_seed": 20,
       "band_holdout_nmse_mean": 0.5603343807290249,
       "medoid_holdout_nmse_mean": 0.6065419147715592,
