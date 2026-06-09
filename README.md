@@ -1,21 +1,23 @@
-# QRC Phase Diagram
+# Quantum Reservoir Operating Band
 
-Publication repository for the paper **Where a Quantum Reservoir Works: A Transferable Operating Band**.
+Clean reproducibility package for the paper **Where a Quantum Reservoir Works: A Transferable Operating Band**.
+
+This repository contains the simulator, checked-in result artifacts, analysis scripts, figures, and manuscript sources needed to reproduce the operating-band results for a dissipative quantum reservoir.
 
 ## Reproducibility package
 
 Complete, versioned material for this submission is available at:
 
-- Repository: `https://github.com/eybmits/qrc_phase_diagram`
-- Artifact tag: `v1.0.0-repro` (this commit)
+- Repository: `https://github.com/eybmits/qrc_operating_band`
+- Artifact tag: `v1.0.1-publication`
 - DOI: pending (to be added at submission)
 
 This package contains:
 
-- Simulator and experiment code (`scripts/`)
-- Fixed configuration and search setup for the published experiments (`scripts/run_qrc_phase_grid.py`, `scripts/run_qrc_phase_ablation_slices.py`)
+- Simulator and experiment code under `scripts/`
+- Fixed configuration and search setup for the published experiments
 - Checked-in result files under `data/` (CSV/JSON)
-- Figure/table generation scripts (`scripts/analyze_phase_map_generalization.py`, `scripts/analyze_qrc_intrinsic_diagnostics.py`, `scripts/make_figures_and_build_data.py`)
+- Figure and table generation scripts
 - Manuscript sources and generated outputs under `paper/`
 - Submission package under `dist/` (`qrc_phase_diagram_tex_package.zip`)
 
@@ -43,7 +45,11 @@ For full re-computation from raw simulations:
 
 For anonymous review, use the same tagged material through the submission review channel.
 
-## Quickstart
+## Operating-band result
+
+The main artifact is a validation-defined operating band in the reservoir control space over input drive `beta`, coupling `lambda`, and amplitude damping `gamma`. The band is selected from validation ranks, audited on holdout data, stress-tested with leave-one-task and leave-one-seed transfer, and compared against mechanism ablations and memory diagnostics.
+
+## Quick Start
 
 ```bash
 python -m venv .venv
@@ -76,6 +82,20 @@ pip install -r requirements.txt
 ├── dist/                      # submission TeX package
 ├── reproduce.sh               # full pipeline (includes simulation recompute)
 └── reproduce_from_artifacts.sh # fast artifact-based rebuild
+```
+
+## Citation
+
+Please cite the paper if you use this repository:
+
+```bibtex
+@misc{baumann2026operatingband,
+  title  = {Where a Quantum Reservoir Works: A Transferable Operating Band},
+  author = {Baumann, Markus and Fink, Itamar and Wittmann, Johannes and Stein, Jonas},
+  year   = {2026},
+  note   = {Reproducibility package},
+  url    = {https://github.com/eybmits/qrc_operating_band}
+}
 ```
 
 ## Main links

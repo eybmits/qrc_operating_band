@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite the associated paper."
+title: "Where a Quantum Reservoir Works: A Transferable Operating Band"
+type: software
+authors:
+  - family-names: Baumann
+    given-names: Markus
+    orcid: "https://orcid.org/0009-0007-3575-1006"
+  - family-names: Fink
+    given-names: Itamar
+    orcid: "https://orcid.org/0009-0000-2262-4445"
+  - family-names: Wittmann
+    given-names: Johannes
+    orcid: "https://orcid.org/0009-0009-9240-7257"
+  - family-names: Stein
+    given-names: Jonas
+    orcid: "https://orcid.org/0000-0001-5727-9151"
+repository-code: "https://github.com/eybmits/qrc_operating_band"
+date-released: "2026-06-09"
+license: MIT
+version: "v1.0.1-publication"

@@ -171,7 +171,7 @@ For this reservoir family, useful learning is organized by a transferable operat
 
 \section*{Reproducibility Appendix}
 \subsection{Package}
-The \href{https://github.com/eybmits/qrc_phase_diagram}{\textcolor{repoLinkBlue}{project repository}} contains the code, checked-in CSV/JSON results, and final figures used in this paper.
+The \href{https://github.com/eybmits/qrc_operating_band}{\textcolor{repoLinkBlue}{project repository}} contains the code, checked-in CSV/JSON results, and final figures used in this paper.
 
 \subsection{Frozen reservoir}
 The simulator evolves the full density matrix exactly, with no finite-shot sampling. It starts from $\rho_0=|0\cdots0\rangle\langle0\cdots0|$ and carries state between time steps without reset. For each seed, \texttt{default\_rng(s)} draws one fixed mixer $U_{\rm mix}=\bigotimes_iR_x(\theta_i)$, $\theta_i\sim U[0,2\pi)$, reused at every step and layer. Each layer applies $U_\lambda U_{\rm mix}$ on ring edges, then local amplitude damping. The readout is ridge regression on exact $Z_i$ and ring-pair $Z_iZ_j$ expectations with an unpenalized intercept.

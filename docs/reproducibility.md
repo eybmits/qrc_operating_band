@@ -1,6 +1,8 @@
 # Reproducibility
 
-This repository provides a complete, versioned reproducibility package for the QRC phase-diagram paper.
+This repository provides a complete, versioned reproducibility package for the quantum-reservoir operating-band paper.
+
+Current publication tag: `v1.0.1-publication`.
 
 ## Setup
 
@@ -39,6 +41,7 @@ If you need to recompute simulation results from raw runs as well:
 - Fixed control grid and seeds are defined in `scripts/run_qrc_phase_grid.py` and `scripts/run_qrc_phase_ablation_slices.py`.
 - Seeds used in the core experiments: `42` to `61`.
 - Core hyperparameters (including ridge search) are selected on validation only; holdout is never used for band selection.
+- The repository contains checked-in CSV/JSON result files, the simulator, selection and diagnostic code, figure/table scripts, and the final manuscript assets.
 
 ## Included materials
 
