@@ -42,7 +42,7 @@
 |---|---|
 | `paper/generated/phase_map_numbers.tex` | Generated numeric macros used by the manuscript. |
 | `paper/gfx/fig1_short_phase_maps.{pdf,png}` | Transfer phase maps. |
-| `paper/gfx/fig4_gamma_slices_compact.{pdf,png}` | Compact 2x2 damping-slice figure included in the 4-page paper. |
+| `paper/gfx/fig4_gamma_slices_compact.{pdf,png}` | Compact 2x2 damping-slice figure included in the manuscript. |
 | `paper/gfx/fig2_short_evidence.{pdf,png}` | Operating-band map and mechanism ablation rank-loss maps. |
 | `paper/gfx/fig3_memory_capacity_screens.{pdf,png}` | Memory map, memory-rank relation, and screening retention. |
 | `paper/gfx/gamma_regime_slices_only.{pdf,png}` | Supplemental wide damping-slice atlas showing the strict core and broader same-consistency band across gamma values. |

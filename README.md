@@ -9,7 +9,7 @@ This repository contains the simulator, checked-in result artifacts, analysis sc
 Complete, versioned material for this submission is available at:
 
 - Repository: `https://github.com/eybmits/qrc_operating_band`
-- Artifact tag: `v1.0.1-publication`
+- Artifact tag: `v1.0.2-publication`
 - DOI: pending (to be added at submission)
 
 This package contains:
