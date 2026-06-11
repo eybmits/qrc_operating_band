@@ -2,7 +2,7 @@
 
 This repository provides a complete, versioned reproducibility package for the quantum-reservoir operating-band paper.
 
-Current publication tag: `v1.0.5-publication`.
+Current publication tag: `v1.0.6-publication`.
 
 ## Setup
 

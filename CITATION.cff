@@ -18,7 +18,7 @@ authors:
   - family-names: Stein
     given-names: Jonas
     orcid: "https://orcid.org/0000-0001-5727-9151"
-repository-code: "https://github.com/eybmits/qrc_operating_band"
+repository-code: "https://github.com/eybmits/qrc-operating-band"
 date-released: "2026-06-11"
 license: MIT
-version: "v1.0.5-publication"
+version: "v1.0.6-publication"

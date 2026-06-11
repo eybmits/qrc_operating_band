@@ -8,8 +8,8 @@ This repository contains the simulator, checked-in result artifacts, analysis sc
 
 Complete, versioned material for this submission is available at:
 
-- Repository: `https://github.com/eybmits/qrc_operating_band`
-- Artifact tag: `v1.0.5-publication`
+- Repository: `https://github.com/eybmits/qrc-operating-band`
+- Artifact tag: `v1.0.6-publication`
 - DOI: pending (to be added at submission)
 
 This package contains:
@@ -94,7 +94,7 @@ Please cite the paper if you use this repository:
   author = {Baumann, Markus and Fink, Itamar and Wittmann, Johannes and Linnhoff-Popien, Claudia and Stein, Jonas},
   year   = {2026},
   note   = {Reproducibility package},
-  url    = {https://github.com/eybmits/qrc_operating_band}
+  url    = {https://github.com/eybmits/qrc-operating-band}
 }
 ```
 
