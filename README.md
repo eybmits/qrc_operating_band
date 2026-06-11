@@ -9,7 +9,7 @@ This repository contains the simulator, checked-in result artifacts, analysis sc
 Complete, versioned material for this submission is available at:
 
 - Repository: `https://github.com/eybmits/qrc_operating_band`
-- Artifact tag: `v1.0.2-publication`
+- Artifact tag: `v1.0.3-publication`
 - DOI: pending (to be added at submission)
 
 This package contains:
@@ -19,7 +19,7 @@ This package contains:
 - Checked-in result files under `data/` (CSV/JSON)
 - Figure and table generation scripts
 - Manuscript sources and generated outputs under `paper/`
-- Submission package under `dist/` (`qrc_phase_diagram_tex_package.zip`)
+- Clean source package under `dist/` (`qrc_operating_band_source.zip`)
 
 ### Exact reproducibility contract
 
@@ -79,7 +79,7 @@ pip install -r requirements.txt
 ├── docs/                      # reproducibility and manifest documentation
 ├── scripts/                   # simulation, analysis, and plotting code
 ├── paper/                     # manuscript sources and compiled outputs
-├── dist/                      # submission TeX package
+├── dist/                      # flat source package for manuscript upload
 ├── reproduce.sh               # full pipeline (includes simulation recompute)
 └── reproduce_from_artifacts.sh # fast artifact-based rebuild
 ```
@@ -91,7 +91,7 @@ Please cite the paper if you use this repository:
 ```bibtex
 @misc{baumann2026operatingband,
   title  = {Where a Quantum Reservoir Works: A Transferable Operating Band},
-  author = {Baumann, Markus and Fink, Itamar and Wittmann, Johannes and Stein, Jonas},
+  author = {Baumann, Markus and Fink, Itamar and Wittmann, Johannes and Linnhoff-Popien, Claudia and Stein, Jonas},
   year   = {2026},
   note   = {Reproducibility package},
   url    = {https://github.com/eybmits/qrc_operating_band}
@@ -104,4 +104,4 @@ Please cite the paper if you use this repository:
 - Manuscript source: [paper/qrc_phase_diagram.tex](paper/qrc_phase_diagram.tex)
 - Data manifest: [docs/data_manifest.md](docs/data_manifest.md)
 - Reproducibility guide: [docs/reproducibility.md](docs/reproducibility.md)
-- TeX package: `dist/qrc_phase_diagram_tex_package.zip`
+- Source package: `dist/qrc_operating_band_source.zip`

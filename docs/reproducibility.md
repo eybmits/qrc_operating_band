@@ -2,7 +2,7 @@
 
 This repository provides a complete, versioned reproducibility package for the quantum-reservoir operating-band paper.
 
-Current publication tag: `v1.0.2-publication`.
+Current publication tag: `v1.0.3-publication`.
 
 ## Setup
 
@@ -51,6 +51,7 @@ The package includes:
 - Manuscript number macros in `paper/generated/phase_map_numbers.tex`
 - Figure outputs in `paper/gfx/`
 - Final manuscript in `paper/qrc_phase_diagram.pdf`
+- Flat manuscript source upload package in `dist/qrc_operating_band_source.zip`
 
 ## Reproduced artifacts
 

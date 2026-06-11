@@ -47,4 +47,4 @@
 | `paper/gfx/fig3_memory_capacity_screens.{pdf,png}` | Memory map, memory-rank relation, and screening retention. |
 | `paper/gfx/gamma_regime_slices_only.{pdf,png}` | Supplemental wide damping-slice atlas showing the strict core and broader same-consistency band across gamma values. |
 | `paper/qrc_phase_diagram.pdf` | Reviewer-facing PDF. |
-| `dist/qrc_phase_diagram_tex_package.zip` | Compact TeX submission package. |
+| `dist/qrc_operating_band_source.zip` | Flat manuscript source package with `qrc_phase_diagram.tex`, `generated/`, `gfx/`, `IEEEtran.cls`, and no local build artifacts. |

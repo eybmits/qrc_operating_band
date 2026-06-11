@@ -12,10 +12,13 @@ authors:
   - family-names: Wittmann
     given-names: Johannes
     orcid: "https://orcid.org/0009-0009-9240-7257"
+  - family-names: Linnhoff-Popien
+    given-names: Claudia
+    orcid: "https://orcid.org/0000-0001-6284-9286"
   - family-names: Stein
     given-names: Jonas
     orcid: "https://orcid.org/0000-0001-5727-9151"
 repository-code: "https://github.com/eybmits/qrc_operating_band"
-date-released: "2026-06-09"
+date-released: "2026-06-11"
 license: MIT
-version: "v1.0.2-publication"
+version: "v1.0.3-publication"
