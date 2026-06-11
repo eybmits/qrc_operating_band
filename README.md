@@ -9,7 +9,7 @@ This repository contains the simulator, checked-in result artifacts, analysis sc
 Complete, versioned material for this submission is available at:
 
 - Repository: `https://github.com/eybmits/qrc_operating_band`
-- Artifact tag: `v1.0.4-publication`
+- Artifact tag: `v1.0.5-publication`
 - DOI: pending (to be added at submission)
 
 This package contains:
@@ -65,11 +65,11 @@ pip install -r requirements.txt
 
 - `paper/qrc_phase_diagram.pdf`
 - `paper/generated/phase_map_numbers.tex`
-- `paper/gfx/fig1_short_phase_maps.{pdf,png}`
-- `paper/gfx/fig4_gamma_slices_compact.{pdf,png}`
-- `paper/gfx/fig2_short_evidence.{pdf,png}`
-- `paper/gfx/fig3_memory_capacity_screens.{pdf,png}`
-- `paper/gfx/gamma_regime_slices_only.{pdf,png}`
+- `paper/gfx/fig1_short_phase_maps.pdf`
+- `paper/gfx/fig4_gamma_slices_compact.pdf`
+- `paper/gfx/fig2_short_evidence.pdf`
+- `paper/gfx/fig3_memory_capacity_screens.pdf`
+- `paper/gfx/gamma_regime_slices_only.pdf`
 
 ## Repository layout
 
